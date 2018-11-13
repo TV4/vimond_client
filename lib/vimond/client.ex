@@ -3,11 +3,12 @@ defmodule Vimond.Client do
   alias TimeConverter
   alias Vimond.{Order, Property, Session, User}
 
+  @http_client Application.get_env(:vimond_client, :http_client)
   @unexpected_error {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
 
   @callback add_order_signed(user_id :: String.t(), order :: Order.t()) ::
               {:ok, integer()} | {:error, :failed_to_add_order}
-  def add_order_signed(user_id, order = %Order{}, http_client \\ nil) do
+  def add_order_signed(user_id, order = %Order{}) do
     url = vimond_url("order/#{user_id}/create")
     path = URI.parse(url).path
 
@@ -16,7 +17,7 @@ defmodule Vimond.Client do
       |> Jason.encode!()
 
     request("add_order", fn ->
-      http_client(http_client).post(url, body, headers(signed_headers("POST", path)))
+      @http_client.post(url, body, headers(signed_headers("POST", path)))
     end)
     |> case do
       %HTTPotion.Response{body: body, status_code: 200} ->
@@ -31,11 +32,11 @@ defmodule Vimond.Client do
   end
 
   @callback authenticate(username :: String.t(), password :: String.t()) :: {:ok | :error, map}
-  def authenticate(username, password, http_client \\ nil) do
+  def authenticate(username, password) do
     body = Jason.encode!(%{username: username, password: password, rememberMe: true})
 
     request("authenticate", fn ->
-      http_client(http_client).post(
+      @http_client.post(
         vimond_url("/api/authentication/user/login"),
         body,
         headers("Content-Type": "application/json; v=2; charset=UTF-8")
@@ -45,7 +46,7 @@ defmodule Vimond.Client do
   end
 
   @callback create(user :: Vimond.User.t()) :: {:ok | :error, map}
-  def create(user = %User{}, http_client \\ nil) do
+  def create(user = %User{}) do
     body =
       %{
         userName: user.username,
@@ -61,16 +62,16 @@ defmodule Vimond.Client do
       |> Jason.encode!()
 
     request("create", fn ->
-      http_client(http_client).post(vimond_url("user"), body, headers())
+      @http_client.post(vimond_url("user"), body, headers())
     end)
     |> handle_response(&extract_create_user/2)
   end
 
   @callback delete(user_id :: String.t(), vimond_authorization_token :: String.t()) ::
               {:ok | :error, map}
-  def delete(user_id, vimond_authorization_token, http_client \\ nil) do
+  def delete(user_id, vimond_authorization_token) do
     request("delete", fn ->
-      http_client(http_client).delete(
+      @http_client.delete(
         vimond_url("user/#{user_id}"),
         headers(Authorization: "Bearer #{vimond_authorization_token}")
       )
@@ -78,29 +79,29 @@ defmodule Vimond.Client do
     |> handle_delete_response()
   end
 
-  def delete_signed(user_id, http_client \\ nil) do
+  def delete_signed(user_id) do
     url = vimond_url("user/#{user_id}")
     path = URI.parse(url).path
 
     request("delete_signed", fn ->
-      http_client(http_client).delete(url, headers(signed_headers("DELETE", path)))
+      @http_client.delete(url, headers(signed_headers("DELETE", path)))
     end)
     |> handle_delete_response()
   end
 
   @callback forgot_password(email :: String.t()) :: {:ok | :error, map}
-  def forgot_password(email, http_client \\ nil) do
+  def forgot_password(email) do
     request("forgot_password", fn ->
-      http_client(http_client).delete(vimond_url("user/#{email}/password"), headers())
+      @http_client.delete(vimond_url("user/#{email}/password"), headers())
     end)
     |> handle_forgot_password_response
   end
 
   @callback logout(vimond_authorization_token :: String.t(), remember_me :: String.t()) ::
               {:ok | :error, map}
-  def logout(vimond_authorization_token, remember_me, http_client \\ nil) do
+  def logout(vimond_authorization_token, remember_me) do
     request("logout", fn ->
-      http_client(http_client).delete(
+      @http_client.delete(
         vimond_url("/api/authentication/user/logout"),
         headers_with_tokens(vimond_authorization_token, remember_me)
       )
@@ -109,9 +110,9 @@ defmodule Vimond.Client do
   end
 
   @callback reauthenticate(remember_me :: String.t()) :: {:ok | :error, map}
-  def reauthenticate(remember_me, http_client \\ nil) do
+  def reauthenticate(remember_me) do
     request("reauthenticate", fn ->
-      http_client(http_client).get(
+      @http_client.get(
         vimond_url("/api/authentication/user"),
         headers(Cookie: "rememberMe=#{remember_me}")
       )
@@ -131,8 +132,7 @@ defmodule Vimond.Client do
         vimond_authorization_token,
         remember_me,
         old_password,
-        new_password,
-        http_client \\ nil
+        new_password
       ) do
     headers = headers_with_tokens(vimond_authorization_token, remember_me)
 
@@ -144,7 +144,7 @@ defmodule Vimond.Client do
       })
 
     request("update_password", fn ->
-      http_client(http_client).put(vimond_url("user/password"), body, headers)
+      @http_client.put(vimond_url("user/password"), body, headers)
     end)
     |> case do
       %HTTPotion.Response{status_code: 204} -> {:ok, %{}}
@@ -154,11 +154,11 @@ defmodule Vimond.Client do
 
   @callback update_password_with_token(password_token :: String.t(), new_password :: String.t()) ::
               {:ok | :error, map}
-  def update_password_with_token(password_token, new_password, http_client \\ nil) do
+  def update_password_with_token(password_token, new_password) do
     body = Plug.Conn.Query.encode(%{token: password_token, password: new_password})
 
     request("update_password_with_token", fn ->
-      http_client(http_client).post(
+      @http_client.post(
         vimond_url("user/password"),
         body,
         headers("Content-Type": "application/x-www-form-urlencoded; charset=UTF-8")
@@ -175,9 +175,9 @@ defmodule Vimond.Client do
               vimond_authorization_token :: String.t(),
               remember_me :: String.t()
             ) :: {:ok | :error, map}
-  def current_orders(user_id, vimond_authorization_token, remember_me, http_client \\ nil) do
+  def current_orders(user_id, vimond_authorization_token, remember_me) do
     request("current_orders", fn ->
-      http_client(http_client).get(
+      @http_client.get(
         vimond_url("user/#{user_id}/orders/current"),
         headers_with_tokens(vimond_authorization_token, remember_me)
       )
@@ -185,21 +185,21 @@ defmodule Vimond.Client do
     |> handle_response(&extract_orders/2)
   end
 
-  def current_orders_signed(user_id, http_client \\ nil) do
+  def current_orders_signed(user_id) do
     url = vimond_url("user/#{user_id}/orders/current")
     path = URI.parse(url).path
 
     request("current_orders", fn ->
-      http_client(http_client).get(url, headers(signed_headers("GET", path)))
+      @http_client.get(url, headers(signed_headers("GET", path)))
     end)
     |> handle_response(&extract_orders/2)
   end
 
   @callback product(product_group_id :: String.t(), product_id :: String.t()) ::
               {:ok, map} | {:error, String.t()}
-  def product(product_group_id, product_id, http_client \\ nil) do
+  def product(product_group_id, product_id) do
     request("product", fn ->
-      http_client(http_client).get(
+      @http_client.get(
         vimond_url("productgroup/#{product_group_id}/products/#{product_id}"),
         headers()
       )
@@ -208,9 +208,9 @@ defmodule Vimond.Client do
   end
 
   @callback product_group(product_group_id :: String.t()) :: {:ok | :error, map}
-  def product_group(product_group_id, http_client \\ nil) do
+  def product_group(product_group_id) do
     request("product_group", fn ->
-      http_client(http_client).get(
+      @http_client.get(
         vimond_url("productgroup/#{product_group_id}"),
         headers()
       )
@@ -219,24 +219,23 @@ defmodule Vimond.Client do
   end
 
   @callback exists_signed(username :: String.t()) :: {:ok, boolean}
-  def exists_signed(username, http_client \\ nil) do
+  def exists_signed(username) do
     url = vimond_url("user/username/#{username}")
     path = URI.parse(url).path
 
     request("exists", fn ->
-      http_client(http_client).get(url, headers(signed_headers("GET", path)))
+      @http_client.get(url, headers(signed_headers("GET", path)))
     end)
     |> handle_exists_response
   end
 
   @callback user_information(vimond_authorization_token :: String.t(), remember_me :: String.t()) ::
               {:ok | :error, map}
-  def user_information(vimond_authorization_token, remember_me, http_client \\ nil) do
+  def user_information(vimond_authorization_token, remember_me) do
     with {:ok, data} <-
            fetch_user_information(
              vimond_authorization_token,
              remember_me,
-             http_client,
              &extract_user_information/1
            ) do
       case Map.pop(data, :vimond_authorization_token) do
@@ -250,12 +249,12 @@ defmodule Vimond.Client do
   end
 
   @callback user_information_signed(user_id :: String.t()) :: {:ok | :error, map}
-  def user_information_signed(user_id, http_client \\ nil) do
+  def user_information_signed(user_id) do
     url = vimond_url("user/#{user_id}")
     path = URI.parse(url).path
 
     request("user_info", fn ->
-      http_client(http_client).get(url, headers(signed_headers("GET", path)))
+      @http_client.get(url, headers(signed_headers("GET", path)))
     end)
     |> handle_response(fn json, headers ->
       case json do
@@ -283,14 +282,12 @@ defmodule Vimond.Client do
         vimond_authorization_token,
         remember_me,
         user_id,
-        updated_user = %User{},
-        http_client \\ nil
+        updated_user = %User{}
       ) do
     with {:ok, user_data} <-
            fetch_user_information(
              vimond_authorization_token,
              remember_me,
-             http_client,
              fn result ->
                with {:ok, json} <- result do
                  user_data =
@@ -322,7 +319,7 @@ defmodule Vimond.Client do
       headers = headers_with_tokens(new_vimond_authorization_token, remember_me)
 
       request("update", fn ->
-        http_client(http_client).put(
+        @http_client.put(
           vimond_url("user"),
           Jason.encode!(merged_user),
           headers
@@ -349,8 +346,8 @@ defmodule Vimond.Client do
   end
 
   @callback terminate_order_signed(String.t()) :: {:ok | :error, order_id :: String.t()}
-  def terminate_order_signed(order_id, http_client \\ nil) do
-    {:ok, order} = get_order_signed(order_id, http_client)
+  def terminate_order_signed(order_id) do
+    {:ok, order} = get_order_signed(order_id)
     end_date = DateTime.to_unix(datetime().utc_now(), :milliseconds)
 
     body =
@@ -367,7 +364,7 @@ defmodule Vimond.Client do
     headers = headers(signed_headers("PUT", path))
 
     request("terminate_order", fn ->
-      http_client(http_client).put(url, body, headers)
+      @http_client.put(url, body, headers)
     end)
     |> case do
       %HTTPotion.Response{status_code: 200} -> {:ok, order_id}
@@ -375,13 +372,13 @@ defmodule Vimond.Client do
     end
   end
 
-  defp get_order_signed(order_id, http_client) do
+  defp get_order_signed(order_id) do
     url = vimond_url("order/#{order_id}")
     path = URI.parse(url).path
     headers = signed_headers("GET", path) |> headers()
 
     request("get_order", fn ->
-      http_client(http_client).get(url, headers)
+      @http_client.get(url, headers)
     end)
     |> case do
       %HTTPotion.Response{body: body, status_code: 200} -> Jason.decode(body)
@@ -503,11 +500,10 @@ defmodule Vimond.Client do
   defp fetch_user_information(
          vimond_authorization_token,
          remember_me,
-         http_client,
          extraction_function
        ) do
     request("user_information", fn ->
-      http_client(http_client).get(
+      @http_client.get(
         vimond_url("user"),
         headers_with_tokens(vimond_authorization_token, remember_me)
       )
@@ -740,7 +736,6 @@ defmodule Vimond.Client do
 
   defp api_key, do: Application.get_env(:vimond_client, :vimond_api_key)
   defp api_secret, do: Application.get_env(:vimond_client, :vimond_api_secret)
-  defp http_client(client), do: client || Application.get_env(:vimond_client, :http_client)
   defp datetime, do: Application.get_env(:vimond_client, :datetime, DateTime)
 
   defp build_order(%Order{referrer: referrer, product_payment_id: product_payment_id})

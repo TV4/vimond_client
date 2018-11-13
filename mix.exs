@@ -28,7 +28,7 @@ defmodule VimondClient.MixProject do
       {:jason, "~> 1.0"},
       {:timex, "~> 3.3"},
       {:mix_test_watch, "~> 0.5", only: :test, runtime: false},
-      {:fake, github: "tv4/fake", only: :test}
+      {:mox, "~> 0.4"}
     ]
   end
 end

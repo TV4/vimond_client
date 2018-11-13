@@ -1,76 +1,67 @@
 defmodule Vimond.Client.UpdatePasswordTest do
   use ExUnit.Case, async: true
   import Vimond.Client
-  use Fake
+  import Mox
+
+  setup :verify_on_exit!
 
   test "with valid parameters" do
-    http_client =
-      fake HTTPClient do
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user/password",
-              body,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer vimond_authorization_token",
-              Cookie: "rememberMe=remember_me"
-            ) do
-          ExUnit.Assertions.assert(
-            Jason.decode!(body) == %{
-              "userId" => 12345,
-              "oldPassword" => "old_password",
-              "newPassword" => "new_password"
-            }
-          )
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password",
+                       body,
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer vimond_authorization_token",
+                       Cookie: "rememberMe=remember_me" ->
+      ExUnit.Assertions.assert(
+        Jason.decode!(body) == %{
+          "userId" => 12345,
+          "oldPassword" => "old_password",
+          "newPassword" => "new_password"
+        }
+      )
 
-          %HTTPotion.Response{
-            status_code: 204,
-            body: "",
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 204,
+        body: "",
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
-        end
-      end
+        }
+      }
+    end)
 
     assert update_password(
              "12345",
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password",
-             http_client
+             "new_password"
            ) == {:ok, %{}}
   end
 
   test "with wrong password" do
-    http_client =
-      fake HTTPClient do
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user/password",
-              _,
-              _
-            ) do
-          %HTTPotion.Response{
-            status_code: 409,
-            body:
-              Jason.encode!(%{
-                "error" => %{
-                  "code" => "USER_INVALID_PASSWORD",
-                  "description" => "Old password is incorrect",
-                  "id" => "1025",
-                  "reference" => "aa15278261be1cd0"
-                }
-              }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8"
-              }
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
+      %HTTPotion.Response{
+        status_code: 409,
+        body:
+          Jason.encode!(%{
+            "error" => %{
+              "code" => "USER_INVALID_PASSWORD",
+              "description" => "Old password is incorrect",
+              "id" => "1025",
+              "reference" => "aa15278261be1cd0"
             }
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
-        end
-      end
+        }
+      }
+    end)
 
     expected = {:error, %{type: :generic, source_errors: ["Old password is incorrect"]}}
 
@@ -79,38 +70,31 @@ defmodule Vimond.Client.UpdatePasswordTest do
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password",
-             http_client
+             "new_password"
            ) == expected
   end
 
   test "with an expired remember me token" do
-    http_client =
-      fake HTTPClient do
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user/password",
-              _,
-              _
-            ) do
-          %HTTPotion.Response{
-            status_code: 401,
-            body:
-              Jason.encode!(%{
-                "error" => %{
-                  "code" => "UNAUTHORIZED",
-                  "description" => "User can only update profile of self",
-                  "id" => "1049",
-                  "reference" => "32e9730e2bf1ea1d"
-                }
-              }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8"
-              }
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
+      %HTTPotion.Response{
+        status_code: 401,
+        body:
+          Jason.encode!(%{
+            "error" => %{
+              "code" => "UNAUTHORIZED",
+              "description" => "User can only update profile of self",
+              "id" => "1049",
+              "reference" => "32e9730e2bf1ea1d"
             }
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
-        end
-      end
+        }
+      }
+    end)
 
     expected =
       {:error, %{type: :invalid_session, source_errors: ["User can only update profile of self"]}}
@@ -120,8 +104,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password",
-             http_client
+             "new_password"
            ) == expected
   end
 end

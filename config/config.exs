@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :vimond_client, datetime: DateTime
+config :vimond_client, datetime: DateTime, http_client: HTTPClient
 
 config :logger, level: (System.get_env("LOG_LEVEL") || "info") |> String.to_existing_atom()
 

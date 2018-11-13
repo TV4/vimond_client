@@ -1,7 +1,6 @@
 defmodule Vimond.ClientTest do
   use ExUnit.Case, async: true
   import Vimond.Client
-  use Fake
 
   describe "vimond_signature" do
     test "signing Vimond request with API secret" do

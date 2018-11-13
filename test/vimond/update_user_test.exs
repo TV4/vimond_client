@@ -1,201 +1,199 @@
 defmodule Vimond.Client.UpdateUserTest do
   use ExUnit.Case, async: true
-  use Fake
+
   import Vimond.Client
+  import Mox
+
+  setup :verify_on_exit!
 
   test "when replacing a property and keeping a property" do
-    http_client =
-      fake HTTPClient do
-        def get(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer valid_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          json = %{
-            "address" => nil,
-            "city" => nil,
-            "confirmEmail" => nil,
-            "country" => nil,
-            "dateOfBirth" => "1981-01-01T00:00:00Z",
-            "email" => "old@example.com",
-            "emailStatus" => 2,
-            "firstName" => "Valid",
-            "gender" => nil,
-            "id" => 6_572_908,
-            "infoRestricted" => nil,
-            "lastName" => "User",
-            "mobileNumber" => "0730236645",
-            "mobileStatus" => 0,
-            "nick" => nil,
-            "notifyUserOnCreation" => nil,
-            "password" => nil,
-            "properties" => [
-              %{
-                "hidden" => false,
-                "id" => 7_445_318,
-                "name" => "user_property_d",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2016-06-17 09:26:17 UTC"
-              },
-              %{
-                "hidden" => false,
-                "id" => 7_445_317,
-                "name" => "user_property_c",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2016-05-20"
-              },
-              %{
-                "hidden" => false,
-                "id" => 7_445_319,
-                "name" => "user_property_a",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2018-05-25"
-              },
-              %{
-                "hidden" => false,
-                "id" => 7_445_320,
-                "name" => "user_property_b",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2018-05-26 08:34:37 UTC"
-              }
-            ],
-            "receiveEmail" => nil,
-            "receiveSms" => nil,
-            "registrationDate" => 1_418_828_690_000,
-            "state" => nil,
-            "status" => nil,
-            "uri" => "/api/platform/user/6572908",
-            "userName" => "old@example.com",
-            "userType" => nil,
-            "zip" => "123 45"
+    HTTPClientMock
+    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer valid_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => nil,
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "old@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "hidden" => false,
+            "id" => 7_445_318,
+            "name" => "user_property_d",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-06-17 09:26:17 UTC"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-05-20"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_319,
+            "name" => "user_property_a",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2018-05-25"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_320,
+            "name" => "user_property_b",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2018-05-26 08:34:37 UTC"
           }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "old@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(json),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
+        }
+      }
+    end)
 
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              body,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer valid_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          assert %{
-                   "id" => 6_572_908,
-                   "registrationDate" => 1_418_828_690_000,
-                   "userName" => "some.person@example.com",
-                   "email" => "some.person@example.com",
-                   "emailStatus" => 2,
-                   "firstName" => "Valid",
-                   "lastName" => "User",
-                   "zip" => "123 45",
-                   "country" => "SWE",
-                   "mobileNumber" => "0730236645",
-                   "mobileStatus" => 0,
-                   "dateOfBirth" => "1981-01-01",
-                   "properties" => [
-                     %{
-                       "id" => 7_445_318,
-                       "name" => "user_property_d",
-                       "value" => "2016-06-17 09:26:17 UTC"
-                     },
-                     %{
-                       "id" => 7_445_317,
-                       "name" => "user_property_c",
-                       "value" => "2016-05-20"
-                     },
-                     %{
-                       "id" => 7_445_319,
-                       "name" => "user_property_a",
-                       "value" => "2018-09-02"
-                     },
-                     %{
-                       "id" => 7_445_320,
-                       "name" => "user_property_b",
-                       "value" => "2015-09-02"
-                     }
-                   ]
-                 } == Jason.decode!(body)
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+                       body,
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer valid_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      assert %{
+               "id" => 6_572_908,
+               "registrationDate" => 1_418_828_690_000,
+               "userName" => "some.person@example.com",
+               "email" => "some.person@example.com",
+               "emailStatus" => 2,
+               "firstName" => "Valid",
+               "lastName" => "User",
+               "zip" => "123 45",
+               "country" => "SWE",
+               "mobileNumber" => "0730236645",
+               "mobileStatus" => 0,
+               "dateOfBirth" => "1981-01-01",
+               "properties" => [
+                 %{
+                   "id" => 7_445_318,
+                   "name" => "user_property_d",
+                   "value" => "2016-06-17 09:26:17 UTC"
+                 },
+                 %{
+                   "id" => 7_445_317,
+                   "name" => "user_property_c",
+                   "value" => "2016-05-20"
+                 },
+                 %{
+                   "id" => 7_445_319,
+                   "name" => "user_property_a",
+                   "value" => "2018-09-02"
+                 },
+                 %{
+                   "id" => 7_445_320,
+                   "name" => "user_property_b",
+                   "value" => "2015-09-02"
+                 }
+               ]
+             } == Jason.decode!(body)
 
-          json = %{
-            "address" => nil,
-            "city" => nil,
-            "confirmEmail" => nil,
-            "country" => "SWE",
-            "dateOfBirth" => "1981-01-01T00:00:00Z",
-            "email" => "some.person@example.com",
-            "emailStatus" => 2,
-            "firstName" => "Valid",
-            "gender" => nil,
-            "id" => 6_572_908,
-            "infoRestricted" => nil,
-            "lastName" => "User",
-            "mobileNumber" => "0730236645",
-            "mobileStatus" => 0,
-            "nick" => nil,
-            "notifyUserOnCreation" => nil,
-            "password" => nil,
-            "properties" => [
-              %{
-                "id" => 7_445_318,
-                "name" => "user_property_d",
-                "value" => "2016-06-17 09:26:17 UTC"
-              },
-              %{
-                "id" => 7_445_317,
-                "name" => "user_property_c",
-                "value" => "2016-05-20"
-              },
-              %{
-                "id" => 7_445_319,
-                "name" => "user_property_a",
-                "value" => "2018-09-02"
-              },
-              %{
-                "id" => 7_445_320,
-                "name" => "user_property_b",
-                "value" => "2015-09-02"
-              }
-            ],
-            "receiveEmail" => nil,
-            "receiveSms" => nil,
-            "registrationDate" => 1_418_828_690_000,
-            "state" => nil,
-            "status" => nil,
-            "uri" => "/api/platform/user/6572908",
-            "userName" => "some.person@example.com",
-            "userType" => nil,
-            "zip" => "123 45"
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => "SWE",
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "some.person@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "id" => 7_445_318,
+            "name" => "user_property_d",
+            "value" => "2016-06-17 09:26:17 UTC"
+          },
+          %{
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "value" => "2016-05-20"
+          },
+          %{
+            "id" => 7_445_319,
+            "name" => "user_property_a",
+            "value" => "2018-09-02"
+          },
+          %{
+            "id" => 7_445_320,
+            "name" => "user_property_b",
+            "value" => "2015-09-02"
           }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "some.person@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(json),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=3;charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
-      end
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "some.person@example.com",
@@ -210,7 +208,7 @@ defmodule Vimond.Client.UpdateUserTest do
       ]
     }
 
-    assert update("valid_authorization_token", "valid_remember_me", "6572908", user, http_client) ==
+    assert update("valid_authorization_token", "valid_remember_me", "6572908", user) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -250,182 +248,177 @@ defmodule Vimond.Client.UpdateUserTest do
   end
 
   test "when adding a property and keeping a property" do
-    http_client =
-      fake HTTPClient do
-        def get(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer valid_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          json = %{
-            "address" => nil,
-            "city" => nil,
-            "confirmEmail" => nil,
-            "country" => nil,
-            "dateOfBirth" => "1981-01-01T00:00:00Z",
-            "email" => "old@example.com",
-            "emailStatus" => 2,
-            "firstName" => "Valid",
-            "gender" => nil,
-            "id" => 6_572_908,
-            "infoRestricted" => nil,
-            "lastName" => "User",
-            "mobileNumber" => "0730236645",
-            "mobileStatus" => 0,
-            "nick" => nil,
-            "notifyUserOnCreation" => nil,
-            "password" => nil,
-            "properties" => [
-              %{
-                "hidden" => false,
-                "id" => 7_445_317,
-                "name" => "user_property_c",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2016-05-20"
-              },
-              %{
-                "hidden" => false,
-                "id" => 7_445_318,
-                "name" => "user_property_d",
-                "uri" => nil,
-                "userId" => 16_426_403,
-                "value" => "2016-06-17 09:26:17 UTC"
-              }
-            ],
-            "receiveEmail" => nil,
-            "receiveSms" => nil,
-            "registrationDate" => 1_418_828_690_000,
-            "state" => nil,
-            "status" => nil,
-            "uri" => "/api/platform/user/6572908",
-            "userName" => "old@example.com",
-            "userType" => nil,
-            "zip" => "123 45"
+    HTTPClientMock
+    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer valid_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => nil,
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "old@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "hidden" => false,
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-05-20"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_318,
+            "name" => "user_property_d",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-06-17 09:26:17 UTC"
           }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "old@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(json),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=3;charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
+        }
+      }
+    end)
 
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              body,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer valid_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          assert %{
-                   "id" => 6_572_908,
-                   "registrationDate" => 1_418_828_690_000,
-                   "userName" => "some.person@example.com",
-                   "email" => "some.person@example.com",
-                   "emailStatus" => 2,
-                   "firstName" => "Valid",
-                   "lastName" => "User",
-                   "zip" => "123 45",
-                   "country" => "SWE",
-                   "mobileNumber" => "0730236645",
-                   "mobileStatus" => 0,
-                   "dateOfBirth" => "1981-01-01",
-                   "properties" => [
-                     %{
-                       "id" => 7_445_318,
-                       "name" => "user_property_d",
-                       "value" => "2016-06-17 09:26:17 UTC"
-                     },
-                     %{
-                       "id" => 7_445_317,
-                       "name" => "user_property_c",
-                       "value" => "2016-05-20"
-                     },
-                     %{
-                       "id" => nil,
-                       "name" => "user_property_a",
-                       "value" => "2018-09-02"
-                     },
-                     %{
-                       "id" => nil,
-                       "name" => "user_property_b",
-                       "value" => "2015-09-02"
-                     }
-                   ]
-                 } == Jason.decode!(body)
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+                       body,
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer valid_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      assert %{
+               "id" => 6_572_908,
+               "registrationDate" => 1_418_828_690_000,
+               "userName" => "some.person@example.com",
+               "email" => "some.person@example.com",
+               "emailStatus" => 2,
+               "firstName" => "Valid",
+               "lastName" => "User",
+               "zip" => "123 45",
+               "country" => "SWE",
+               "mobileNumber" => "0730236645",
+               "mobileStatus" => 0,
+               "dateOfBirth" => "1981-01-01",
+               "properties" => [
+                 %{
+                   "id" => 7_445_318,
+                   "name" => "user_property_d",
+                   "value" => "2016-06-17 09:26:17 UTC"
+                 },
+                 %{
+                   "id" => 7_445_317,
+                   "name" => "user_property_c",
+                   "value" => "2016-05-20"
+                 },
+                 %{
+                   "id" => nil,
+                   "name" => "user_property_a",
+                   "value" => "2018-09-02"
+                 },
+                 %{
+                   "id" => nil,
+                   "name" => "user_property_b",
+                   "value" => "2015-09-02"
+                 }
+               ]
+             } == Jason.decode!(body)
 
-          json = %{
-            "address" => nil,
-            "city" => nil,
-            "confirmEmail" => nil,
-            "country" => "SWE",
-            "dateOfBirth" => "1981-01-01T00:00:00Z",
-            "email" => "some.person@example.com",
-            "emailStatus" => 2,
-            "firstName" => "Valid",
-            "gender" => nil,
-            "id" => 6_572_908,
-            "infoRestricted" => nil,
-            "lastName" => "User",
-            "mobileNumber" => "0730236645",
-            "mobileStatus" => 0,
-            "nick" => nil,
-            "notifyUserOnCreation" => nil,
-            "password" => nil,
-            "properties" => [
-              %{
-                "id" => 7_445_318,
-                "name" => "user_property_d",
-                "value" => "2016-06-17 09:26:17 UTC"
-              },
-              %{
-                "id" => 7_445_317,
-                "name" => "user_property_c",
-                "value" => "2016-05-20"
-              },
-              %{
-                "id" => 7_445_319,
-                "name" => "user_property_a",
-                "value" => "2018-09-02"
-              },
-              %{
-                "id" => 7_445_320,
-                "name" => "user_property_b",
-                "value" => "2015-09-02"
-              }
-            ],
-            "receiveEmail" => nil,
-            "receiveSms" => nil,
-            "registrationDate" => 1_418_828_690_000,
-            "state" => nil,
-            "status" => nil,
-            "uri" => "/api/platform/user/6572908",
-            "userName" => "some.person@example.com",
-            "userType" => nil,
-            "zip" => "123 45"
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => "SWE",
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "some.person@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "id" => 7_445_318,
+            "name" => "user_property_d",
+            "value" => "2016-06-17 09:26:17 UTC"
+          },
+          %{
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "value" => "2016-05-20"
+          },
+          %{
+            "id" => 7_445_319,
+            "name" => "user_property_a",
+            "value" => "2018-09-02"
+          },
+          %{
+            "id" => 7_445_320,
+            "name" => "user_property_b",
+            "value" => "2015-09-02"
           }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "some.person@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(json),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=3;charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
-      end
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "some.person@example.com",
@@ -440,7 +433,7 @@ defmodule Vimond.Client.UpdateUserTest do
       ]
     }
 
-    assert update("valid_authorization_token", "valid_remember_me", "6572908", user, http_client) ==
+    assert update("valid_authorization_token", "valid_remember_me", "6572908", user) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -482,29 +475,27 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with invalid credentials" do
     user = %Vimond.User{username: "some.person@example.com", email: "some.person@example.com"}
 
-    http_client =
-      fake HTTPClient do
-        def get(_url, _headers) do
-          json = %{
-            "error" => %{
-              "code" => "SESSION_NOT_AUTHENTICATED",
-              "description" => "User is not authenticated",
-              "id" => "1044",
-              "reference" => "47c53b2f78b812ee"
-            }
-          }
+    HTTPClientMock
+    |> expect(:get, fn _url, _headers ->
+      json = %{
+        "error" => %{
+          "code" => "SESSION_NOT_AUTHENTICATED",
+          "description" => "User is not authenticated",
+          "id" => "1044",
+          "reference" => "47c53b2f78b812ee"
+        }
+      }
 
-          %HTTPotion.Response{
-            status_code: 401,
-            body: Jason.encode!(json),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 401,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
-        end
-      end
+        }
+      }
+    end)
 
     expected = {:error, %{type: :invalid_session, source_errors: ["User is not authenticated"]}}
 
@@ -512,108 +503,103 @@ defmodule Vimond.Client.UpdateUserTest do
              "invalid_vimond_authorization_token",
              "invalid_remember_me",
              "6572908",
-             user,
-             http_client
+             user
            ) == expected
   end
 
   test "with invalid response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    http_client =
-      fake HTTPClient do
-        def get(_url, _headers) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
+    HTTPClientMock
+    |> expect(:get, fn _url, _headers ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
+          }
+        }
+      }
+    end)
+
+    HTTPClientMock
+    |> expect(:put, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        body:
+          %{
+            "error" => %{
+              "code" => "UNKNOWN",
+              "description" =>
+                "Unexpected error - look up reference in logfiles for more details.",
+              "id" => "0",
+              "reference" => "1ee10896d2cf17cd"
             }
           }
-        end
-
-        def put(_url, _body, _headers) do
-          %HTTPotion.Response{
-            body:
-              %{
-                "error" => %{
-                  "code" => "UNKNOWN",
-                  "description" =>
-                    "Unexpected error - look up reference in logfiles for more details.",
-                  "id" => "0",
-                  "reference" => "1ee10896d2cf17cd"
-                }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            },
-            status_code: 500
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
-      end
+        },
+        status_code: 500
+      }
+    end)
 
     assert update(
              "valid_vimond_authorization_token",
              "valid_remember_me",
              "6572908",
-             user,
-             http_client
+             user
            ) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
   end
 
   test "with email already registered response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    http_client =
-      fake HTTPClient do
-        def get(_url, _headers) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+    HTTPClientMock
+    |> expect(:get, fn _url, _headers ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
+        }
+      }
+    end)
 
-        def put(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body:
-              Jason.encode!(%{
-                "error" => %{
-                  "code" => "USER_INVALID_EMAIL",
-                  "description" => "Email address is already registered",
-                  "id" => "1026",
-                  "reference" => "7f6be90d2281dc21"
-                }
-              }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"3\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
+    HTTPClientMock
+    |> expect(:put, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body:
+          Jason.encode!(%{
+            "error" => %{
+              "code" => "USER_INVALID_EMAIL",
+              "description" => "Email address is already registered",
+              "id" => "1026",
+              "reference" => "7f6be90d2281dc21"
             }
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
-      end
+        }
+      }
+    end)
 
     assert update(
              "valid_vimond_athorization_token",
              "valid_remember_me",
              "6572908",
-             user,
-             http_client
+             user
            ) ==
              {:error,
               %{
@@ -625,50 +611,48 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with username already registered response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    http_client =
-      fake HTTPClient do
-        def get(_url, _headers) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
-            }
+    HTTPClientMock
+    |> expect(:get, fn _url, _headers ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
+        }
+      }
+    end)
 
-        def put(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body:
-              Jason.encode!(%{
-                "error" => %{
-                  "code" => "USER_INVALID_USERNAME",
-                  "description" => "Email address is already registered",
-                  "id" => "1024",
-                  "reference" => "00b5e4800b188126",
-                  "status" => nil
-                }
-              }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer valid_authorization_token"
-              }
+    HTTPClientMock
+    |> expect(:put, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body:
+          Jason.encode!(%{
+            "error" => %{
+              "code" => "USER_INVALID_USERNAME",
+              "description" => "Email address is already registered",
+              "id" => "1024",
+              "reference" => "00b5e4800b188126",
+              "status" => nil
             }
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
-        end
-      end
+        }
+      }
+    end)
 
     assert update(
              "valid_vimond_authorization_token",
              "valid_remember_me",
              "6572908",
-             user,
-             http_client
+             user
            ) ==
              {:error,
               %{
@@ -678,60 +662,55 @@ defmodule Vimond.Client.UpdateUserTest do
   end
 
   test "with renewed authorization token" do
-    http_client =
-      fake HTTPClient do
-        def get(
-              _url,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer expired_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          %HTTPotion.Response{
-            status_code: 200,
-            body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer renewed_authorization_token"
-              }
-            }
+    HTTPClientMock
+    |> expect(:get, fn _url,
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer expired_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer renewed_authorization_token"
           }
-        end
+        }
+      }
+    end)
 
-        def put(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              body,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8",
-              Authorization: "Bearer renewed_authorization_token",
-              Cookie: "rememberMe=valid_remember_me"
-            ) do
-          assert Jason.decode!(body) == %{
-                   "id" => 6_572_908,
-                   "userName" => "lodakai",
-                   "email" => "some.person@example.com",
-                   "properties" => []
-                 }
+    HTTPClientMock
+    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+                       body,
+                       Accept: "application/json; v=3; charset=UTF-8",
+                       "Content-Type": "application/json; v=3; charset=UTF-8",
+                       Authorization: "Bearer renewed_authorization_token",
+                       Cookie: "rememberMe=valid_remember_me" ->
+      assert Jason.decode!(body) == %{
+               "id" => 6_572_908,
+               "userName" => "lodakai",
+               "email" => "some.person@example.com",
+               "properties" => []
+             }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body:
-              Jason.encode!(%{
-                "email" => "some.person@example.com",
-                "id" => 6_572_908,
-                "properties" => [],
-                "userName" => "lodakai"
-              }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{
-                "content-type" => "application/json; v=\"2\";charset=UTF-8",
-                "authorization" => "Bearer renewed_authorization_token"
-              }
-            }
+      %HTTPotion.Response{
+        status_code: 200,
+        body:
+          Jason.encode!(%{
+            "email" => "some.person@example.com",
+            "id" => 6_572_908,
+            "properties" => [],
+            "userName" => "lodakai"
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer renewed_authorization_token"
           }
-        end
-      end
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "lodakai",
@@ -742,8 +721,7 @@ defmodule Vimond.Client.UpdateUserTest do
              "expired_authorization_token",
              "valid_remember_me",
              "6572908",
-             user,
-             http_client
+             user
            ) ==
              {:ok,
               %{

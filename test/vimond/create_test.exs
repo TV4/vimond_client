@@ -1,74 +1,72 @@
 defmodule Vimond.Client.CreateTest do
   use ExUnit.Case, async: true
-  use Fake
   import Vimond.Client
+  import Mox
+
+  setup :verify_on_exit!
 
   test "returns the user when a user was created" do
-    http_client =
-      fake HTTPClient do
-        def post(
-              "https://vimond-rest-api.example.com/api/platform/user",
-              body,
-              Accept: "application/json; v=3; charset=UTF-8",
-              "Content-Type": "application/json; v=3; charset=UTF-8"
-            ) do
-          assert Jason.decode!(body) == %{
-                   "userName" => "new_user",
-                   "password" => "password",
-                   "email" => "new_user",
-                   "firstName" => "New",
-                   "lastName" => "User",
-                   "zip" => "123 45",
-                   "country" => "SWE",
-                   "dateOfBirth" => "1977-01-01",
-                   "properties" => [
-                     %{"id" => nil, "name" => "user_property_c", "value" => "2018-05-25"},
-                     %{"id" => nil, "name" => "user_property_d", "value" => "2015-09-02"}
-                   ]
-                 }
+    HTTPClientMock
+    |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user",
+                        body,
+                        Accept: "application/json; v=3; charset=UTF-8",
+                        "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      assert Jason.decode!(body) == %{
+               "userName" => "new_user",
+               "password" => "password",
+               "email" => "new_user",
+               "firstName" => "New",
+               "lastName" => "User",
+               "zip" => "123 45",
+               "country" => "SWE",
+               "dateOfBirth" => "1977-01-01",
+               "properties" => [
+                 %{"id" => nil, "name" => "user_property_c", "value" => "2018-05-25"},
+                 %{"id" => nil, "name" => "user_property_d", "value" => "2015-09-02"}
+               ]
+             }
 
-          %HTTPotion.Response{
-            status_code: 200,
-            body:
+      %HTTPotion.Response{
+        status_code: 200,
+        body:
+          %{
+            "country" => "SWE",
+            "dateOfBirth" => "1977-01-01T00:00:00Z",
+            "email" => "new_user",
+            "emailStatus" => 2,
+            "firstName" => "New",
+            "id" => 12_345_678,
+            "lastName" => "User",
+            "mobileNumber" => "0712345678",
+            "mobileStatus" => 0,
+            "properties" => [
               %{
-                "country" => "SWE",
-                "dateOfBirth" => "1977-01-01T00:00:00Z",
-                "email" => "new_user",
-                "emailStatus" => 2,
-                "firstName" => "New",
-                "id" => 12_345_678,
-                "lastName" => "User",
-                "mobileNumber" => "0712345678",
-                "mobileStatus" => 0,
-                "properties" => [
-                  %{
-                    "allowUserToUpdate" => true,
-                    "hidden" => false,
-                    "id" => 50_002_611,
-                    "name" => "user_property_c",
-                    "userId" => 1_000_066_284,
-                    "value" => "2018-05-25"
-                  },
-                  %{
-                    "allowUserToUpdate" => true,
-                    "hidden" => false,
-                    "id" => 50_002_612,
-                    "name" => "user_property_d",
-                    "userId" => 1_000_066_284,
-                    "value" => "2015-09-02"
-                  }
-                ],
-                "registrationDate" => "2015-09-02T13:24:35Z",
-                "userName" => "new_user",
-                "zip" => "123 45"
+                "allowUserToUpdate" => true,
+                "hidden" => false,
+                "id" => 50_002_611,
+                "name" => "user_property_c",
+                "userId" => 1_000_066_284,
+                "value" => "2018-05-25"
+              },
+              %{
+                "allowUserToUpdate" => true,
+                "hidden" => false,
+                "id" => 50_002_612,
+                "name" => "user_property_d",
+                "userId" => 1_000_066_284,
+                "value" => "2015-09-02"
               }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-            }
+            ],
+            "registrationDate" => "2015-09-02T13:24:35Z",
+            "userName" => "new_user",
+            "zip" => "123 45"
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "new_user",
@@ -85,7 +83,7 @@ defmodule Vimond.Client.CreateTest do
       ]
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -114,41 +112,39 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the user already exists in Vimond" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body:
-              %{
-                "error" => %{
-                  "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
-                  "description" => nil,
-                  "errors" => [
-                    %{
-                      "code" => "USER_INVALID_EMAIL",
-                      "description" => "Email address is already registered",
-                      "id" => 1026,
-                      "reference" => "7eb7764fd11febe4"
-                    },
-                    %{
-                      "code" => "USER_INVALID_USERNAME",
-                      "description" => "Username is already registered",
-                      "id" => 1024,
-                      "reference" => "9b6edb39888a9015"
-                    }
-                  ],
-                  "id" => "1032",
-                  "reference" => "c3bf0b56b8ca2169"
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          %{
+            "error" => %{
+              "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
+              "description" => nil,
+              "errors" => [
+                %{
+                  "code" => "USER_INVALID_EMAIL",
+                  "description" => "Email address is already registered",
+                  "id" => 1026,
+                  "reference" => "7eb7764fd11febe4"
+                },
+                %{
+                  "code" => "USER_INVALID_USERNAME",
+                  "description" => "Username is already registered",
+                  "id" => 1024,
+                  "reference" => "9b6edb39888a9015"
                 }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+              ],
+              "id" => "1032",
+              "reference" => "c3bf0b56b8ca2169"
             }
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "existing_user",
@@ -159,7 +155,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:error,
               %{
                 type: :username_already_in_use,
@@ -171,35 +167,33 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the users email exists in Vimond" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body:
-              %{
-                "error" => %{
-                  "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
-                  "description" => nil,
-                  "errors" => [
-                    %{
-                      "code" => "USER_INVALID_EMAIL",
-                      "description" => "Email address is already registered",
-                      "id" => 1026,
-                      "reference" => "7eb7764fd11febe4"
-                    }
-                  ],
-                  "id" => "1032",
-                  "reference" => "c3bf0b56b8ca2169"
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          %{
+            "error" => %{
+              "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
+              "description" => nil,
+              "errors" => [
+                %{
+                  "code" => "USER_INVALID_EMAIL",
+                  "description" => "Email address is already registered",
+                  "id" => 1026,
+                  "reference" => "7eb7764fd11febe4"
                 }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+              ],
+              "id" => "1032",
+              "reference" => "c3bf0b56b8ca2169"
             }
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "existing_user",
@@ -210,7 +204,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:error,
               %{
                 type: :email_already_in_use,
@@ -219,35 +213,33 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the users email is invalid in Vimond" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body:
-              %{
-                "error" => %{
-                  "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
-                  "description" => nil,
-                  "errors" => [
-                    %{
-                      "code" => "USER_INVALID_EMAIL",
-                      "description" => "Email address is not valid",
-                      "id" => 1026,
-                      "reference" => "448669d5cc93696f"
-                    }
-                  ],
-                  "id" => "1032",
-                  "reference" => "5f7f694ec11a00aa"
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          %{
+            "error" => %{
+              "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
+              "description" => nil,
+              "errors" => [
+                %{
+                  "code" => "USER_INVALID_EMAIL",
+                  "description" => "Email address is not valid",
+                  "id" => 1026,
+                  "reference" => "448669d5cc93696f"
                 }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+              ],
+              "id" => "1032",
+              "reference" => "5f7f694ec11a00aa"
             }
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "invalid@email..com",
@@ -258,46 +250,44 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:error, %{type: :email_invalid, source_errors: ["Email address is not valid"]}}
   end
 
   test "returns an error when there is an unknown USER_MULTIPLE_VALIDATION_ERRORS type" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body:
-              %{
-                "error" => %{
-                  "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
-                  "description" => nil,
-                  "errors" => [
-                    %{
-                      "code" => "THE_NUMBER_OF_THE_BEAST",
-                      "description" => "Beast mode",
-                      "id" => 666,
-                      "reference" => "448669d5cc93696f"
-                    },
-                    %{
-                      "code" => "THE_NUMBER_OF_THE_LITTLE_BEAST",
-                      "description" => "Some kind of monster",
-                      "id" => 66,
-                      "reference" => "448669d5cc93696f"
-                    }
-                  ],
-                  "id" => "1032",
-                  "reference" => "5f7f694ec11a00aa"
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          %{
+            "error" => %{
+              "code" => "USER_MULTIPLE_VALIDATION_ERRORS",
+              "description" => nil,
+              "errors" => [
+                %{
+                  "code" => "THE_NUMBER_OF_THE_BEAST",
+                  "description" => "Beast mode",
+                  "id" => 666,
+                  "reference" => "448669d5cc93696f"
+                },
+                %{
+                  "code" => "THE_NUMBER_OF_THE_LITTLE_BEAST",
+                  "description" => "Some kind of monster",
+                  "id" => 66,
+                  "reference" => "448669d5cc93696f"
                 }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+              ],
+              "id" => "1032",
+              "reference" => "5f7f694ec11a00aa"
             }
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "unknown_error",
@@ -308,7 +298,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:error,
               %{
                 type: :user_creation_failed,
@@ -317,27 +307,25 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "with an unknown error code" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body:
-              %{
-                "error" => %{
-                  "code" => "THE_NUMBER_OF_THE_BEAST",
-                  "description" => nil,
-                  "id" => "666",
-                  "reference" => "5f7f694ec11a00aa"
-                }
-              }
-              |> Jason.encode!(),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          %{
+            "error" => %{
+              "code" => "THE_NUMBER_OF_THE_BEAST",
+              "description" => nil,
+              "id" => "666",
+              "reference" => "5f7f694ec11a00aa"
             }
           }
-        end
-      end
+          |> Jason.encode!(),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "unknown_error",
@@ -348,23 +336,21 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
+    assert create(user) ==
              {:error, %{type: :user_creation_failed, source_errors: ["THE_NUMBER_OF_THE_BEAST"]}}
   end
 
   test "with an unknown response" do
-    http_client =
-      fake HTTPClient do
-        def post(_url, _body, _headers) do
-          %HTTPotion.Response{
-            status_code: 400,
-            body: Jason.encode!(%{"hello" => "world"}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-            }
-          }
-        end
-      end
+    HTTPClientMock
+    |> expect(:post, fn _url, _body, _headers ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body: Jason.encode!(%{"hello" => "world"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      }
+    end)
 
     user = %Vimond.User{
       username: "unknown_response",
@@ -375,7 +361,6 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user, http_client) ==
-             {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
+    assert create(user) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
   end
 end
