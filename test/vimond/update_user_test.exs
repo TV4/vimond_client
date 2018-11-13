@@ -1,10 +1,11 @@
 defmodule Vimond.Client.UpdateUserTest do
   use ExUnit.Case, async: true
-
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "when replacing a property and keeping a property" do
     HTTPClientMock
@@ -208,7 +209,7 @@ defmodule Vimond.Client.UpdateUserTest do
       ]
     }
 
-    assert update("valid_authorization_token", "valid_remember_me", "6572908", user) ==
+    assert update("valid_authorization_token", "valid_remember_me", "6572908", user, @config) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -433,7 +434,7 @@ defmodule Vimond.Client.UpdateUserTest do
       ]
     }
 
-    assert update("valid_authorization_token", "valid_remember_me", "6572908", user) ==
+    assert update("valid_authorization_token", "valid_remember_me", "6572908", user, @config) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -503,7 +504,8 @@ defmodule Vimond.Client.UpdateUserTest do
              "invalid_vimond_authorization_token",
              "invalid_remember_me",
              "6572908",
-             user
+             user,
+             @config
            ) == expected
   end
 
@@ -552,7 +554,8 @@ defmodule Vimond.Client.UpdateUserTest do
              "valid_vimond_authorization_token",
              "valid_remember_me",
              "6572908",
-             user
+             user,
+             @config
            ) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
   end
 
@@ -599,7 +602,8 @@ defmodule Vimond.Client.UpdateUserTest do
              "valid_vimond_athorization_token",
              "valid_remember_me",
              "6572908",
-             user
+             user,
+             @config
            ) ==
              {:error,
               %{
@@ -652,7 +656,8 @@ defmodule Vimond.Client.UpdateUserTest do
              "valid_vimond_authorization_token",
              "valid_remember_me",
              "6572908",
-             user
+             user,
+             @config
            ) ==
              {:error,
               %{
@@ -721,7 +726,8 @@ defmodule Vimond.Client.UpdateUserTest do
              "expired_authorization_token",
              "valid_remember_me",
              "6572908",
-             user
+             user,
+             @config
            ) ==
              {:ok,
               %{

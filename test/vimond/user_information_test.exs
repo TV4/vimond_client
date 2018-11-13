@@ -1,10 +1,15 @@
 defmodule Vimond.Client.UserInformationTest do
   use ExUnit.Case, async: true
-
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Vimond.Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    api_key: "key",
+    api_secret: "secret"
+  }
 
   describe "user authenticated" do
     test "with valid credentials" do
@@ -72,7 +77,7 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      assert user_information("valid_authorization_token", "valid_remember_me") == {
+      assert user_information("valid_authorization_token", "valid_remember_me", @config) == {
                :ok,
                %{
                  user: %Vimond.User{
@@ -172,10 +177,7 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      assert user_information(
-               "invalid_vimond_authorization_token",
-               "valid_remember_me"
-             ) ==
+      assert user_information("invalid_vimond_authorization_token", "valid_remember_me", @config) ==
                {:ok,
                 %{
                   user: %Vimond.User{
@@ -242,7 +244,8 @@ defmodule Vimond.Client.UserInformationTest do
 
       assert user_information(
                "invalid_vimond_authorization_token",
-               "invalid_remember_me"
+               "invalid_remember_me",
+               @config
              ) == expected
     end
 
@@ -270,7 +273,7 @@ defmodule Vimond.Client.UserInformationTest do
 
       expected = {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
 
-      assert user_information("uncategorized_error", "crazy_remember_me") == expected
+      assert user_information("uncategorized_error", "crazy_remember_me", @config) == expected
     end
   end
 
@@ -334,7 +337,7 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      assert user_information_signed("12345") ==
+      assert user_information_signed("12345", @config) ==
                {:ok,
                 %{
                   :user => %Vimond.User{
@@ -398,7 +401,7 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      assert user_information_signed("12345") ==
+      assert user_information_signed("12345", @config) ==
                {:error, %{source_errors: ["Unexpected error"], type: :generic}}
     end
 
@@ -412,7 +415,7 @@ defmodule Vimond.Client.UserInformationTest do
         %HTTPotion.ErrorResponse{message: "econnrefused"}
       end)
 
-      assert user_information_signed("12345") ==
+      assert user_information_signed("12345", @config) ==
                {:error, %{source_errors: ["econnrefused"], type: :http_error}}
     end
   end

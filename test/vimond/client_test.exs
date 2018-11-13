@@ -4,8 +4,12 @@ defmodule Vimond.ClientTest do
 
   describe "vimond_signature" do
     test "signing Vimond request with API secret" do
-      assert vimond_signature("GET", "/this/is/a/path", "Wed, 02 Sep 2015 13:24:35 +0000") ==
-               "CgnS5wqCZ6xIDqZ92kQOXcOrR9Y="
+      assert vimond_signature(
+               "GET",
+               "/this/is/a/path",
+               "Wed, 02 Sep 2015 13:24:35 +0000",
+               "secret"
+             ) == "CgnS5wqCZ6xIDqZ92kQOXcOrR9Y="
     end
   end
 

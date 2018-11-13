@@ -1,9 +1,14 @@
 defmodule Vimond.Client.UpdatePasswordWithTokenTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/"
+  }
 
   test "with valid a valid password token and password" do
     HTTPClientMock
@@ -24,7 +29,7 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
       }
     end)
 
-    assert update_password_with_token("valid_password_token", "password") == {:ok, %{}}
+    assert update_password_with_token("valid_password_token", "password", @config) == {:ok, %{}}
   end
 
   test "with expired password token" do
@@ -54,7 +59,7 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
       }
     end)
 
-    assert update_password_with_token("expired_password_token", "password") ==
+    assert update_password_with_token("expired_password_token", "password", @config) ==
              {:error, %{type: :generic, source_errors: ["Token has expired"]}}
   end
 end

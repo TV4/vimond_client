@@ -1,9 +1,16 @@
 defmodule Vimond.Client.CurrentOrdersTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    api_key: "key",
+    api_secret: "apisecret"
+  }
 
   describe "user authenticated" do
     test "with valid credentials" do
@@ -111,7 +118,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
         }
       }
 
-      assert current_orders("123", "valid_vimond_token", "valid_remember_me") == expected
+      assert current_orders("123", "valid_vimond_token", "valid_remember_me", @config) == expected
     end
 
     test "with valid credentials and multiple orders" do
@@ -295,7 +302,8 @@ defmodule Vimond.Client.CurrentOrdersTest do
       assert current_orders(
                "123",
                "valid_vimond_authorization_token",
-               "valid_remember_me"
+               "valid_remember_me",
+               @config
              ) == expected
     end
 
@@ -328,7 +336,8 @@ defmodule Vimond.Client.CurrentOrdersTest do
       assert current_orders(
                "123",
                "invalid_vimond_authorization_token",
-               "invalid_remember_me"
+               "invalid_remember_me",
+               @config
              ) == expected
     end
 
@@ -361,7 +370,8 @@ defmodule Vimond.Client.CurrentOrdersTest do
       assert current_orders(
                "123",
                "valid_vimond_authorization_token",
-               "valid_remember_me"
+               "valid_remember_me",
+               @config
              ) == expected
     end
   end
@@ -472,7 +482,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
         }
       }
 
-      assert current_orders_signed("123") == expected
+      assert current_orders_signed("123", @config) == expected
     end
   end
 end

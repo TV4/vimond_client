@@ -1,9 +1,16 @@
 defmodule Vimond.Client.TerminateOrdersTest do
   use ExUnit.Case
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    api_key: "key",
+    api_secret: "secret"
+  }
 
   test "terminate order succeeds" do
     HTTPClientMock
@@ -130,7 +137,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
       %HTTPotion.Response{status_code: 200, body: Jason.encode!(json)}
     end)
 
-    assert terminate_order_signed(123) == {:ok, 123}
+    assert terminate_order_signed(123, @config) == {:ok, 123}
   end
 
   test "terminate order fails" do
@@ -240,6 +247,6 @@ defmodule Vimond.Client.TerminateOrdersTest do
       %HTTPotion.Response{status_code: 400, body: Jason.encode!(%{})}
     end)
 
-    assert terminate_order_signed(123) == {:error, 123}
+    assert terminate_order_signed(123, @config) == {:error, 123}
   end
 end

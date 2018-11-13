@@ -5,6 +5,8 @@ defmodule Vimond.Client.ProductTest do
 
   setup :verify_on_exit!
 
+  @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
+
   test "with product that has description" do
     HTTPClientMock
     |> expect(
@@ -22,7 +24,7 @@ defmodule Vimond.Client.ProductTest do
       end
     )
 
-    assert product(1083, 1400) == {:ok, %{description: "C More Premium"}}
+    assert product(1083, 1400, @config) == {:ok, %{description: "C More Premium"}}
   end
 
   test "with product that doesn't have description" do
@@ -42,6 +44,6 @@ defmodule Vimond.Client.ProductTest do
       end
     )
 
-    assert product(1083, 1400) == {:ok, %{description: nil}}
+    assert product(1083, 1400, @config) == {:ok, %{description: nil}}
   end
 end

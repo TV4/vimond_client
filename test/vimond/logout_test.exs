@@ -1,9 +1,12 @@
 defmodule Vimond.Client.LogoutTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "with any token" do
     HTTPClientMock
@@ -27,7 +30,7 @@ defmodule Vimond.Client.LogoutTest do
       }
     end)
 
-    assert logout("vimond_authorization_token", "valid_or_invalid_remember_me") ==
+    assert logout("vimond_authorization_token", "valid_or_invalid_remember_me", @config) ==
              {:ok, %{message: "User logged out"}}
   end
 
@@ -37,7 +40,7 @@ defmodule Vimond.Client.LogoutTest do
       %HTTPotion.ErrorResponse{message: "Because reason"}
     end)
 
-    assert logout("vimond_down_error", "remember_me") ==
+    assert logout("vimond_down_error", "remember_me", @config) ==
              {:error, %{type: :http_error, source_errors: ["Because reason"]}}
   end
 
@@ -53,7 +56,7 @@ defmodule Vimond.Client.LogoutTest do
       }
     end)
 
-    assert logout("invalid_vimond_json", "remember_me") ==
+    assert logout("invalid_vimond_json", "remember_me", @config) ==
              {:error,
               %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
   end

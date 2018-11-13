@@ -1,10 +1,17 @@
 defmodule Vimond.Client.AddOrderTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import ExUnit.CaptureLog
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    api_key: "key",
+    api_secret: "apisecret"
+  }
 
   describe "add_order_signed" do
     test "succeeds" do
@@ -26,7 +33,7 @@ defmodule Vimond.Client.AddOrderTest do
 
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
 
-      assert add_order_signed("12345", order) == {:ok, 123}
+      assert add_order_signed("12345", order, @config) == {:ok, 123}
     end
 
     test "fails" do
@@ -54,7 +61,7 @@ defmodule Vimond.Client.AddOrderTest do
       order = %Vimond.Order{product_payment_id: 11111, referrer: "telia OTT-B2B"}
 
       assert capture_log(fn ->
-               assert add_order_signed("12345", order) == {:error, :failed_to_add_order}
+               assert add_order_signed("12345", order, @config) == {:error, :failed_to_add_order}
              end) =~ ~r/Error adding order: %HTTPotion.Response/
     end
   end

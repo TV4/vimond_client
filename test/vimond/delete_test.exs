@@ -1,9 +1,16 @@
 defmodule Vimond.Client.DeleteTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    api_key: "key",
+    api_secret: "apisecret"
+  }
 
   describe "user authenticated" do
     test "with a valid session" do
@@ -34,7 +41,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete("12345", "blah") == {:ok, %{message: "User has been deleted"}}
+      assert delete("12345", "blah", @config) == {:ok, %{message: "User has been deleted"}}
     end
 
     test "with an invalid session" do
@@ -64,7 +71,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete("12345", "blah") ==
+      assert delete("12345", "blah", @config) ==
                {:error,
                 %{
                   type: :invalid_session,
@@ -100,7 +107,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete("12345", "blah") ==
+      assert delete("12345", "blah", @config) ==
                {:error,
                 %{
                   type: :invalid_session,
@@ -140,7 +147,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete_signed("12345") == {:ok, %{message: "User has been deleted"}}
+      assert delete_signed("12345", @config) == {:ok, %{message: "User has been deleted"}}
     end
 
     test "when Vimond returns error" do
@@ -166,7 +173,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete_signed("12345") ==
+      assert delete_signed("12345", @config) ==
                {:error, %{source_errors: ["USER_NOT_FOUND"], type: :invalid_session}}
     end
 
@@ -174,7 +181,7 @@ defmodule Vimond.Client.DeleteTest do
       HTTPClientMock
       |> expect(:delete, fn _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
 
-      assert delete_signed("12345") ==
+      assert delete_signed("12345", @config) ==
                {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
     end
   end

@@ -1,9 +1,14 @@
 defmodule Vimond.Client.ReauthenticateTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/"
+  }
 
   test "with valid 'remember me'" do
     HTTPClientMock
@@ -31,7 +36,7 @@ defmodule Vimond.Client.ReauthenticateTest do
       }
     end)
 
-    assert reauthenticate("valid_remember_me") ==
+    assert reauthenticate("valid_remember_me", @config) ==
              {:ok,
               %{
                 session: %Vimond.Session{
@@ -60,7 +65,7 @@ defmodule Vimond.Client.ReauthenticateTest do
       }
     end)
 
-    assert reauthenticate("expired_remember_me") ==
+    assert reauthenticate("expired_remember_me", @config) ==
              {:error, %{type: :invalid_session, source_errors: ["Session is not authenticated"]}}
   end
 end

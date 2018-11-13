@@ -1,9 +1,12 @@
 defmodule Vimond.Client.CreateTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "returns the user when a user was created" do
     HTTPClientMock
@@ -83,7 +86,7 @@ defmodule Vimond.Client.CreateTest do
       ]
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:ok,
               %{
                 user: %Vimond.User{
@@ -155,7 +158,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:error,
               %{
                 type: :username_already_in_use,
@@ -204,7 +207,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:error,
               %{
                 type: :email_already_in_use,
@@ -250,7 +253,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:error, %{type: :email_invalid, source_errors: ["Email address is not valid"]}}
   end
 
@@ -298,7 +301,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:error,
               %{
                 type: :user_creation_failed,
@@ -336,7 +339,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) ==
+    assert create(user, @config) ==
              {:error, %{type: :user_creation_failed, source_errors: ["THE_NUMBER_OF_THE_BEAST"]}}
   end
 
@@ -361,6 +364,7 @@ defmodule Vimond.Client.CreateTest do
       zip_code: "123 45"
     }
 
-    assert create(user) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
+    assert create(user, @config) ==
+             {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
   end
 end

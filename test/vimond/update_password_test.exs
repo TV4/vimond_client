@@ -1,9 +1,14 @@
 defmodule Vimond.Client.UpdatePasswordTest do
   use ExUnit.Case, async: true
+  alias Vimond.Config
   import Vimond.Client
   import Mox
 
   setup :verify_on_exit!
+
+  @config %Config{
+    base_url: "https://vimond-rest-api.example.com/api/platform/"
+  }
 
   test "with valid parameters" do
     HTTPClientMock
@@ -37,7 +42,8 @@ defmodule Vimond.Client.UpdatePasswordTest do
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password"
+             "new_password",
+             @config
            ) == {:ok, %{}}
   end
 
@@ -70,7 +76,8 @@ defmodule Vimond.Client.UpdatePasswordTest do
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password"
+             "new_password",
+             @config
            ) == expected
   end
 
@@ -104,7 +111,8 @@ defmodule Vimond.Client.UpdatePasswordTest do
              "vimond_authorization_token",
              "remember_me",
              "old_password",
-             "new_password"
+             "new_password",
+             @config
            ) == expected
   end
 end

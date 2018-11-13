@@ -5,6 +5,12 @@ defmodule Vimond.Client.ExistsTest do
 
   setup :verify_on_exit!
 
+  @config %Vimond.Config{
+    api_key: "key",
+    api_secret: "secret",
+    base_url: "https://vimond-rest-api.example.com/api/platform/"
+  }
+
   test "returns true for user existing in vimond" do
     HTTPClientMock
     |> expect(
@@ -38,7 +44,7 @@ defmodule Vimond.Client.ExistsTest do
       end
     )
 
-    assert exists_signed("existing@example.com") == {:ok, %{exists: true}}
+    assert exists_signed("existing@example.com", @config) == {:ok, %{exists: true}}
   end
 
   test "returns false for user that does not exist in vimond" do
@@ -65,14 +71,14 @@ defmodule Vimond.Client.ExistsTest do
       }
     end)
 
-    assert exists_signed("whom@example.com") == {:ok, %{exists: false}}
+    assert exists_signed("whom@example.com", @config) == {:ok, %{exists: false}}
   end
 
   test "handles errors" do
     HTTPClientMock
     |> expect(:get, fn _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
 
-    assert exists_signed("vimond_down_error") ==
+    assert exists_signed("vimond_down_error", @config) ==
              {:error, %{type: :http_error, source_errors: ["Oh noes!"]}}
   end
 end

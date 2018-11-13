@@ -5,6 +5,8 @@ defmodule Vimond.Client.ProductGroupTest do
 
   setup :verify_on_exit!
 
+  @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
+
   test "with a product group that has a name" do
     HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083",
@@ -19,7 +21,7 @@ defmodule Vimond.Client.ProductGroupTest do
       }
     end)
 
-    assert product_group(1083) == {:ok, %{name: "C More Premium"}}
+    assert product_group(1083, @config) == {:ok, %{name: "C More Premium"}}
   end
 
   test "with a product group that doesn't have a name" do
@@ -36,6 +38,6 @@ defmodule Vimond.Client.ProductGroupTest do
       }
     end)
 
-    assert product_group(1083) == {:ok, %{name: nil}}
+    assert product_group(1083, @config) == {:ok, %{name: nil}}
   end
 end
