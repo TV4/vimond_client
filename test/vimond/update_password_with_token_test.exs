@@ -11,7 +11,7 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
   }
 
   test "with valid a valid password token and password" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user/password",
                         body,
                         Accept: "application/json; v=3; charset=UTF-8",
@@ -33,7 +33,7 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
   end
 
   test "with expired password token" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user/password",
                         body,
                         Accept: "application/json; v=3; charset=UTF-8",

@@ -11,7 +11,7 @@ defmodule Vimond.Client.ReauthenticateTest do
   }
 
   test "with valid 'remember me'" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/authentication/user",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -46,7 +46,7 @@ defmodule Vimond.Client.ReauthenticateTest do
   end
 
   test "with an expired 'remember me'" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url, _headers ->
       %HTTPotion.Response{
         status_code: 200,

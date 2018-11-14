@@ -13,7 +13,7 @@ defmodule Vimond.Client.UserInformationTest do
 
   describe "user authenticated" do
     test "with valid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -120,7 +120,7 @@ defmodule Vimond.Client.UserInformationTest do
     end
 
     test "with invalid Vimond authorization token and valid remember_me" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn _url, _headers ->
         json = %{
           "mobileNumber" => "0712345678",
@@ -219,7 +219,7 @@ defmodule Vimond.Client.UserInformationTest do
     end
 
     test "with invalid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn _url, _headers ->
         json = %{
           "error" => %{
@@ -250,7 +250,7 @@ defmodule Vimond.Client.UserInformationTest do
     end
 
     test "with an unknown response" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn _url, _headers ->
         json = %{
           "error" => %{
@@ -279,7 +279,7 @@ defmodule Vimond.Client.UserInformationTest do
 
   describe "app authenticated" do
     test "with valid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -376,7 +376,7 @@ defmodule Vimond.Client.UserInformationTest do
     end
 
     test "failure to authenticate against vimond" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -406,7 +406,7 @@ defmodule Vimond.Client.UserInformationTest do
     end
 
     test "error contacting Vimond" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8",

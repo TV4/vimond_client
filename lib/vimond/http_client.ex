@@ -1,8 +1,7 @@
-defmodule HTTPClient do
-  alias Vimond.Config
+defmodule Vimond.HTTPClient do
   require Logger
 
-  @http_client Application.get_env(:vimond_client, :http_client)
+  @http_client Application.get_env(:vimond_client, :http_client, HTTPotion)
 
   @callback delete(url :: String.t(), headers :: Keyword.t()) :: any()
   def delete(url, headers, options \\ []) do
@@ -24,9 +23,7 @@ defmodule HTTPClient do
     request(:put, url, merge(body, headers, options))
   end
 
-  @callback request(method :: atom(), url :: String.t(), options :: Keyword.t()) ::
-              HTTPotion.Response.t() | HTTPotion.ErrorResponse.t()
-  def request(method, url, options) do
+  defp request(method, url, options) do
     Logger.debug("Vimond request: #{inspect({method, url, options})}")
     @http_client.request(method, url, options)
   end
@@ -34,20 +31,20 @@ defmodule HTTPClient do
   defp merge(headers, options), do: Keyword.merge(options, headers: headers)
   defp merge(body, headers, options), do: Keyword.merge(options, body: body, headers: headers)
 
-  defp sign_headers(method, path, headers, %Config{api_key: api_key, api_secret: api_secret}) do
-    timestamp = Timex.format!(datetime().utc_now(), "{RFC1123}")
+  # defp sign_headers(method, path, headers, %Vimond.Config{api_key: api_key, api_secret: api_secret}) do
+  #   timestamp = Timex.format!(datetime().utc_now(), "{RFC1123}")
 
-    [
-      Authorization: "SUMO #{api_key}:#{vimond_signature(method, path, timestamp, api_secret)}",
-      Date: timestamp
-    ]
-    |> Keyword.merge(headers)
-  end
+  #   [
+  #     Authorization: "SUMO #{api_key}:#{vimond_signature(method, path, timestamp, api_secret)}",
+  #     Date: timestamp
+  #   ]
+  #   |> Keyword.merge(headers)
+  # end
 
-  def vimond_signature(method, path, timestamp, api_secret) do
-    :crypto.hmac(:sha, api_secret, "#{method}\n#{path}\n#{timestamp}")
-    |> Base.encode64()
-  end
+  # def vimond_signature(method, path, timestamp, api_secret) do
+  #   :crypto.hmac(:sha, api_secret, "#{method}\n#{path}\n#{timestamp}")
+  #   |> Base.encode64()
+  # end
 
-  defp datetime, do: Application.get_env(:vimond_client, :datetime, DateTime)
+  # defp datetime, do: Application.get_env(:vimond_client, :datetime, DateTime)
 end

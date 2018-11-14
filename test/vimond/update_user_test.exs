@@ -8,7 +8,7 @@ defmodule Vimond.Client.UpdateUserTest do
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "when replacing a property and keeping a property" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -89,7 +89,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",
@@ -249,7 +249,7 @@ defmodule Vimond.Client.UpdateUserTest do
   end
 
   test "when adding a property and keeping a property" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -314,7 +314,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",
@@ -476,7 +476,7 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with invalid credentials" do
     user = %Vimond.User{username: "some.person@example.com", email: "some.person@example.com"}
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url, _headers ->
       json = %{
         "error" => %{
@@ -512,7 +512,7 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with invalid response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url, _headers ->
       %HTTPotion.Response{
         status_code: 200,
@@ -526,7 +526,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn _url, _body, _headers ->
       %HTTPotion.Response{
         body:
@@ -562,7 +562,7 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with email already registered response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url, _headers ->
       %HTTPotion.Response{
         status_code: 200,
@@ -576,7 +576,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 200,
@@ -615,7 +615,7 @@ defmodule Vimond.Client.UpdateUserTest do
   test "with username already registered response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url, _headers ->
       %HTTPotion.Response{
         status_code: 200,
@@ -629,7 +629,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 200,
@@ -667,7 +667,7 @@ defmodule Vimond.Client.UpdateUserTest do
   end
 
   test "with renewed authorization token" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn _url,
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -685,7 +685,7 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",

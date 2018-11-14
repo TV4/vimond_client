@@ -9,7 +9,7 @@ defmodule Vimond.Client.CreateTest do
   @config %Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "returns the user when a user was created" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user",
                         body,
                         Accept: "application/json; v=3; charset=UTF-8",
@@ -115,7 +115,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the user already exists in Vimond" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,
@@ -170,7 +170,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the users email exists in Vimond" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,
@@ -216,7 +216,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when the users email is invalid in Vimond" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,
@@ -258,7 +258,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "returns an error when there is an unknown USER_MULTIPLE_VALIDATION_ERRORS type" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,
@@ -310,7 +310,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "with an unknown error code" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,
@@ -344,7 +344,7 @@ defmodule Vimond.Client.CreateTest do
   end
 
   test "with an unknown response" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 400,

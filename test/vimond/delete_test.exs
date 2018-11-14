@@ -14,7 +14,7 @@ defmodule Vimond.Client.DeleteTest do
 
   describe "user authenticated" do
     test "with a valid session" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                             Accept: "application/json; v=3; charset=UTF-8",
                             "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -45,7 +45,7 @@ defmodule Vimond.Client.DeleteTest do
     end
 
     test "with an invalid session" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                             Accept: "application/json; v=3; charset=UTF-8",
                             "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -82,7 +82,7 @@ defmodule Vimond.Client.DeleteTest do
     end
 
     test "with an expired session" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                             Accept: "application/json; v=3; charset=UTF-8",
                             "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -118,7 +118,7 @@ defmodule Vimond.Client.DeleteTest do
 
   describe "app authenticated" do
     test "succeeds" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                             Accept: "application/json; v=3; charset=UTF-8",
                             "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -151,7 +151,7 @@ defmodule Vimond.Client.DeleteTest do
     end
 
     test "when Vimond returns error" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
                             Accept: "application/json; v=3; charset=UTF-8",
                             "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -178,7 +178,7 @@ defmodule Vimond.Client.DeleteTest do
     end
 
     test "with unexpected error" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:delete, fn _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
 
       assert delete_signed("12345", @config) ==

@@ -11,7 +11,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
   }
 
   test "with valid parameters" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",
@@ -48,7 +48,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
   end
 
   test "with wrong password" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
       %HTTPotion.Response{
         status_code: 409,
@@ -82,7 +82,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
   end
 
   test "with an expired remember me token" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
       %HTTPotion.Response{
         status_code: 401,

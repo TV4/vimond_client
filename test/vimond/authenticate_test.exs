@@ -11,7 +11,7 @@ defmodule Vimond.Client.AuthenticateTest do
   }
 
   test "with valid credentials" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn "https://vimond-rest-api.example.com/api/authentication/user/login",
                         body,
                         Accept: "application/json; v=3; charset=UTF-8",
@@ -60,7 +60,7 @@ defmodule Vimond.Client.AuthenticateTest do
   end
 
   test "with invalid credentials" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 401,
@@ -86,7 +86,7 @@ defmodule Vimond.Client.AuthenticateTest do
   end
 
   test "handles errors" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:post, fn _url, _body, _headers ->
       %HTTPotion.Response{
         status_code: 200,

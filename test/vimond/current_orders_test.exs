@@ -14,7 +14,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
 
   describe "user authenticated" do
     test "with valid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(
         :get,
         fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",
@@ -122,7 +122,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
     end
 
     test "with valid credentials and multiple orders" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(
         :get,
         fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",
@@ -308,7 +308,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
     end
 
     test "with invalid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn _, _ ->
         body =
           %{
@@ -342,7 +342,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
     end
 
     test "with an unknown response" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:get, fn _, _ ->
         body =
           %{
@@ -378,7 +378,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
 
   describe "app authenticated" do
     test "with valid credentials" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(
         :get,
         fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",

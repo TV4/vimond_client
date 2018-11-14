@@ -8,7 +8,7 @@ defmodule Vimond.Client.ProductTest do
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "with product that has description" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :get,
       fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083/products/1400",
@@ -28,7 +28,7 @@ defmodule Vimond.Client.ProductTest do
   end
 
   test "with product that doesn't have description" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :get,
       fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083/products/1400",

@@ -8,7 +8,7 @@ defmodule Vimond.Client.ProductGroupTest do
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "with a product group that has a name" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8" ->
@@ -25,7 +25,7 @@ defmodule Vimond.Client.ProductGroupTest do
   end
 
   test "with a product group that doesn't have a name" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8" ->

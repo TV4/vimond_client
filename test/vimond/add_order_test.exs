@@ -15,7 +15,7 @@ defmodule Vimond.Client.AddOrderTest do
 
   describe "add_order_signed" do
     test "succeeds" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/order/12345/create",
                           body,
                           Accept: "application/json; v=3; charset=UTF-8",
@@ -37,7 +37,7 @@ defmodule Vimond.Client.AddOrderTest do
     end
 
     test "fails" do
-      HTTPClientMock
+      Vimond.HTTPClientMock
       |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/order/12345/create",
                           body,
                           Accept: "application/json; v=3; charset=UTF-8",

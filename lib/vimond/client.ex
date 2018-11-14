@@ -3,7 +3,7 @@ defmodule Vimond.Client do
   alias TimeConverter
   alias Vimond.{Config, Order, Property, Session, User}
 
-  @http_client Application.get_env(:vimond_client, :http_client)
+  @http_client Application.get_env(:vimond_client, :vimond_http_client, Vimond.HTTPClient)
   @unexpected_error {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
 
   @callback add_order_signed(user_id :: String.t(), order :: Order.t(), config :: Config.t()) ::

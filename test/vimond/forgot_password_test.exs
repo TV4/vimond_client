@@ -9,7 +9,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
   @config %Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "with an existing username" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :delete,
       fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
@@ -24,7 +24,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
   end
 
   test "with nonexisting user" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :delete,
       fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
@@ -59,7 +59,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
   end
 
   test "with unexpected json" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :delete,
       fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
@@ -83,7 +83,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
   end
 
   test "with unexpected error" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(
       :delete,
       fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",

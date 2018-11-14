@@ -13,7 +13,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
   }
 
   test "terminate order succeeds" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/order/123",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -84,7 +84,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
       %HTTPotion.Response{status_code: 200, body: Jason.encode!(json)}
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/order/123",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",
@@ -141,7 +141,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
   end
 
   test "terminate order fails" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/order/123",
                        Accept: "application/json; v=3; charset=UTF-8",
                        "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -215,7 +215,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
       }
     end)
 
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/order/123",
                        body,
                        Accept: "application/json; v=3; charset=UTF-8",

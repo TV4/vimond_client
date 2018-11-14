@@ -9,7 +9,7 @@ defmodule Vimond.Client.LogoutTest do
   @config %Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
 
   test "with any token" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:delete, fn "https://vimond-rest-api.example.com/api/authentication/user/logout",
                           Accept: "application/json; v=3; charset=UTF-8",
                           "Content-Type": "application/json; v=3; charset=UTF-8",
@@ -35,7 +35,7 @@ defmodule Vimond.Client.LogoutTest do
   end
 
   test "handles errors" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:delete, fn _url, _headers ->
       %HTTPotion.ErrorResponse{message: "Because reason"}
     end)
@@ -45,7 +45,7 @@ defmodule Vimond.Client.LogoutTest do
   end
 
   test "handles invalid JSON responses from Vimond" do
-    HTTPClientMock
+    Vimond.HTTPClientMock
     |> expect(:delete, fn _url, _headers ->
       %HTTPotion.Response{
         status_code: 200,
