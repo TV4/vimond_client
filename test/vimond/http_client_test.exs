@@ -127,4 +127,20 @@ defmodule Vimond.HTTPClientTest do
       @config
     )
   end
+
+  test "put_signed" do
+    HTTPClientMock
+    |> expect(:request, fn :put,
+                           "https://vimond-rest-api.example.com/api/platform/put_signed",
+                           body: "body",
+                           headers: [
+                             Authorization: "SUMO key:z3ZJZp+SLXwJuhRL0iz3ozmVZsc=",
+                             Date: "Wed, 02 Sep 2015 13:24:35 +0000",
+                             Accept: "text/plain"
+                           ] ->
+      %HTTPotion.Response{status_code: 200, body: ""}
+    end)
+
+    Vimond.HTTPClient.put_signed("put_signed", "body", [Accept: "text/plain"], @config)
+  end
 end

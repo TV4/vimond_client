@@ -73,6 +73,13 @@ defmodule Vimond.HTTPClient do
               headers :: Keyword.t(),
               config :: Config.t()
             ) :: any()
+  def put_signed(path, body, headers, config = %Config{base_url: base_url}) do
+    url = vimond_url(base_url, path)
+    path = URI.parse(url).path
+
+    headers = headers |> signed_headers("PUT", path, config)
+    request(:put, url, merge(body, headers, []))
+  end
 
   defp request(method, url, options) do
     Logger.debug("Vimond request: #{inspect({method, url, options})}")
