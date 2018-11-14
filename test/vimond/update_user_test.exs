@@ -9,11 +9,14 @@ defmodule Vimond.Client.UpdateUserTest do
 
   test "when replacing a property and keeping a property" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer valid_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+    |> expect(:get, fn "user",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       json = %{
         "address" => nil,
         "city" => nil,
@@ -90,12 +93,15 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+    |> expect(:put, fn "user",
                        body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer valid_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       assert %{
                "id" => 6_572_908,
                "registrationDate" => 1_418_828_690_000,
@@ -250,11 +256,14 @@ defmodule Vimond.Client.UpdateUserTest do
 
   test "when adding a property and keeping a property" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer valid_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+    |> expect(:get, fn "user",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       json = %{
         "address" => nil,
         "city" => nil,
@@ -315,12 +324,15 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+    |> expect(:put, fn "user",
                        body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer valid_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       assert %{
                "id" => 6_572_908,
                "registrationDate" => 1_418_828_690_000,
@@ -477,7 +489,7 @@ defmodule Vimond.Client.UpdateUserTest do
     user = %Vimond.User{username: "some.person@example.com", email: "some.person@example.com"}
 
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url, _headers ->
+    |> expect(:get, fn _path, _headers, _config ->
       json = %{
         "error" => %{
           "code" => "SESSION_NOT_AUTHENTICATED",
@@ -513,7 +525,7 @@ defmodule Vimond.Client.UpdateUserTest do
     user = %Vimond.User{username: "some.person@example.com"}
 
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url, _headers ->
+    |> expect(:get, fn _path, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{"userName" => "some_user@example.com"}),
@@ -527,7 +539,7 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn _url, _body, _headers ->
+    |> expect(:put, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         body:
           %{
@@ -563,7 +575,7 @@ defmodule Vimond.Client.UpdateUserTest do
     user = %Vimond.User{username: "some.person@example.com"}
 
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url, _headers ->
+    |> expect(:get, fn _path, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{"userName" => "some_user@example.com"}),
@@ -577,7 +589,7 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn _url, _body, _headers ->
+    |> expect(:put, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body:
@@ -616,7 +628,7 @@ defmodule Vimond.Client.UpdateUserTest do
     user = %Vimond.User{username: "some.person@example.com"}
 
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url, _headers ->
+    |> expect(:get, fn _path, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{"userName" => "some_user@example.com"}),
@@ -630,7 +642,7 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn _url, _body, _headers ->
+    |> expect(:put, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body:
@@ -668,11 +680,14 @@ defmodule Vimond.Client.UpdateUserTest do
 
   test "with renewed authorization token" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer expired_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+    |> expect(:get, fn _path,
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer expired_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{"userName" => "some_user@example.com"}),
@@ -686,12 +701,15 @@ defmodule Vimond.Client.UpdateUserTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user",
+    |> expect(:put, fn "user",
                        body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer renewed_authorization_token",
-                       Cookie: "rememberMe=valid_remember_me" ->
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer renewed_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
       assert Jason.decode!(body) == %{
                "id" => 6_572_908,
                "userName" => "lodakai",

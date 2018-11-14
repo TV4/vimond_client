@@ -12,10 +12,13 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
 
   test "with valid a valid password token and password" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user/password",
+    |> expect(:post, fn "user/password",
                         body,
-                        Accept: "application/json; v=3; charset=UTF-8",
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" ->
+                        [
+                          Accept: "application/json; v=3; charset=UTF-8",
+                          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        ],
+                        @config ->
       %{"token" => "valid_password_token", "password" => "password"} = URI.decode_query(body)
 
       %HTTPotion.Response{
@@ -34,10 +37,13 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
 
   test "with expired password token" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user/password",
+    |> expect(:post, fn "user/password",
                         body,
-                        Accept: "application/json; v=3; charset=UTF-8",
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" ->
+                        [
+                          Accept: "application/json; v=3; charset=UTF-8",
+                          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        ],
+                        @config ->
       %{"token" => "expired_password_token", "password" => "password"} = URI.decode_query(body)
 
       %HTTPotion.Response{

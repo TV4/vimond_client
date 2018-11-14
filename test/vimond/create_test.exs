@@ -10,10 +10,13 @@ defmodule Vimond.Client.CreateTest do
 
   test "returns the user when a user was created" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/user",
+    |> expect(:post, fn "user",
                         body,
-                        Accept: "application/json; v=3; charset=UTF-8",
-                        "Content-Type": "application/json; v=3; charset=UTF-8" ->
+                        [
+                          Accept: "application/json; v=3; charset=UTF-8",
+                          "Content-Type": "application/json; v=3; charset=UTF-8"
+                        ],
+                        @config ->
       assert Jason.decode!(body) == %{
                "userName" => "new_user",
                "password" => "password",
@@ -116,7 +119,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "returns an error when the user already exists in Vimond" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -171,7 +174,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "returns an error when the users email exists in Vimond" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -217,7 +220,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "returns an error when the users email is invalid in Vimond" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -259,7 +262,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "returns an error when there is an unknown USER_MULTIPLE_VALIDATION_ERRORS type" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -311,7 +314,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "with an unknown error code" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -345,7 +348,7 @@ defmodule Vimond.Client.CreateTest do
 
   test "with an unknown response" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 400,
         body: Jason.encode!(%{"hello" => "world"}),

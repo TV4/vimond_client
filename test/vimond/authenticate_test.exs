@@ -12,10 +12,13 @@ defmodule Vimond.Client.AuthenticateTest do
 
   test "with valid credentials" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn "https://vimond-rest-api.example.com/api/authentication/user/login",
+    |> expect(:post, fn "/api/authentication/user/login",
                         body,
-                        Accept: "application/json; v=3; charset=UTF-8",
-                        "Content-Type": "application/json; v=2; charset=UTF-8" ->
+                        [
+                          Accept: "application/json; v=3; charset=UTF-8",
+                          "Content-Type": "application/json; v=2; charset=UTF-8"
+                        ],
+                        @config ->
       assert Jason.decode!(body) == %{
                "username" => "valid_user",
                "password" => "password",
@@ -61,7 +64,7 @@ defmodule Vimond.Client.AuthenticateTest do
 
   test "with invalid credentials" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 401,
         body:
@@ -87,7 +90,7 @@ defmodule Vimond.Client.AuthenticateTest do
 
   test "handles errors" do
     Vimond.HTTPClientMock
-    |> expect(:post, fn _url, _body, _headers ->
+    |> expect(:post, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{"unexpected" => "value"}),

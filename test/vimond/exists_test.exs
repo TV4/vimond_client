@@ -14,12 +14,13 @@ defmodule Vimond.Client.ExistsTest do
   test "returns true for user existing in vimond" do
     Vimond.HTTPClientMock
     |> expect(
-      :get,
-      fn "https://vimond-rest-api.example.com/api/platform/user/username/existing@example.com",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8",
-         Authorization: "SUMO key:" <> _generated_vimond_signature,
-         Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      :get_signed,
+      fn "user/username/existing@example.com",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 200,
           body:
@@ -49,11 +50,12 @@ defmodule Vimond.Client.ExistsTest do
 
   test "returns false for user that does not exist in vimond" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn _url,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "SUMO key:" <> _generated_vimond_signature,
-                       Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+    |> expect(:get_signed, fn _url,
+                              [
+                                Accept: "application/json; v=3; charset=UTF-8",
+                                "Content-Type": "application/json; v=3; charset=UTF-8"
+                              ],
+                              @config ->
       %HTTPotion.Response{
         status_code: 400,
         body:
@@ -76,7 +78,7 @@ defmodule Vimond.Client.ExistsTest do
 
   test "handles errors" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
+    |> expect(:get_signed, fn _, _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
 
     assert exists_signed("vimond_down_error", @config) ==
              {:error, %{type: :http_error, source_errors: ["Oh noes!"]}}

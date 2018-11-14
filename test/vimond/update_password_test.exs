@@ -12,12 +12,15 @@ defmodule Vimond.Client.UpdatePasswordTest do
 
   test "with valid parameters" do
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password",
+    |> expect(:put, fn "user/password",
                        body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "Bearer vimond_authorization_token",
-                       Cookie: "rememberMe=remember_me" ->
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer vimond_authorization_token",
+                         Cookie: "rememberMe=remember_me"
+                       ],
+                       @config ->
       ExUnit.Assertions.assert(
         Jason.decode!(body) == %{
           "userId" => 12345,
@@ -49,7 +52,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
 
   test "with wrong password" do
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
+    |> expect(:put, fn "user/password", _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 409,
         body:
@@ -83,7 +86,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
 
   test "with an expired remember me token" do
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/user/password", _, _ ->
+    |> expect(:put, fn "user/password", _body, _headers, _config ->
       %HTTPotion.Response{
         status_code: 401,
         body:

@@ -17,11 +17,14 @@ defmodule Vimond.Client.CurrentOrdersTest do
       Vimond.HTTPClientMock
       |> expect(
         :get,
-        fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",
-           Accept: "application/json; v=3; charset=UTF-8",
-           "Content-Type": "application/json; v=3; charset=UTF-8",
-           Authorization: "Bearer valid_vimond_token",
-           Cookie: "rememberMe=valid_remember_me" ->
+        fn "user/123/orders/current",
+           [
+             Accept: "application/json; v=3; charset=UTF-8",
+             "Content-Type": "application/json; v=3; charset=UTF-8",
+             Authorization: "Bearer valid_vimond_token",
+             Cookie: "rememberMe=valid_remember_me"
+           ],
+           @config ->
           body =
             [
               %{
@@ -125,11 +128,14 @@ defmodule Vimond.Client.CurrentOrdersTest do
       Vimond.HTTPClientMock
       |> expect(
         :get,
-        fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",
-           Accept: "application/json; v=3; charset=UTF-8",
-           "Content-Type": "application/json; v=3; charset=UTF-8",
-           Authorization: "Bearer valid_vimond_authorization_token",
-           Cookie: "rememberMe=valid_remember_me" ->
+        fn "user/123/orders/current",
+           [
+             Accept: "application/json; v=3; charset=UTF-8",
+             "Content-Type": "application/json; v=3; charset=UTF-8",
+             Authorization: "Bearer valid_vimond_authorization_token",
+             Cookie: "rememberMe=valid_remember_me"
+           ],
+           @config ->
           body =
             [
               %{
@@ -309,7 +315,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
 
     test "with invalid credentials" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn _, _ ->
+      |> expect(:get, fn _path, _headers, _config ->
         body =
           %{
             "error" => %{
@@ -343,7 +349,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
 
     test "with an unknown response" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn _, _ ->
+      |> expect(:get, fn _path, _headers, _config ->
         body =
           %{
             "error" => %{
@@ -380,12 +386,13 @@ defmodule Vimond.Client.CurrentOrdersTest do
     test "with valid credentials" do
       Vimond.HTTPClientMock
       |> expect(
-        :get,
-        fn "https://vimond-rest-api.example.com/api/platform/user/123/orders/current",
-           Accept: "application/json; v=3; charset=UTF-8",
-           "Content-Type": "application/json; v=3; charset=UTF-8",
-           Authorization: "SUMO " <> _,
-           Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+        :get_signed,
+        fn "user/123/orders/current",
+           [
+             Accept: "application/json; v=3; charset=UTF-8",
+             "Content-Type": "application/json; v=3; charset=UTF-8"
+           ],
+           @config ->
           body =
             [
               %{

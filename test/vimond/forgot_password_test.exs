@@ -12,9 +12,12 @@ defmodule Vimond.Client.ForgotPasswordTest do
     Vimond.HTTPClientMock
     |> expect(
       :delete,
-      fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "user/user@example.com/password",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
       end
     )
@@ -27,9 +30,12 @@ defmodule Vimond.Client.ForgotPasswordTest do
     Vimond.HTTPClientMock
     |> expect(
       :delete,
-      fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "user/user@example.com/password",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 404,
           body:
@@ -62,9 +68,12 @@ defmodule Vimond.Client.ForgotPasswordTest do
     Vimond.HTTPClientMock
     |> expect(
       :delete,
-      fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "user/user@example.com/password",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 404,
           body: "",
@@ -86,9 +95,12 @@ defmodule Vimond.Client.ForgotPasswordTest do
     Vimond.HTTPClientMock
     |> expect(
       :delete,
-      fn "https://vimond-rest-api.example.com/api/platform/user/user@example.com/password",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "user/user@example.com/password",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 500,
           body: Jason.encode!(%{"error" => %{"code" => "UNEXPECTED_ERROR"}}),

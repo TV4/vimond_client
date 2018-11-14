@@ -15,10 +15,13 @@ defmodule Vimond.Client.DeleteTest do
   describe "user authenticated" do
     test "with a valid session" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                            Accept: "application/json; v=3; charset=UTF-8",
-                            "Content-Type": "application/json; v=3; charset=UTF-8",
-                            Authorization: "Bearer blah" ->
+      |> expect(:delete, fn "user/12345",
+                            [
+                              Accept: "application/json; v=3; charset=UTF-8",
+                              "Content-Type": "application/json; v=3; charset=UTF-8",
+                              Authorization: "Bearer blah"
+                            ],
+                            @config ->
         %HTTPotion.Response{
           body: "",
           headers: %HTTPotion.Headers{
@@ -46,10 +49,13 @@ defmodule Vimond.Client.DeleteTest do
 
     test "with an invalid session" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                            Accept: "application/json; v=3; charset=UTF-8",
-                            "Content-Type": "application/json; v=3; charset=UTF-8",
-                            Authorization: "Bearer blah" ->
+      |> expect(:delete, fn "user/12345",
+                            [
+                              Accept: "application/json; v=3; charset=UTF-8",
+                              "Content-Type": "application/json; v=3; charset=UTF-8",
+                              Authorization: "Bearer blah"
+                            ],
+                            @config ->
         %HTTPotion.Response{
           body:
             %{
@@ -83,10 +89,13 @@ defmodule Vimond.Client.DeleteTest do
 
     test "with an expired session" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                            Accept: "application/json; v=3; charset=UTF-8",
-                            "Content-Type": "application/json; v=3; charset=UTF-8",
-                            Authorization: "Bearer blah" ->
+      |> expect(:delete, fn "user/12345",
+                            [
+                              Accept: "application/json; v=3; charset=UTF-8",
+                              "Content-Type": "application/json; v=3; charset=UTF-8",
+                              Authorization: "Bearer blah"
+                            ],
+                            @config ->
         %HTTPotion.Response{
           body:
             %{
@@ -119,11 +128,12 @@ defmodule Vimond.Client.DeleteTest do
   describe "app authenticated" do
     test "succeeds" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                            Accept: "application/json; v=3; charset=UTF-8",
-                            "Content-Type": "application/json; v=3; charset=UTF-8",
-                            Authorization: "SUMO key:" <> _,
-                            Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:delete_signed, fn "user/12345",
+                                   [
+                                     Accept: "application/json; v=3; charset=UTF-8",
+                                     "Content-Type": "application/json; v=3; charset=UTF-8"
+                                   ],
+                                   @config ->
         %HTTPotion.Response{
           body: "",
           headers: %HTTPotion.Headers{
@@ -152,11 +162,7 @@ defmodule Vimond.Client.DeleteTest do
 
     test "when Vimond returns error" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                            Accept: "application/json; v=3; charset=UTF-8",
-                            "Content-Type": "application/json; v=3; charset=UTF-8",
-                            Authorization: "SUMO key:" <> _,
-                            Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:delete_signed, fn _path, _headers, _config ->
         %HTTPotion.Response{
           body:
             Jason.encode!(%{
@@ -179,7 +185,9 @@ defmodule Vimond.Client.DeleteTest do
 
     test "with unexpected error" do
       Vimond.HTTPClientMock
-      |> expect(:delete, fn _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
+      |> expect(:delete_signed, fn _path, _headers, _config ->
+        %HTTPotion.ErrorResponse{message: "Oh noes!"}
+      end)
 
       assert delete_signed("12345", @config) ==
                {:error, %{type: :generic, source_errors: ["Unexpected error"]}}

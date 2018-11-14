@@ -9,9 +9,12 @@ defmodule Vimond.Client.ProductGroupTest do
 
   test "with a product group that has a name" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8" ->
+    |> expect(:get, fn "productgroup/1083",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8"
+                       ],
+                       @config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{name: "C More Premium"}),
@@ -26,9 +29,12 @@ defmodule Vimond.Client.ProductGroupTest do
 
   test "with a product group that doesn't have a name" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8" ->
+    |> expect(:get, fn "productgroup/1083",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8"
+                       ],
+                       @config ->
       %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{}),

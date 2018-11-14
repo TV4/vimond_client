@@ -14,11 +14,14 @@ defmodule Vimond.Client.UserInformationTest do
   describe "user authenticated" do
     test "with valid credentials" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user",
-                         Accept: "application/json; v=3; charset=UTF-8",
-                         "Content-Type": "application/json; v=3; charset=UTF-8",
-                         Authorization: "Bearer valid_authorization_token",
-                         Cookie: "rememberMe=valid_remember_me" ->
+      |> expect(:get, fn "user",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8",
+                           Authorization: "Bearer valid_authorization_token",
+                           Cookie: "rememberMe=valid_remember_me"
+                         ],
+                         @config ->
         json = %{
           "mobileNumber" => "0712345678",
           "dateOfBirth" => "1981-01-01T00:00:00Z",
@@ -121,7 +124,7 @@ defmodule Vimond.Client.UserInformationTest do
 
     test "with invalid Vimond authorization token and valid remember_me" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn _url, _headers ->
+      |> expect(:get, fn _path, _headers, _config ->
         json = %{
           "mobileNumber" => "0712345678",
           "dateOfBirth" => "1981-01-01T00:00:00Z",
@@ -220,7 +223,7 @@ defmodule Vimond.Client.UserInformationTest do
 
     test "with invalid credentials" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn _url, _headers ->
+      |> expect(:get, fn _path, _headers, _config ->
         json = %{
           "error" => %{
             "code" => "SESSION_NOT_AUTHENTICATED",
@@ -251,7 +254,7 @@ defmodule Vimond.Client.UserInformationTest do
 
     test "with an unknown response" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn _url, _headers ->
+      |> expect(:get, fn _path, _headers, _config ->
         json = %{
           "error" => %{
             "code" => "I_DONT_KNOW_WHATS_GOING_ON",
@@ -280,11 +283,12 @@ defmodule Vimond.Client.UserInformationTest do
   describe "app authenticated" do
     test "with valid credentials" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                         Accept: "application/json; v=3; charset=UTF-8",
-                         "Content-Type": "application/json; v=3; charset=UTF-8",
-                         Authorization: "SUMO key:" <> _,
-                         Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:get_signed, fn "user/12345",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
         json = %{
           "mobileNumber" => "0712345678",
           "dateOfBirth" => "1981-01-01T00:00:00Z",
@@ -377,11 +381,12 @@ defmodule Vimond.Client.UserInformationTest do
 
     test "failure to authenticate against vimond" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                         Accept: "application/json; v=3; charset=UTF-8",
-                         "Content-Type": "application/json; v=3; charset=UTF-8",
-                         Authorization: "SUMO key:" <> _,
-                         Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:get_signed, fn "user/12345",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
         json = %{
           "code" => "AUTHENTICATION_FAILED",
           "description" => "No account found for 'key'",
@@ -407,11 +412,12 @@ defmodule Vimond.Client.UserInformationTest do
 
     test "error contacting Vimond" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/user/12345",
-                         Accept: "application/json; v=3; charset=UTF-8",
-                         "Content-Type": "application/json; v=3; charset=UTF-8",
-                         Authorization: "SUMO key:" <> _,
-                         Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:get_signed, fn "user/12345",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
         %HTTPotion.ErrorResponse{message: "econnrefused"}
       end)
 

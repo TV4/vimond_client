@@ -16,12 +16,13 @@ defmodule Vimond.Client.AddOrderTest do
   describe "add_order_signed" do
     test "succeeds" do
       Vimond.HTTPClientMock
-      |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/order/12345/create",
-                          body,
-                          Accept: "application/json; v=3; charset=UTF-8",
-                          "Content-Type": "application/json; v=3; charset=UTF-8",
-                          Authorization: "SUMO key:" <> _,
-                          Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:post_signed, fn "order/12345/create",
+                                 body,
+                                 [
+                                   Accept: "application/json; v=3; charset=UTF-8",
+                                   "Content-Type": "application/json; v=3; charset=UTF-8"
+                                 ],
+                                 @config ->
         %{
           "productPaymentId" => 4224,
           "referrer" => "telia OTT-B2B",
@@ -38,12 +39,13 @@ defmodule Vimond.Client.AddOrderTest do
 
     test "fails" do
       Vimond.HTTPClientMock
-      |> expect(:post, fn "https://vimond-rest-api.example.com/api/platform/order/12345/create",
-                          body,
-                          Accept: "application/json; v=3; charset=UTF-8",
-                          "Content-Type": "application/json; v=3; charset=UTF-8",
-                          Authorization: "SUMO key:" <> _,
-                          Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+      |> expect(:post_signed, fn "order/12345/create",
+                                 body,
+                                 [
+                                   Accept: "application/json; v=3; charset=UTF-8",
+                                   "Content-Type": "application/json; v=3; charset=UTF-8"
+                                 ],
+                                 @config ->
         %{
           "productPaymentId" => 11111,
           "referrer" => "telia OTT-B2B",

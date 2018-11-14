@@ -10,11 +10,14 @@ defmodule Vimond.Client.LogoutTest do
 
   test "with any token" do
     Vimond.HTTPClientMock
-    |> expect(:delete, fn "https://vimond-rest-api.example.com/api/authentication/user/logout",
-                          Accept: "application/json; v=3; charset=UTF-8",
-                          "Content-Type": "application/json; v=3; charset=UTF-8",
-                          Authorization: "Bearer vimond_authorization_token",
-                          Cookie: "rememberMe=valid_or_invalid_remember_me" ->
+    |> expect(:delete, fn "/api/authentication/user/logout",
+                          [
+                            Accept: "application/json; v=3; charset=UTF-8",
+                            "Content-Type": "application/json; v=3; charset=UTF-8",
+                            Authorization: "Bearer vimond_authorization_token",
+                            Cookie: "rememberMe=valid_or_invalid_remember_me"
+                          ],
+                          @config ->
       %HTTPotion.Response{
         status_code: 200,
         body:
@@ -36,7 +39,7 @@ defmodule Vimond.Client.LogoutTest do
 
   test "handles errors" do
     Vimond.HTTPClientMock
-    |> expect(:delete, fn _url, _headers ->
+    |> expect(:delete, fn _path, _headers, _config ->
       %HTTPotion.ErrorResponse{message: "Because reason"}
     end)
 
@@ -46,7 +49,7 @@ defmodule Vimond.Client.LogoutTest do
 
   test "handles invalid JSON responses from Vimond" do
     Vimond.HTTPClientMock
-    |> expect(:delete, fn _url, _headers ->
+    |> expect(:delete, fn _path, _headers, _config ->
       %HTTPotion.Response{
         status_code: 200,
         body: "not_json",

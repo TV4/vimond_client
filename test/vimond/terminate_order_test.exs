@@ -14,11 +14,12 @@ defmodule Vimond.Client.TerminateOrdersTest do
 
   test "terminate order succeeds" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/order/123",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "SUMO key:" <> _,
-                       Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+    |> expect(:get_signed, fn "order/123",
+                              [
+                                Accept: "application/json; v=3; charset=UTF-8",
+                                "Content-Type": "application/json; v=3; charset=UTF-8"
+                              ],
+                              @config ->
       json = %{
         "extendedTime" => nil,
         "startDate" => 1_509_001_257_000,
@@ -85,12 +86,13 @@ defmodule Vimond.Client.TerminateOrdersTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/order/123",
-                       body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "SUMO key:" <> _,
-                       Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+    |> expect(:put_signed, fn "order/123",
+                              body,
+                              [
+                                Accept: "application/json; v=3; charset=UTF-8",
+                                "Content-Type": "application/json; v=3; charset=UTF-8"
+                              ],
+                              @config ->
       %{"accessEndDate" => 1_441_200_275_000, "endDate" => 1_441_200_275_000} =
         Jason.decode!(body)
 
@@ -142,11 +144,12 @@ defmodule Vimond.Client.TerminateOrdersTest do
 
   test "terminate order fails" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "https://vimond-rest-api.example.com/api/platform/order/123",
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "SUMO key:" <> _,
-                       Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+    |> expect(:get_signed, fn "order/123",
+                              [
+                                Accept: "application/json; v=3; charset=UTF-8",
+                                "Content-Type": "application/json; v=3; charset=UTF-8"
+                              ],
+                              @config ->
       json = %{
         "extendedTime" => nil,
         "startDate" => 1_509_001_257_000,
@@ -216,12 +219,13 @@ defmodule Vimond.Client.TerminateOrdersTest do
     end)
 
     Vimond.HTTPClientMock
-    |> expect(:put, fn "https://vimond-rest-api.example.com/api/platform/order/123",
-                       body,
-                       Accept: "application/json; v=3; charset=UTF-8",
-                       "Content-Type": "application/json; v=3; charset=UTF-8",
-                       Authorization: "SUMO key:" <> _,
-                       Date: "Wed, 02 Sep 2015 13:24:35 +0000" ->
+    |> expect(:put_signed, fn "order/123",
+                              body,
+                              [
+                                Accept: "application/json; v=3; charset=UTF-8",
+                                "Content-Type": "application/json; v=3; charset=UTF-8"
+                              ],
+                              @config ->
       assert Jason.decode!(body) == %{
                "accessEndDate" => 1_441_200_275_000,
                "autorenewStatus" => "NOT_ELIGIBLE",

@@ -11,9 +11,12 @@ defmodule Vimond.Client.ProductTest do
     Vimond.HTTPClientMock
     |> expect(
       :get,
-      fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083/products/1400",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "productgroup/1083/products/1400",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(%{description: "C More Premium"}),
@@ -31,9 +34,12 @@ defmodule Vimond.Client.ProductTest do
     Vimond.HTTPClientMock
     |> expect(
       :get,
-      fn "https://vimond-rest-api.example.com/api/platform/productgroup/1083/products/1400",
-         Accept: "application/json; v=3; charset=UTF-8",
-         "Content-Type": "application/json; v=3; charset=UTF-8" ->
+      fn "productgroup/1083/products/1400",
+         [
+           Accept: "application/json; v=3; charset=UTF-8",
+           "Content-Type": "application/json; v=3; charset=UTF-8"
+         ],
+         @config ->
         %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(%{}),
