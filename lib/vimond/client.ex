@@ -218,10 +218,39 @@ defmodule Vimond.Client do
 
   @callback exists_signed(username :: String.t(), config :: Config.t()) :: {:ok, boolean}
   def exists_signed(username, config = %Config{}) do
-    request("exists", fn ->
+    username_exists = fn ->
       @http_client.get_signed("user/username/#{username}", headers(), config)
-    end)
-    |> handle_exists_response
+    end
+
+    email_exists = fn ->
+      @http_client.get_signed("user/#{username}", headers(), config)
+    end
+
+    with :maybe <- parse_exists_vimond_response(username_exists),
+         :maybe <- parse_exists_vimond_response(email_exists) do
+      {:ok, %{exists: false}}
+    end
+  end
+
+  defp parse_exists_vimond_response(request_fun) do
+    case request("exists", request_fun) do
+      %HTTPotion.Response{status_code: 200} ->
+        {:ok, %{exists: true}}
+
+      # When using the username lookup endpoint in Vimond, it can return the following things:
+      #
+      # For a username that looks like a username and exists -> 200, exists
+      # For a username that looks like an email address and exists -> 200, exists
+      # For a username that looks like an email address and doesn't exist as username -> 400, Invalid username
+      # For a username that looks like a username and doesn't exist -> 400, unhandled Java error "UserNotFoundException"
+      #
+      # 😱
+      %HTTPotion.Response{status_code: _} ->
+        :maybe
+
+      %HTTPotion.ErrorResponse{message: message} ->
+        {:error, %{type: :http_error, source_errors: [message]}}
+    end
   end
 
   @callback user_information(
@@ -591,13 +620,6 @@ defmodule Vimond.Client do
   end
 
   defp handle_delete_response(_), do: @unexpected_error
-
-  defp handle_exists_response(%HTTPotion.Response{status_code: 200}), do: {:ok, %{exists: true}}
-
-  defp handle_exists_response(%HTTPotion.ErrorResponse{message: reason}),
-    do: {:error, %{type: :http_error, source_errors: [reason]}}
-
-  defp handle_exists_response(_), do: {:ok, %{exists: false}}
 
   defp handle_forgot_password_response(%HTTPotion.Response{status_code: 204}) do
     {:ok, %{message: "Reset password email sent"}}
