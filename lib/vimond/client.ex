@@ -374,7 +374,7 @@ defmodule Vimond.Client do
               {:ok | :error, order_id :: String.t()}
   def terminate_order_signed(order_id, config = %Config{}) do
     {:ok, order} = get_order_signed(order_id, config)
-    end_date = DateTime.to_unix(datetime().utc_now(), :milliseconds)
+    end_date = DateTime.to_unix(datetime().utc_now(), :millisecond)
 
     body =
       order
@@ -730,7 +730,7 @@ defmodule Vimond.Client do
   defp build_order(%Order{referrer: referrer, product_payment_id: product_payment_id})
        when not is_nil(referrer) and not is_nil(product_payment_id) do
     %{
-      startDate: DateTime.to_unix(datetime().utc_now(), :milliseconds),
+      startDate: DateTime.to_unix(datetime().utc_now(), :millisecond),
       productPaymentId: product_payment_id,
       referrer: referrer
     }
