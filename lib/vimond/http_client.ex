@@ -90,8 +90,9 @@ defmodule Vimond.HTTPClient do
   defp merge(body, headers, options), do: Keyword.merge(options, body: body, headers: headers)
 
   defp vimond_url(base_url, path) do
-    base_url
-    |> URI.merge(path)
+    uri = URI.merge(base_url, path)
+
+    %URI{uri | path: URI.encode(uri.path)}
     |> to_string
   end
 
