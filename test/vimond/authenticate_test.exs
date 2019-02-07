@@ -22,7 +22,9 @@ defmodule Vimond.Client.AuthenticateTest do
       assert Jason.decode!(body) == %{
                "username" => "valid_user",
                "password" => "password",
-               "rememberMe" => true
+               "rememberMe" => true,
+               "platform" => "all",
+               "expand" => "user"
              }
 
       %HTTPotion.Response{
@@ -33,6 +35,15 @@ defmodule Vimond.Client.AuthenticateTest do
             "description" => "Authentication successful",
             "reference" => "ba5e8d5105be5ce7",
             "status" => 200,
+            "user" => %{
+              "dateOfBirth" => "1981-01-01T00:00:00Z",
+              "email" => "some.person@example.com",
+              "firstName" => "Valid",
+              "id" => 6_572_908,
+              "lastName" => "User",
+              "userName" => "some.person@example.com",
+              "zip" => "923 45"
+            },
             "userId" => 6_572_908
           }),
         headers: %HTTPotion.Headers{
@@ -57,7 +68,11 @@ defmodule Vimond.Client.AuthenticateTest do
                   vimond_remember_me: "VIMOND_REMEMBER_ME"
                 },
                 user: %Vimond.User{
-                  user_id: "6572908"
+                  user_id: "6572908",
+                  email: "some.person@example.com",
+                  first_name: "Valid",
+                  last_name: "User",
+                  properties: []
                 }
               }}
   end

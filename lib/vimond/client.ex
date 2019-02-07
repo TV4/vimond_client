@@ -30,8 +30,19 @@ defmodule Vimond.Client do
 
   @callback authenticate(username :: String.t(), password :: String.t(), config :: Config.t()) ::
               {:ok | :error, map}
+  @doc """
+  Authenticates the user and returns session and user information.
+  """
   def authenticate(username, password, config = %Config{}) do
-    body = Jason.encode!(%{username: username, password: password, rememberMe: true})
+    body =
+      Jason.encode!(%{
+        username: username,
+        password: password,
+        rememberMe: true,
+        expand: "user",
+        platform: "all"
+      })
+
     headers = headers("Content-Type": "application/json; v=2; charset=UTF-8")
 
     request("authenticate", fn ->
@@ -739,6 +750,8 @@ defmodule Vimond.Client do
   defp extract_authenticate(json, headers) do
     case json do
       %{"code" => "AUTHENTICATION_OK"} ->
+        user_data = json["user"]
+
         {
           :ok,
           %{
@@ -748,7 +761,10 @@ defmodule Vimond.Client do
               vimond_authorization_token: extract_authorization_token(headers)
             },
             user: %User{
-              user_id: to_string(json["userId"])
+              user_id: to_string(user_data["id"]),
+              email: to_string(user_data["email"]),
+              first_name: to_string(user_data["firstName"]),
+              last_name: to_string(user_data["lastName"])
             }
           }
         }
