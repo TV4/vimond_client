@@ -554,8 +554,7 @@ defmodule Vimond.Client.UpdateUserTest do
           |> Jason.encode!(),
         headers: %HTTPotion.Headers{
           hdrs: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8",
-            "authorization" => "Bearer valid_authorization_token"
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
         },
         status_code: 500
@@ -572,8 +571,6 @@ defmodule Vimond.Client.UpdateUserTest do
   end
 
   test "with email already registered response" do
-    user = %Vimond.User{username: "some.person@example.com"}
-
     Vimond.HTTPClientMock
     |> expect(:get, fn _path, _headers, _config ->
       %HTTPotion.Response{
@@ -591,7 +588,7 @@ defmodule Vimond.Client.UpdateUserTest do
     Vimond.HTTPClientMock
     |> expect(:put, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
-        status_code: 200,
+        status_code: 400,
         body:
           Jason.encode!(%{
             "error" => %{
@@ -610,6 +607,8 @@ defmodule Vimond.Client.UpdateUserTest do
       }
     end)
 
+    user = %Vimond.User{username: "some.person@example.com"}
+
     assert update(
              "valid_vimond_athorization_token",
              "valid_remember_me",
@@ -624,6 +623,58 @@ defmodule Vimond.Client.UpdateUserTest do
               }}
   end
 
+  test "with invalid email" do
+    Vimond.HTTPClientMock
+    |> expect(:get, fn _path, _headers, _config ->
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
+          }
+        }
+      }
+    end)
+
+    Vimond.HTTPClientMock
+    |> expect(:put, fn _path, _body, _headers, _config ->
+      %HTTPotion.Response{
+        status_code: 400,
+        body:
+          Jason.encode!(%{
+            "error" => %{
+              "code" => "USER_INVALID_EMAIL",
+              "description" => "Cannot change email to invalid format",
+              "id" => "1026",
+              "reference" => "de175e7a0ee05cbf"
+            }
+          }),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          }
+        }
+      }
+    end)
+
+    user = %Vimond.User{username: "some.person@example"}
+
+    assert update(
+             "valid_vimond_athorization_token",
+             "valid_remember_me",
+             "6572908",
+             user,
+             @config
+           ) ==
+             {:error,
+              %{
+                type: :email_invalid,
+                source_errors: ["Cannot change email to invalid format"]
+              }}
+  end
+
   test "with username already registered response" do
     user = %Vimond.User{username: "some.person@example.com"}
 
@@ -634,8 +685,7 @@ defmodule Vimond.Client.UpdateUserTest do
         body: Jason.encode!(%{"userName" => "some_user@example.com"}),
         headers: %HTTPotion.Headers{
           hdrs: %{
-            "content-type" => "application/json; v=\"2\";charset=UTF-8",
-            "authorization" => "Bearer valid_authorization_token"
+            "content-type" => "application/json; v=\"2\";charset=UTF-8"
           }
         }
       }
@@ -644,7 +694,7 @@ defmodule Vimond.Client.UpdateUserTest do
     Vimond.HTTPClientMock
     |> expect(:put, fn _path, _body, _headers, _config ->
       %HTTPotion.Response{
-        status_code: 200,
+        status_code: 400,
         body:
           Jason.encode!(%{
             "error" => %{
@@ -657,8 +707,7 @@ defmodule Vimond.Client.UpdateUserTest do
           }),
         headers: %HTTPotion.Headers{
           hdrs: %{
-            "content-type" => "application/json; v=\"2\";charset=UTF-8",
-            "authorization" => "Bearer valid_authorization_token"
+            "content-type" => "application/json; v=\"2\";charset=UTF-8"
           }
         }
       }

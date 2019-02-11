@@ -477,7 +477,11 @@ defmodule Vimond.Client do
         error(:invalid_session, reason)
 
       %{"error" => %{"code" => "USER_INVALID_EMAIL", "description" => reason}} ->
-        error(:email_already_in_use, reason)
+        if reason == "Email address is already registered" do
+          error(:email_already_in_use, reason)
+        else
+          error(:email_invalid, reason)
+        end
 
       %{"error" => %{"code" => "USER_INVALID_USERNAME", "description" => reason}} ->
         error(:username_already_in_use, reason)
