@@ -70,9 +70,12 @@ defmodule Vimond.Client.AuthenticateTest do
                 user: %Vimond.User{
                   user_id: "6572908",
                   email: "some.person@example.com",
+                  username: "some.person@example.com",
+                  year_of_birth: 1981,
                   first_name: "Valid",
                   last_name: "User",
-                  properties: []
+                  properties: [],
+                  zip_code: "923 45"
                 }
               }}
   end

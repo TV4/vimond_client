@@ -750,8 +750,6 @@ defmodule Vimond.Client do
   defp extract_authenticate(json, headers) do
     case json do
       %{"code" => "AUTHENTICATION_OK"} ->
-        user_data = json["user"]
-
         {
           :ok,
           %{
@@ -759,14 +757,9 @@ defmodule Vimond.Client do
               expires: extract_remember_me_expiry(headers),
               vimond_remember_me: extract_remember_me(headers),
               vimond_authorization_token: extract_authorization_token(headers)
-            },
-            user: %User{
-              user_id: to_string(user_data["id"]),
-              email: to_string(user_data["email"]),
-              first_name: to_string(user_data["firstName"]),
-              last_name: to_string(user_data["lastName"])
             }
           }
+          |> Map.merge(extract_user(json["user"]))
         }
 
       %{"code" => "AUTHENTICATION_FAILED", "description" => reason} ->
