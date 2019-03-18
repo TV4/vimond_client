@@ -405,7 +405,52 @@ defmodule Vimond.Client do
     end
   end
 
-  defp get_order_signed(order_id, config = %Config{}) do
+  @callback update_order_signed(Order.t(), config :: Config.t()) ::
+              {:ok | :error, order_id :: String.t()}
+  def update_order_signed(order = %Order{order_id: order_id}, config = %Config{}) do
+    request("updated order", fn ->
+      @http_client.put_signed(
+        "order/#{order_id}",
+        Jason.encode!(update_order_payload(order, config)),
+        headers(),
+        config
+      )
+    end)
+    |> handle_response(&extract_order/2)
+  end
+
+  defp update_order_payload(order, config) do
+    {:ok, old_order} = get_order_signed(order.order_id, config)
+
+    old_order =
+      old_order
+      |> Enum.filter(fn {_key, value} -> !is_map(value) end)
+      |> Enum.filter(fn {_key, value} -> !is_nil(value) end)
+      |> Map.new()
+
+    order =
+      order
+      |> Map.from_struct()
+      |> Enum.reject(&(elem(&1, 1) == nil))
+      |> Enum.flat_map(fn
+        {:end_date, value} ->
+          [
+            {"endDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()},
+            {"accessEndDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()}
+          ]
+
+        {:order_id, value} ->
+          [{"id", value}]
+
+        {key, value} ->
+          [{key |> Atom.to_string() |> camelize(), value}]
+      end)
+      |> Map.new()
+
+    Map.merge(old_order, order)
+  end
+
+  def get_order_signed(order_id, config = %Config{}) do
     request("get_order", fn ->
       @http_client.get_signed("order/#{order_id}", headers(), config)
     end)
@@ -859,14 +904,32 @@ defmodule Vimond.Client do
     end
   end
 
+  defp extract_order(json, _) do
+    {:ok, transform_order(json)}
+  end
+
   defp transform_order(order) do
+    {:ok, end_date, _offset} = DateTime.from_iso8601(order["endDate"])
+
+    end_date = DateTime.to_unix(end_date)
+
     %Vimond.Order{
       order_id: order["id"],
       product_id: order["productId"],
       product_group_id: order["productGroupId"],
       asset_id: order["progId"],
       referrer: order["referrer"],
-      product_payment_id: order["productPaymentId"]
+      product_payment_id: order["productPaymentId"],
+      end_date: end_date
     }
+  end
+
+  defp camelize(snake) do
+    [first | rest] =
+      snake
+      |> Macro.camelize()
+      |> String.codepoints()
+
+    [String.downcase(first) | rest] |> Enum.join()
   end
 end

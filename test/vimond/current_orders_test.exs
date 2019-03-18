@@ -28,69 +28,52 @@ defmodule Vimond.Client.CurrentOrdersTest do
           body =
             [
               %{
-                "progId" => nil,
-                "callbackUrl" => nil,
-                "productGroupId" => 1083,
-                "productId" => 1400,
-                "assetName" => nil,
-                "userPaymentMethod" => %{
-                  "userPaymentMethodStatus" => "ACTIVE",
-                  "redirectUrl" => nil,
-                  "userPaymentMethodType" => "CREDIT_CARD",
-                  "captureAttemptLog" => nil,
-                  "callbackUrl" => nil,
-                  "expireDate" => 1_590_976_800_000,
-                  "allowOneClickBuy" => true,
-                  "userId" => 28_059_191,
-                  "paymentProviderId" => 27,
-                  "expirationDate" => 1_590_976_800_000,
-                  "extAgreementRef" => "397319623",
-                  "paymentInfo" => "**** **** **** 9474",
-                  "registered" => 1_469_800_270_000,
-                  "id" => "35d6df66-60a9-4e90-9b29-f97fdf032766",
-                  "uri" => nil
-                },
-                "startDate" => 1_470_677_406_000,
-                "userId" => 28_059_191,
-                "productPaymentId" => 2624,
-                "upgradeOrderId" => 40_102_027,
-                "paymentInfoExpiryDate" => 1_590_976_800_000,
-                "upgradeOption" => nil,
-                "originalPrice" => nil,
-                "discount" => nil,
-                "deviceInfo" => %{
-                  "present" => false
-                },
-                "price" => 99,
-                "paymentProviderId" => 27,
-                "referrer" => "Com Hem TVE",
-                "endDate" => 1_504_805_400_000,
-                "notifyUserOnCreation" => nil,
-                "productName" => "Film och Serier SE Månad",
-                "earliestEndDate" => 1_504_805_400_000,
-                "voucherCode" => nil,
-                "extUserId" => nil,
-                "ip" => "10.54.69.53",
-                "orderRef" => nil,
-                "initPrice" => nil,
-                "paymentInfo" => "**** **** **** 9474",
-                "autoRenewStopDate" => 1_609_418_700_000,
-                "extendedTime" => nil,
-                "categoryId" => nil,
-                "platformId" => 7,
-                "paymentObject" => nil,
-                "productGroupUri" => %{
-                  "uri" => "/api/web/productgroup/1083"
-                },
-                "accessEndDate" => 1_504_809_000_000,
-                "isp" => "TV4",
-                "period" => 2_592_000,
+                "accessEndDate" => "2019-03-27T20:47:56Z",
+                "autorenewErrors" => 0,
                 "autorenewStatus" => "ACTIVE",
                 "currency" => "SEK",
-                "appName" => nil,
+                "earliestEndDate" => "2019-03-13T08:47:56Z",
+                "endDate" => "2019-03-27T08:47:56Z",
+                "externalOrderRef" => "565276867",
+                "id" => 100_366_001,
+                "initPrice" => 0.0,
+                "ip" => "54.170.219.1",
+                "orderRef" => "100247000",
+                "paymentInfo" => "4571 10** **** 0000",
+                "paymentInfoExpiryDate" => "2022-01-01T00:00:00Z",
+                "paymentProviderId" => 33,
+                "period" => "PT2592000S",
+                "platformId" => 27,
+                "price" => 139.0,
+                "productGroupId" => 1235,
+                "productGroupUri" => %{"uri" => "/api/cse/productgroup/1235"},
+                "productId" => 1491,
+                "productName" => "C More TV4 Månad",
+                "productPaymentId" => 5540,
+                "productPaymentUri" => %{
+                  "uri" => "/api/cse/productgroup/1235/products/1491/productPayments/5540"
+                },
+                "productUri" => %{"uri" => "/api/cse/productgroup/1235/products/1491"},
+                "referrer" => "Com Hem",
+                "registered" => "2019-03-13T08:47:56Z",
+                "startDate" => "2019-03-13T08:47:56Z",
                 "status" => "ACTIVE",
-                "id" => 40_102_071,
-                "uri" => "/api/web/user/28059191/orders/40102071"
+                "statusText" => "Purchase sucessfull",
+                "uri" => "/api/cse/order/100366001",
+                "userId" => 123,
+                "userPaymentMethod" => %{
+                  "allowOneClickBuy" => true,
+                  "expirationDate" => "2022-01-01T00:00:00Z",
+                  "expireDate" => "2022-01-01T00:00:00Z",
+                  "extAgreementRef" => "565276867",
+                  "id" => "0b166356-e717-4efc-80ab-2ad3f71ef6d0",
+                  "paymentInfo" => "4571 10** **** 0000",
+                  "paymentProviderId" => 33,
+                  "registered" => "2019-03-13T08:48:37Z",
+                  "userId" => 123,
+                  "userPaymentMethodStatus" => "ACTIVE",
+                  "userPaymentMethodType" => "CREDIT_CARD"
+                }
               }
             ]
             |> Jason.encode!()
@@ -110,12 +93,13 @@ defmodule Vimond.Client.CurrentOrdersTest do
         %{
           orders: [
             %Vimond.Order{
-              order_id: 40_102_071,
-              product_id: 1400,
-              product_group_id: 1083,
               asset_id: nil,
-              referrer: "Com Hem TVE",
-              product_payment_id: 2624
+              end_date: 1_553_676_476,
+              order_id: 100_366_001,
+              product_group_id: 1235,
+              product_id: 1491,
+              product_payment_id: 5540,
+              referrer: "Com Hem"
             }
           ]
         }
@@ -139,134 +123,98 @@ defmodule Vimond.Client.CurrentOrdersTest do
           body =
             [
               %{
-                "progId" => nil,
-                "callbackUrl" => nil,
-                "productGroupId" => 1083,
-                "productId" => 1400,
-                "assetName" => nil,
-                "userPaymentMethod" => %{
-                  "userPaymentMethodStatus" => "ACTIVE",
-                  "redirectUrl" => nil,
-                  "userPaymentMethodType" => "CREDIT_CARD",
-                  "captureAttemptLog" => nil,
-                  "callbackUrl" => nil,
-                  "expireDate" => 1_590_976_800_000,
-                  "allowOneClickBuy" => true,
-                  "userId" => 28_059_191,
-                  "paymentProviderId" => 27,
-                  "expirationDate" => 1_590_976_800_000,
-                  "extAgreementRef" => "397319623",
-                  "paymentInfo" => "**** **** **** 9474",
-                  "registered" => 1_469_800_270_000,
-                  "id" => "35d6df66-60a9-4e90-9b29-f97fdf032766",
-                  "uri" => nil
-                },
-                "startDate" => 1_470_677_406_000,
-                "userId" => 28_059_191,
-                "productPaymentId" => 2624,
-                "upgradeOrderId" => 40_102_027,
-                "paymentInfoExpiryDate" => 1_590_976_800_000,
-                "upgradeOption" => nil,
-                "originalPrice" => nil,
-                "discount" => nil,
-                "deviceInfo" => %{
-                  "present" => false
-                },
-                "price" => 99,
-                "paymentProviderId" => 27,
-                "referrer" => nil,
-                "endDate" => 1_504_805_400_000,
-                "notifyUserOnCreation" => nil,
-                "productName" => "Film och Serier SE Månad",
-                "earliestEndDate" => 1_504_805_400_000,
-                "voucherCode" => nil,
-                "extUserId" => nil,
-                "ip" => "10.54.69.53",
-                "orderRef" => nil,
-                "initPrice" => nil,
-                "paymentInfo" => "**** **** **** 9474",
-                "autoRenewStopDate" => 1_609_418_700_000,
-                "extendedTime" => nil,
-                "categoryId" => nil,
-                "platformId" => 7,
-                "paymentObject" => nil,
-                "productGroupUri" => %{
-                  "uri" => "/api/web/productgroup/1083"
-                },
-                "accessEndDate" => 1_504_809_000_000,
-                "isp" => "TV4",
-                "period" => 2_592_000,
+                "accessEndDate" => "2019-03-27T20:47:56Z",
+                "autorenewErrors" => 0,
                 "autorenewStatus" => "ACTIVE",
                 "currency" => "SEK",
-                "appName" => nil,
+                "earliestEndDate" => "2019-03-13T08:47:56Z",
+                "endDate" => "2019-03-27T08:47:56Z",
+                "externalOrderRef" => "565276867",
+                "id" => 100_366_001,
+                "initPrice" => 0.0,
+                "ip" => "54.170.219.1",
+                "orderRef" => "100247000",
+                "paymentInfo" => "4571 10** **** 0000",
+                "paymentInfoExpiryDate" => "2022-01-01T00:00:00Z",
+                "paymentProviderId" => 33,
+                "period" => "PT2592000S",
+                "platformId" => 27,
+                "price" => 139.0,
+                "productGroupId" => 1235,
+                "productGroupUri" => %{"uri" => "/api/cse/productgroup/1235"},
+                "productId" => 1491,
+                "productName" => "C More TV4 Månad",
+                "productPaymentId" => 5540,
+                "productPaymentUri" => %{
+                  "uri" => "/api/cse/productgroup/1235/products/1491/productPayments/5540"
+                },
+                "productUri" => %{"uri" => "/api/cse/productgroup/1235/products/1491"},
+                "registered" => "2019-03-13T08:47:56Z",
+                "startDate" => "2019-03-13T08:47:56Z",
                 "status" => "ACTIVE",
-                "id" => 40_102_071,
-                "uri" => "/api/web/user/28059191/orders/40102071"
+                "statusText" => "Purchase sucessfull",
+                "uri" => "/api/cse/order/100366001",
+                "userId" => 123,
+                "userPaymentMethod" => %{
+                  "allowOneClickBuy" => true,
+                  "expirationDate" => "2022-01-01T00:00:00Z",
+                  "expireDate" => "2022-01-01T00:00:00Z",
+                  "extAgreementRef" => "565276867",
+                  "id" => "0b166356-e717-4efc-80ab-2ad3f71ef6d0",
+                  "paymentInfo" => "4571 10** **** 0000",
+                  "paymentProviderId" => 33,
+                  "registered" => "2019-03-13T08:48:37Z",
+                  "userId" => 123,
+                  "userPaymentMethodStatus" => "ACTIVE",
+                  "userPaymentMethodType" => "CREDIT_CARD"
+                }
               },
               %{
-                "progId" => nil,
-                "callbackUrl" => nil,
-                "productGroupId" => 1083,
-                "productId" => 1400,
-                "assetName" => nil,
-                "userPaymentMethod" => %{
-                  "userPaymentMethodStatus" => "ACTIVE",
-                  "redirectUrl" => nil,
-                  "userPaymentMethodType" => "CREDIT_CARD",
-                  "captureAttemptLog" => nil,
-                  "callbackUrl" => nil,
-                  "expireDate" => 1_590_976_800_000,
-                  "allowOneClickBuy" => true,
-                  "userId" => 28_059_191,
-                  "paymentProviderId" => 27,
-                  "expirationDate" => 1_590_976_800_000,
-                  "extAgreementRef" => "397319623",
-                  "paymentInfo" => "**** **** **** 9474",
-                  "registered" => 1_469_800_270_000,
-                  "id" => "35d6df66-60a9-4e90-9b29-f97fdf032766",
-                  "uri" => nil
-                },
-                "startDate" => 1_470_677_406_000,
-                "userId" => 28_059_191,
-                "productPaymentId" => 2624,
-                "upgradeOrderId" => 40_102_027,
-                "paymentInfoExpiryDate" => 1_590_976_800_000,
-                "upgradeOption" => nil,
-                "originalPrice" => nil,
-                "discount" => nil,
-                "deviceInfo" => %{
-                  "present" => false
-                },
-                "price" => 99,
-                "paymentProviderId" => 27,
-                "referrer" => nil,
-                "endDate" => 1_504_805_400_000,
-                "notifyUserOnCreation" => nil,
-                "productName" => "Film och Serier SE År",
-                "earliestEndDate" => 1_504_805_400_000,
-                "voucherCode" => nil,
-                "extUserId" => nil,
-                "ip" => "10.54.69.53",
-                "orderRef" => nil,
-                "initPrice" => nil,
-                "paymentInfo" => "**** **** **** 9474",
-                "autoRenewStopDate" => nil,
-                "extendedTime" => nil,
-                "categoryId" => nil,
-                "platformId" => 7,
-                "paymentObject" => nil,
-                "productGroupUri" => %{
-                  "uri" => "/api/web/productgroup/1083"
-                },
-                "accessEndDate" => 1_504_809_000_000,
-                "isp" => "TV4",
-                "period" => 2_592_000,
-                "autorenewStatus" => "STOPPED",
+                "accessEndDate" => "2019-03-27T20:47:56Z",
+                "autorenewErrors" => 0,
+                "autorenewStatus" => "ACTIVE",
                 "currency" => "SEK",
-                "appName" => nil,
+                "earliestEndDate" => "2019-03-13T08:47:56Z",
+                "endDate" => "2019-03-27T08:47:56Z",
+                "externalOrderRef" => "565276867",
+                "id" => 100_366_002,
+                "initPrice" => 0.0,
+                "ip" => "54.170.219.1",
+                "orderRef" => "100247000",
+                "paymentInfo" => "4571 10** **** 0000",
+                "paymentInfoExpiryDate" => "2022-01-01T00:00:00Z",
+                "paymentProviderId" => 33,
+                "period" => "PT2592000S",
+                "platformId" => 27,
+                "price" => 139.0,
+                "productGroupId" => 1235,
+                "productGroupUri" => %{"uri" => "/api/cse/productgroup/1235"},
+                "productId" => 1491,
+                "productName" => "C More TV4 Månad",
+                "productPaymentId" => 5540,
+                "productPaymentUri" => %{
+                  "uri" => "/api/cse/productgroup/1235/products/1491/productPayments/5540"
+                },
+                "productUri" => %{"uri" => "/api/cse/productgroup/1235/products/1491"},
+                "registered" => "2019-03-13T08:47:56Z",
+                "startDate" => "2019-03-13T08:47:56Z",
                 "status" => "ACTIVE",
-                "id" => 40_102_072,
-                "uri" => "/api/web/user/28059191/orders/40102071"
+                "statusText" => "Purchase sucessfull",
+                "uri" => "/api/cse/order/100366001",
+                "userId" => 123,
+                "userPaymentMethod" => %{
+                  "allowOneClickBuy" => true,
+                  "expirationDate" => "2022-01-01T00:00:00Z",
+                  "expireDate" => "2022-01-01T00:00:00Z",
+                  "extAgreementRef" => "565276867",
+                  "id" => "0b166356-e717-4efc-80ab-2ad3f71ef6d0",
+                  "paymentInfo" => "4571 10** **** 0000",
+                  "paymentProviderId" => 33,
+                  "registered" => "2019-03-13T08:48:37Z",
+                  "userId" => 123,
+                  "userPaymentMethodStatus" => "ACTIVE",
+                  "userPaymentMethodType" => "CREDIT_CARD"
+                }
               }
             ]
             |> Jason.encode!()
@@ -281,36 +229,29 @@ defmodule Vimond.Client.CurrentOrdersTest do
         end
       )
 
-      expected = {
-        :ok,
-        %{
-          orders: [
-            %Vimond.Order{
-              order_id: 40_102_071,
-              product_id: 1400,
-              product_group_id: 1083,
-              asset_id: nil,
-              referrer: nil,
-              product_payment_id: 2624
-            },
-            %Vimond.Order{
-              order_id: 40_102_072,
-              product_id: 1400,
-              product_group_id: 1083,
-              asset_id: nil,
-              referrer: nil,
-              product_payment_id: 2624
-            }
-          ]
-        }
-      }
+      current_orders =
+        current_orders("123", "valid_vimond_authorization_token", "valid_remember_me", @config)
 
-      assert current_orders(
-               "123",
-               "valid_vimond_authorization_token",
-               "valid_remember_me",
-               @config
-             ) == expected
+      assert current_orders ==
+               {:ok,
+                %{
+                  orders: [
+                    %Vimond.Order{
+                      order_id: 100_366_001,
+                      end_date: 1_553_676_476,
+                      product_group_id: 1235,
+                      product_id: 1491,
+                      product_payment_id: 5540
+                    },
+                    %Vimond.Order{
+                      order_id: 100_366_002,
+                      end_date: 1_553_676_476,
+                      product_group_id: 1235,
+                      product_id: 1491,
+                      product_payment_id: 5540
+                    }
+                  ]
+                }}
     end
 
     test "with invalid credentials" do
@@ -396,69 +337,52 @@ defmodule Vimond.Client.CurrentOrdersTest do
           body =
             [
               %{
-                "progId" => nil,
-                "callbackUrl" => nil,
-                "productGroupId" => 1083,
-                "productId" => 1400,
-                "assetName" => nil,
-                "userPaymentMethod" => %{
-                  "userPaymentMethodStatus" => "ACTIVE",
-                  "redirectUrl" => nil,
-                  "userPaymentMethodType" => "CREDIT_CARD",
-                  "captureAttemptLog" => nil,
-                  "callbackUrl" => nil,
-                  "expireDate" => 1_590_976_800_000,
-                  "allowOneClickBuy" => true,
-                  "userId" => 28_059_191,
-                  "paymentProviderId" => 27,
-                  "expirationDate" => 1_590_976_800_000,
-                  "extAgreementRef" => "397319623",
-                  "paymentInfo" => "**** **** **** 9474",
-                  "registered" => 1_469_800_270_000,
-                  "id" => "35d6df66-60a9-4e90-9b29-f97fdf032766",
-                  "uri" => nil
-                },
-                "startDate" => 1_470_677_406_000,
-                "userId" => 28_059_191,
-                "productPaymentId" => 2624,
-                "upgradeOrderId" => 40_102_027,
-                "paymentInfoExpiryDate" => 1_590_976_800_000,
-                "upgradeOption" => nil,
-                "originalPrice" => nil,
-                "discount" => nil,
-                "deviceInfo" => %{
-                  "present" => false
-                },
-                "price" => 99,
-                "paymentProviderId" => 27,
-                "referrer" => "Com Hem",
-                "endDate" => 1_504_805_400_000,
-                "notifyUserOnCreation" => nil,
-                "productName" => "Film och Serier SE Månad",
-                "earliestEndDate" => 1_504_805_400_000,
-                "voucherCode" => nil,
-                "extUserId" => nil,
-                "ip" => "10.54.69.53",
-                "orderRef" => nil,
-                "initPrice" => nil,
-                "paymentInfo" => "**** **** **** 9474",
-                "autoRenewStopDate" => 1_609_418_700_000,
-                "extendedTime" => nil,
-                "categoryId" => nil,
-                "platformId" => 7,
-                "paymentObject" => nil,
-                "productGroupUri" => %{
-                  "uri" => "/api/web/productgroup/1083"
-                },
-                "accessEndDate" => 1_504_809_000_000,
-                "isp" => "TV4",
-                "period" => 2_592_000,
+                "accessEndDate" => "2019-03-27T20:47:56Z",
+                "autorenewErrors" => 0,
                 "autorenewStatus" => "ACTIVE",
                 "currency" => "SEK",
-                "appName" => nil,
+                "earliestEndDate" => "2019-03-13T08:47:56Z",
+                "endDate" => "2019-03-27T08:47:56Z",
+                "externalOrderRef" => "565276867",
+                "id" => 100_366_001,
+                "initPrice" => 0.0,
+                "ip" => "54.170.219.1",
+                "orderRef" => "100247000",
+                "paymentInfo" => "4571 10** **** 0000",
+                "paymentInfoExpiryDate" => "2022-01-01T00:00:00Z",
+                "paymentProviderId" => 33,
+                "period" => "PT2592000S",
+                "platformId" => 27,
+                "price" => 139.0,
+                "productGroupId" => 1235,
+                "productGroupUri" => %{"uri" => "/api/cse/productgroup/1235"},
+                "productId" => 1491,
+                "productName" => "C More TV4 Månad",
+                "productPaymentId" => 5540,
+                "productPaymentUri" => %{
+                  "uri" => "/api/cse/productgroup/1235/products/1491/productPayments/5540"
+                },
+                "productUri" => %{"uri" => "/api/cse/productgroup/1235/products/1491"},
+                "referrer" => "Com Hem",
+                "registered" => "2019-03-13T08:47:56Z",
+                "startDate" => "2019-03-13T08:47:56Z",
                 "status" => "ACTIVE",
-                "id" => 40_102_071,
-                "uri" => "/api/web/user/28059191/orders/40102071"
+                "statusText" => "Purchase sucessfull",
+                "uri" => "/api/cse/order/100366001",
+                "userId" => 123,
+                "userPaymentMethod" => %{
+                  "allowOneClickBuy" => true,
+                  "expirationDate" => "2022-01-01T00:00:00Z",
+                  "expireDate" => "2022-01-01T00:00:00Z",
+                  "extAgreementRef" => "565276867",
+                  "id" => "0b166356-e717-4efc-80ab-2ad3f71ef6d0",
+                  "paymentInfo" => "4571 10** **** 0000",
+                  "paymentProviderId" => 33,
+                  "registered" => "2019-03-13T08:48:37Z",
+                  "userId" => 123,
+                  "userPaymentMethodStatus" => "ACTIVE",
+                  "userPaymentMethodType" => "CREDIT_CARD"
+                }
               }
             ]
             |> Jason.encode!()
@@ -473,23 +397,21 @@ defmodule Vimond.Client.CurrentOrdersTest do
         end
       )
 
-      expected = {
-        :ok,
-        %{
-          orders: [
-            %Vimond.Order{
-              order_id: 40_102_071,
-              product_id: 1400,
-              product_group_id: 1083,
-              asset_id: nil,
-              referrer: "Com Hem",
-              product_payment_id: 2624
-            }
-          ]
-        }
-      }
-
-      assert current_orders_signed("123", @config) == expected
+      assert current_orders_signed("123", @config) == {
+               :ok,
+               %{
+                 orders: [
+                   %Vimond.Order{
+                     referrer: "Com Hem",
+                     end_date: 1_553_676_476,
+                     order_id: 100_366_001,
+                     product_group_id: 1235,
+                     product_id: 1491,
+                     product_payment_id: 5540
+                   }
+                 ]
+               }
+             }
     end
   end
 end
