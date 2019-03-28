@@ -605,17 +605,17 @@ defmodule Vimond.Client do
   defp handle_product_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok, %{description: json["description"]}}
+        {:ok, %{description: json["description"], name: get_in(json, ["paymentPlan", "name"])}}
 
       {:error, _} ->
         Logger.error("handle_product_response: Unexpected json: '#{inspect(json)}'")
-        {:error, "Failed to parse product description"}
+        {:error, "Failed to parse product"}
     end
   end
 
   defp handle_product_response(response) do
     Logger.error("handle_product_response: Unexpected response: '#{inspect(response)}'")
-    {:error, "Failed to fetch product description"}
+    {:error, "Failed to fetch product"}
   end
 
   defp handle_product_group_response(%HTTPotion.Response{status_code: 200, body: body}) do
