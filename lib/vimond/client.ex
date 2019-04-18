@@ -881,7 +881,7 @@ defmodule Vimond.Client do
         error(:generic, reason)
 
       %{"error" => %{"code" => "USER_INVALID_PASSWORD", "description" => reason}} ->
-        error(:generic, reason)
+        error(:invalid_credentials, reason)
 
       %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
         error(:invalid_session, reason)

@@ -72,16 +72,18 @@ defmodule Vimond.Client.UpdatePasswordTest do
       }
     end)
 
-    expected = {:error, %{type: :generic, source_errors: ["Old password is incorrect"]}}
+    update_password_response =
+      update_password(
+        "12345",
+        "vimond_authorization_token",
+        "remember_me",
+        "old_password",
+        "new_password",
+        @config
+      )
 
-    assert update_password(
-             "12345",
-             "vimond_authorization_token",
-             "remember_me",
-             "old_password",
-             "new_password",
-             @config
-           ) == expected
+    assert update_password_response ==
+             {:error, %{type: :invalid_credentials, source_errors: ["Old password is incorrect"]}}
   end
 
   test "with an expired remember me token" do
