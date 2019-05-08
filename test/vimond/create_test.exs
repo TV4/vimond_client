@@ -27,8 +27,8 @@ defmodule Vimond.Client.CreateTest do
                "country" => "SWE",
                "dateOfBirth" => "1977-01-01",
                "properties" => [
-                 %{"id" => nil, "name" => "user_property_c", "value" => "2018-05-25"},
-                 %{"id" => nil, "name" => "user_property_d", "value" => "2015-09-02"}
+                 %{"name" => "user_property_c", "value" => "2018-05-25"},
+                 %{"name" => "user_property_d", "value" => "2015-09-02"}
                ]
              }
 

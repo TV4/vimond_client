@@ -358,12 +358,10 @@ defmodule Vimond.Client.UpdateUserTest do
                    "value" => "2016-05-20"
                  },
                  %{
-                   "id" => nil,
                    "name" => "user_property_a",
                    "value" => "2018-09-02"
                  },
                  %{
-                   "id" => nil,
                    "name" => "user_property_b",
                    "value" => "2015-09-02"
                  }

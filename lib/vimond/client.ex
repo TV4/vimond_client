@@ -13,7 +13,7 @@ defmodule Vimond.Client do
       build_order(order)
       |> Jason.encode!()
 
-    request("add_order", fn ->
+    request("add_order_signed", fn ->
       @http_client.post_signed("order/#{user_id}/create", body, headers(), config)
     end)
     |> case do
@@ -456,6 +456,56 @@ defmodule Vimond.Client do
     end)
     |> case do
       %HTTPotion.Response{body: body, status_code: 200} -> Jason.decode(body)
+    end
+  end
+
+  @callback set_property_signed(String.t(), Property.t(), Config.t()) :: :ok
+  def set_property_signed(user_id, %Property{} = property, config = %Config{}) do
+    get_properties_signed(user_id, config)
+    |> case do
+      {:ok, properties} ->
+        Enum.find(properties, fn %Property{name: name} -> name == property.name end)
+        |> case do
+          %Property{id: id} ->
+            update_property_signed(user_id, %Property{property | id: id}, config)
+
+          nil ->
+            create_property_signed(user_id, property, config)
+        end
+    end
+  end
+
+  def get_properties_signed(user_id, config = %Config{}) do
+    response =
+      request("get_properties_signed", fn ->
+        @http_client.get_signed("user/#{user_id}/properties", headers(), config)
+      end)
+
+    with %HTTPotion.Response{body: body, status_code: 200} <- response,
+         {:ok, properties} <- Jason.decode(body) do
+      extract_properties(properties)
+    end
+  end
+
+  def create_property_signed(user_id, %Property{} = property, config = %Config{}) do
+    body = Jason.encode!(property)
+
+    request("create_property_signed", fn ->
+      @http_client.post_signed("user/#{user_id}/property", body, headers(), config)
+    end)
+    |> case do
+      %HTTPotion.Response{status_code: 200} -> :ok
+    end
+  end
+
+  def update_property_signed(user_id, %Property{} = property, config = %Config{}) do
+    body = Jason.encode!(property)
+
+    request("update_property_signed", fn ->
+      @http_client.put_signed("user/#{user_id}/property/#{property.id}", body, headers(), config)
+    end)
+    |> case do
+      %HTTPotion.Response{status_code: 200} -> :ok
     end
   end
 
