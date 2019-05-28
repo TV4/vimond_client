@@ -207,6 +207,7 @@ defmodule Vimond.Client do
               product_id :: String.t(),
               config :: Config.t()
             ) :: {:ok, map} | {:error, String.t()}
+  @deprecated "Use product/2 instead. Vimond ignores the product group id."
   def product(product_group_id, product_id, config = %Config{}) do
     request("product", fn ->
       @http_client.get(
@@ -218,6 +219,23 @@ defmodule Vimond.Client do
     |> handle_product_response
   end
 
+  @callback product(
+              product_id :: String.t(),
+              config :: Config.t()
+            ) :: {:ok, map} | {:error, String.t()}
+  def product(product_id, config = %Config{}) do
+    product("0", product_id, config)
+  end
+
+  @callback product_groups(config :: Config.t()) ::
+              {:ok | :error, map}
+  def product_groups(config = %Config{}) do
+    request("product_groups", fn ->
+      @http_client.get("productgroup", headers(), config)
+    end)
+    |> handle_product_groups_response
+  end
+
   @callback product_group(product_group_id :: String.t(), config :: Config.t()) ::
               {:ok | :error, map}
   def product_group(product_group_id, config = %Config{}) do
@@ -225,6 +243,28 @@ defmodule Vimond.Client do
       @http_client.get("productgroup/#{product_group_id}", headers(), config)
     end)
     |> handle_product_group_response
+  end
+
+  @callback payment_methods(product_id :: String.t(), config :: Config.t()) ::
+              {:ok | :error, map}
+  def payment_methods(product_id, config = %Config{}) do
+    request("payment_methods", fn ->
+      @http_client.get("productgroup/0/products/#{product_id}/productPayments", headers(), config)
+    end)
+    |> handle_payment_methods_response
+  end
+
+  @callback payment(payment_method_id :: String.t(), config :: Config.t()) ::
+              {:ok | :error, map}
+  def payment(payment_method_id, config = %Config{}) do
+    request("payment", fn ->
+      @http_client.get(
+        "productgroup/0/products/0/productPayments/#{payment_method_id}/payment",
+        headers(),
+        config
+      )
+    end)
+    |> handle_payment_response
   end
 
   @callback exists_signed(username :: String.t(), config :: Config.t()) :: {:ok, boolean}
@@ -655,7 +695,22 @@ defmodule Vimond.Client do
   defp handle_product_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok, %{description: json["description"], name: get_in(json, ["paymentPlan", "name"])}}
+        {:ok,
+         %{
+           currency: json["currency"],
+           description: json["description"],
+           enabled: json["enabled"],
+           minimum_periods: json["minimumPeriods"],
+           payment_plan: %{
+             name: get_in(json, ["paymentPlan", "name"]),
+             payment_type: get_in(json, ["paymentPlan", "paymentType"]),
+             period: get_in(json, ["paymentPlan", "period"])
+           },
+           price: json["price"],
+           product_group_id: json["productGroupId"],
+           product_payments_uri: json["productPaymentsUri"]["uri"],
+           product_status: json["productStatus"]
+         }}
 
       {:error, _} ->
         Logger.error("handle_product_response: Unexpected json: '#{inspect(json)}'")
@@ -668,21 +723,100 @@ defmodule Vimond.Client do
     {:error, "Failed to fetch product"}
   end
 
-  defp handle_product_group_response(%HTTPotion.Response{status_code: 200, body: body}) do
+  defp handle_product_groups_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok, %{name: json["name"]}}
+        {:ok,
+         Enum.into(json["productGroups"], [], fn productGroup ->
+           %{
+             name: productGroup["name"],
+             description: productGroup["description"],
+             sale_status: productGroup["saleStatus"]
+           }
+         end)}
 
       _ ->
         Logger.error("handle_product_group_response: Unexpected json: '#{inspect(json)}'")
-        {:error, %{name: nil}}
+        {:error, %{name: nil, description: nil, sale_status: nil}}
+    end
+  end
+
+  defp handle_product_groups_response(response) do
+    Logger.error("handle_product_groups_response: Unexpected response: '#{inspect(response)}'")
+
+    {:error, "Failed to fetch product groups"}
+  end
+
+  defp handle_product_group_response(%HTTPotion.Response{status_code: 200, body: body}) do
+    case json = Jason.decode(body) do
+      {:ok, json} ->
+        {:ok,
+         %{name: json["name"], description: json["description"], sale_status: json["saleStatus"]}}
+
+      _ ->
+        Logger.error("handle_product_group_response: Unexpected json: '#{inspect(json)}'")
+        {:error, "Failed to parse product group"}
     end
   end
 
   defp handle_product_group_response(response) do
     Logger.error("handle_product_group_response: Unexpected response: '#{inspect(response)}'")
 
-    {:ok, %{name: nil}}
+    {:error, "Failed to fetch product group"}
+  end
+
+  defp handle_payment_methods_response(%HTTPotion.Response{status_code: 200, body: body}) do
+    case json = Jason.decode(body) do
+      {:ok, json} ->
+        {:ok,
+         Enum.into(json["productPaymentList"], [], fn payment_method ->
+           %{
+             auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
+             autorenew_warning_channel: payment_method["autorenewWarningChannel"],
+             description: payment_method["description"],
+             discounted_price: payment_method["discountedPrice"],
+             enabled: payment_method["enabled"],
+             id: payment_method["id"],
+             init_period: payment_method["initPeriod"],
+             init_price: payment_method["initPrice"],
+             payment_object_uri: get_in(payment_method, ["paymentObjectUri", "uri"]),
+             payment_provider_id: payment_method["paymentProviderId"],
+             product_id: payment_method["productId"],
+             product_payment_status: payment_method["productPaymentStatus"],
+             recurring_discounted_price: payment_method["recurringDiscountedPrice"],
+             recurring_price: payment_method["recurringPrice"],
+             sort_index: payment_method["sortIndex"],
+             uri: payment_method["uri"]
+           }
+         end)}
+
+      {:error, _} ->
+        Logger.error("handle_payment_methods_response: Unexpected json: '#{inspect(json)}'")
+        {:error, "Failed to parse payment methods"}
+    end
+  end
+
+  defp handle_payment_methods_response(response) do
+    Logger.error("handle_payment_methods_response: Unexpected response: '#{inspect(response)}'")
+
+    {:error, "Failed to fetch payment methods"}
+  end
+
+  defp handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}) do
+    case json = Jason.decode(body) do
+      {:ok, json} ->
+        {:ok, %{payment_method: json["paymentMethod"], url: json["url"]}}
+
+      {:error, _} ->
+        Logger.error("handle_payment_response: Unexpected json: '#{inspect(json)}'")
+        {:error, "Failed to parse payment"}
+    end
+  end
+
+  defp handle_payment_response(response) do
+    Logger.error("handle_payment_response: Unexpected response: '#{inspect(response)}'")
+
+    {:error, "Failed to fetch payment"}
   end
 
   defp request(log_message, request_function) do
