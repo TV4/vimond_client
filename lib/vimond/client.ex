@@ -227,6 +227,21 @@ defmodule Vimond.Client do
     product("0", product_id, config)
   end
 
+  @callback products(
+              product_group_id :: String.t(),
+              config :: Config.t()
+            ) :: {:ok, map} | {:error, String.t()}
+  def products(product_group_id, config = %Config{}) do
+    request("products", fn ->
+      @http_client.get(
+        "productgroup/#{product_group_id}/products",
+        headers(),
+        config
+      )
+    end)
+    |> handle_products_response
+  end
+
   @callback product_groups(config :: Config.t()) ::
               {:ok | :error, map}
   def product_groups(config = %Config{}) do
@@ -721,6 +736,42 @@ defmodule Vimond.Client do
   defp handle_product_response(response) do
     Logger.error("handle_product_response: Unexpected response: '#{inspect(response)}'")
     {:error, "Failed to fetch product"}
+  end
+
+  defp handle_products_response(%HTTPotion.Response{status_code: 200, body: body}) do
+    case json = Jason.decode(body) do
+      {:ok, %{"products" => products}} ->
+        {:ok,
+         %{
+           products:
+             Enum.map(products, fn product ->
+               %{
+                 currency: product["currency"],
+                 description: product["description"],
+                 enabled: product["enabled"],
+                 minimum_periods: product["minimumPeriods"],
+                 payment_plan: %{
+                   name: get_in(product, ["paymentPlan", "name"]),
+                   payment_type: get_in(product, ["paymentPlan", "paymentType"]),
+                   period: get_in(product, ["paymentPlan", "period"])
+                 },
+                 price: product["price"],
+                 product_group_id: product["productGroupId"],
+                 product_payments_uri: product["productPaymentsUri"]["uri"],
+                 product_status: product["productStatus"]
+               }
+             end)
+         }}
+
+      _ ->
+        Logger.error("handle_products_response: Unexpected json: '#{inspect(json)}'")
+        {:error, "Failed to parse products"}
+    end
+  end
+
+  defp handle_products_response(response) do
+    Logger.error("handle_products_response: Unexpected response: '#{inspect(response)}'")
+    {:error, "Failed to fetch products"}
   end
 
   defp handle_product_groups_response(%HTTPotion.Response{status_code: 200, body: body}) do
