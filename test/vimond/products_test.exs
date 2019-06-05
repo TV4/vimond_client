@@ -59,6 +59,7 @@ defmodule Vimond.Client.ProductsTest do
                 %{
                   products: [
                     %{
+                      id: 1491,
                       currency: "SEK",
                       description: nil,
                       enabled: true,

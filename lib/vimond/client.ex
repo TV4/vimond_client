@@ -712,6 +712,7 @@ defmodule Vimond.Client do
       {:ok, json} ->
         {:ok,
          %{
+           id: json["id"],
            currency: json["currency"],
            description: json["description"],
            enabled: json["enabled"],
@@ -746,6 +747,7 @@ defmodule Vimond.Client do
            products:
              Enum.map(products, fn product ->
                %{
+                 id: product["id"],
                  currency: product["currency"],
                  description: product["description"],
                  enabled: product["enabled"],

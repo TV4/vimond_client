@@ -53,6 +53,7 @@ defmodule Vimond.Client.ProductTest do
       assert product("1235", "1491", @config) ==
                {:ok,
                 %{
+                  id: 1491,
                   currency: "SEK",
                   description: nil,
                   enabled: true,
@@ -93,6 +94,7 @@ defmodule Vimond.Client.ProductTest do
       assert product(1083, 1400, @config) ==
                {:ok,
                 %{
+                  id: nil,
                   description: nil,
                   currency: nil,
                   enabled: nil,
