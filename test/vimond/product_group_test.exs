@@ -20,6 +20,7 @@ defmodule Vimond.Client.ProductGroupTest do
         status_code: 200,
         body:
           Jason.encode!(%{
+            id: 1083,
             name: "C More Premium",
             description: "C More TV4",
             saleStatus: "ENABLED"
@@ -31,7 +32,13 @@ defmodule Vimond.Client.ProductGroupTest do
     end)
 
     assert product_group(1083, @config) ==
-             {:ok, %{name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"}}
+             {:ok,
+              %{
+                id: 1083,
+                name: "C More Premium",
+                description: "C More TV4",
+                sale_status: "ENABLED"
+              }}
   end
 
   test "with broken JSON from Vimond" do

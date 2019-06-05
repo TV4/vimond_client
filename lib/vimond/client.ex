@@ -751,7 +751,12 @@ defmodule Vimond.Client do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
-         %{name: json["name"], description: json["description"], sale_status: json["saleStatus"]}}
+         %{
+           id: json["id"],
+           name: json["name"],
+           description: json["description"],
+           sale_status: json["saleStatus"]
+         }}
 
       _ ->
         Logger.error("handle_product_group_response: Unexpected json: '#{inspect(json)}'")
