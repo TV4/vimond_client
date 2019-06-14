@@ -279,7 +279,7 @@ defmodule Vimond.Client do
         config
       )
     end)
-    |> handle_payment_response
+    |> handle_payment_response(payment_method_id)
   end
 
   @callback exists_signed(username :: String.t(), config :: Config.t()) :: {:ok, boolean}
@@ -860,10 +860,10 @@ defmodule Vimond.Client do
     {:error, "Failed to fetch payment methods"}
   end
 
-  defp handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}) do
+  defp handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}, id) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok, %{payment_method: json["paymentMethod"], url: json["url"]}}
+        {:ok, %{id: id, payment_method: json["paymentMethod"], url: json["url"]}}
 
       {:error, _} ->
         Logger.error("handle_payment_response: Unexpected json: '#{inspect(json)}'")
@@ -871,7 +871,7 @@ defmodule Vimond.Client do
     end
   end
 
-  defp handle_payment_response(response) do
+  defp handle_payment_response(response, _) do
     Logger.error("handle_payment_response: Unexpected response: '#{inspect(response)}'")
 
     {:error, "Failed to fetch payment"}
