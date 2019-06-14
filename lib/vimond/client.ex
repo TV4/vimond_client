@@ -279,7 +279,7 @@ defmodule Vimond.Client do
         config
       )
     end)
-    |> handle_payment_response(payment_method_id)
+    |> handle_payment_response(String.to_integer(payment_method_id))
   end
 
   @callback exists_signed(username :: String.t(), config :: Config.t()) :: {:ok, boolean}

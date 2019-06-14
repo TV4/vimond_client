@@ -25,7 +25,7 @@ defmodule Vimond.Client.PaymentTest do
       }
     end)
 
-    assert payment(2793, @config) ==
+    assert payment("2793", @config) ==
              {:ok, %{id: 2793, payment_method: "KLARNA", url: "https://api.klarna.com"}}
   end
 
@@ -41,7 +41,7 @@ defmodule Vimond.Client.PaymentTest do
     end)
 
     assert capture_log(fn ->
-             assert payment(2793, @config) == {:error, "Failed to fetch payment"}
+             assert payment("2793", @config) == {:error, "Failed to fetch payment"}
            end) =~ "handle_payment_response: Unexpected response"
   end
 end
