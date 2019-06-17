@@ -103,11 +103,13 @@ defmodule Vimond.Client.CreateTest do
                   year_of_birth: 1977,
                   properties: [
                     %Vimond.Property{
+                      allow_user_to_update: true,
                       id: 50_002_611,
                       name: "user_property_c",
                       value: "2018-05-25"
                     },
                     %Vimond.Property{
+                      allow_user_to_update: true,
                       id: 50_002_612,
                       name: "user_property_d",
                       value: "2015-09-02"

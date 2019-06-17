@@ -569,6 +569,11 @@ defmodule Vimond.Client do
       Map.get(user_data, :properties)
       |> extract_properties()
 
+    properties =
+      Enum.reject(properties, fn property ->
+        property.allow_user_to_update == false
+      end)
+
     new_properties = properties_payload(updated_user)
 
     updated_properties =
@@ -663,7 +668,8 @@ defmodule Vimond.Client do
       Map.put(result, property_name, %Property{
         id: property["id"],
         name: property_name,
-        value: property["value"]
+        value: property["value"],
+        allow_user_to_update: property["allowUserToUpdate"]
       })
     else
       result

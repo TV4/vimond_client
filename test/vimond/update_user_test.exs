@@ -812,4 +812,229 @@ defmodule Vimond.Client.UpdateUserTest do
                 }
               }}
   end
+
+  test "do not update properties that the user are not allowed to update" do
+    Vimond.HTTPClientMock
+    |> expect(:get, fn "user",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => nil,
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "old@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "hidden" => false,
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-05-20"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_318,
+            "allowUserToUpdate" => false,
+            "name" => "isServiceOriginEUCitizen",
+            "uri" => nil,
+            "userId" => 16_426_403,
+            "value" => "2016-06-17 09:26:17 UTC"
+          }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "old@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
+
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
+          }
+        }
+      }
+    end)
+
+    Vimond.HTTPClientMock
+    |> expect(:put, fn "user",
+                       body,
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer valid_authorization_token",
+                         Cookie: "rememberMe=valid_remember_me"
+                       ],
+                       @config ->
+      assert %{
+               "id" => 6_572_908,
+               "registrationDate" => 1_418_828_690_000,
+               "userName" => "some.person@example.com",
+               "email" => "some.person@example.com",
+               "emailStatus" => 2,
+               "firstName" => "Valid",
+               "lastName" => "User",
+               "zip" => "123 45",
+               "country" => "SWE",
+               "mobileNumber" => "0730236645",
+               "mobileStatus" => 0,
+               "dateOfBirth" => "1981-01-01",
+               "properties" => [
+                 %{
+                   "id" => 7_445_317,
+                   "name" => "user_property_c",
+                   "value" => "2016-05-20"
+                 },
+                 %{
+                   "name" => "user_property_a",
+                   "value" => "2018-09-02"
+                 },
+                 %{
+                   "name" => "user_property_b",
+                   "value" => "2015-09-02"
+                 }
+               ]
+             } == Jason.decode!(body)
+
+      json = %{
+        "address" => nil,
+        "city" => nil,
+        "confirmEmail" => nil,
+        "country" => "SWE",
+        "dateOfBirth" => "1981-01-01T00:00:00Z",
+        "email" => "some.person@example.com",
+        "emailStatus" => 2,
+        "firstName" => "Valid",
+        "gender" => nil,
+        "id" => 6_572_908,
+        "infoRestricted" => nil,
+        "lastName" => "User",
+        "mobileNumber" => "0730236645",
+        "mobileStatus" => 0,
+        "nick" => nil,
+        "notifyUserOnCreation" => nil,
+        "password" => nil,
+        "properties" => [
+          %{
+            "id" => 7_445_318,
+            "name" => "isServiceOriginEUCitizen",
+            "value" => "2016-06-17 09:26:17 UTC"
+          },
+          %{
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "value" => "2016-05-20"
+          },
+          %{
+            "id" => 7_445_319,
+            "name" => "user_property_a",
+            "value" => "2018-09-02"
+          },
+          %{
+            "id" => 7_445_320,
+            "name" => "user_property_b",
+            "value" => "2015-09-02"
+          }
+        ],
+        "receiveEmail" => nil,
+        "receiveSms" => nil,
+        "registrationDate" => 1_418_828_690_000,
+        "state" => nil,
+        "status" => nil,
+        "uri" => "/api/platform/user/6572908",
+        "userName" => "some.person@example.com",
+        "userType" => nil,
+        "zip" => "123 45"
+      }
+
+      %HTTPotion.Response{
+        status_code: 200,
+        body: Jason.encode!(json),
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
+          }
+        }
+      }
+    end)
+
+    user = %Vimond.User{
+      username: "some.person@example.com",
+      first_name: "Valid",
+      last_name: "User",
+      zip_code: "123 45",
+      country_code: "SWE",
+      year_of_birth: 1981,
+      properties: [
+        %Vimond.Property{name: "user_property_a", value: "2018-09-02"},
+        %Vimond.Property{name: "user_property_b", value: "2015-09-02"}
+      ]
+    }
+
+    assert update("valid_authorization_token", "valid_remember_me", "6572908", user, @config) ==
+             {:ok,
+              %{
+                user: %Vimond.User{
+                  user_id: "6572908",
+                  username: "some.person@example.com",
+                  email: "some.person@example.com",
+                  first_name: "Valid",
+                  last_name: "User",
+                  zip_code: "123 45",
+                  country_code: "SWE",
+                  year_of_birth: 1981,
+                  properties: [
+                    %Vimond.Property{
+                      id: 7_445_318,
+                      name: "isServiceOriginEUCitizen",
+                      value: "2016-06-17 09:26:17 UTC"
+                    },
+                    %Vimond.Property{
+                      id: 7_445_319,
+                      name: "user_property_a",
+                      value: "2018-09-02"
+                    },
+                    %Vimond.Property{
+                      id: 7_445_320,
+                      name: "user_property_b",
+                      value: "2015-09-02"
+                    },
+                    %Vimond.Property{
+                      id: 7_445_317,
+                      name: "user_property_c",
+                      value: "2016-05-20"
+                    }
+                  ]
+                },
+                session: %Vimond.Session{}
+              }}
+  end
 end
