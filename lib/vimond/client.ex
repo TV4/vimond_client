@@ -869,7 +869,8 @@ defmodule Vimond.Client do
   defp handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}, id) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok, %{id: id, payment_method: json["paymentMethod"], url: json["url"]}}
+        {:ok,
+         %{id: id, name: json["name"], payment_method: json["paymentMethod"], url: json["url"]}}
 
       {:error, _} ->
         Logger.error("handle_payment_response: Unexpected json: '#{inspect(json)}'")
