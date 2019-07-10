@@ -1,7 +1,7 @@
 defmodule Vimond.Client do
   require Logger
   alias TimeConverter
-  alias Vimond.{Config, Order, Property, Session, User}
+  alias Vimond.{Config, Order, Property, Session, Subtitle, User}
 
   @http_client Application.get_env(:vimond_client, :vimond_http_client, Vimond.HTTPClient)
   @unexpected_error {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
@@ -512,6 +512,31 @@ defmodule Vimond.Client do
     |> case do
       %HTTPotion.Response{body: body, status_code: 200} -> Jason.decode(body)
     end
+  end
+
+  @callback subtitles(String.t(), String.t(), Config.t()) ::
+              {:ok, list(Subtitle.t())} | {:error, map()}
+  def subtitles(asset_id, platform, config) do
+    request("subtitles", fn ->
+      @http_client.get("/api/#{platform}/asset/#{asset_id}/subtitles", headers(), config)
+    end)
+    |> handle_response(fn json, _headers ->
+      subtitles =
+        json
+        |> Enum.map(fn subtitle ->
+          %Subtitle{
+            asset_id: Map.get(subtitle, "assetId"),
+            content_type: Map.get(subtitle, "contentType"),
+            id: Map.get(subtitle, "id"),
+            locale: Map.get(subtitle, "locale"),
+            name: Map.get(subtitle, "name"),
+            type: Map.get(subtitle, "type"),
+            uri: Map.get(subtitle, "uri")
+          }
+        end)
+
+      {:ok, subtitles}
+    end)
   end
 
   @callback set_property_signed(String.t(), Property.t(), Config.t()) :: :ok
