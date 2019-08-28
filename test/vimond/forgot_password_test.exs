@@ -87,8 +87,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
     )
 
     assert forgot_password("user@example.com", @config) ==
-             {:error,
-              %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+             {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
   end
 
   test "with unexpected error" do

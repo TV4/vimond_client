@@ -6,8 +6,7 @@ defmodule Vimond.Client do
   @http_client Application.get_env(:vimond_client, :vimond_http_client, Vimond.HTTPClient)
   @unexpected_error {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
 
-  @callback add_order_signed(user_id :: String.t(), order :: Order.t(), config :: Config.t()) ::
-              {:ok, integer()} | {:error, :failed_to_add_order}
+  @callback add_order_signed(String.t(), Order.t(), Config.t()) :: {:ok, integer} | {:error, :failed_to_add_order}
   def add_order_signed(user_id, order = %Order{}, config = %Config{}) do
     body =
       build_order(order)
@@ -28,8 +27,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback authenticate(username :: String.t(), password :: String.t(), config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback authenticate(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   @doc """
   Authenticates the user and returns session and user information.
   """
@@ -51,7 +49,7 @@ defmodule Vimond.Client do
     |> handle_response(&extract_authenticate/2)
   end
 
-  @callback create(user :: Vimond.User.t(), config :: Config.t()) :: {:ok | :error, map}
+  @callback create(Vimond.User.t(), Config.t()) :: {:ok | :error, map}
   def create(user = %User{}, config = %Config{}) do
     body =
       %{
@@ -73,11 +71,7 @@ defmodule Vimond.Client do
     |> handle_response(&extract_create_user/2)
   end
 
-  @callback delete(
-              user_id :: String.t(),
-              vimond_authorization_token :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback delete(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def delete(user_id, vimond_authorization_token, config = %Config{}) do
     headers = headers(Authorization: "Bearer #{vimond_authorization_token}")
 
@@ -94,7 +88,7 @@ defmodule Vimond.Client do
     |> handle_delete_response()
   end
 
-  @callback forgot_password(email :: String.t(), config :: Config.t()) :: {:ok | :error, map}
+  @callback forgot_password(String.t(), Config.t()) :: {:ok | :error, map}
   def forgot_password(email, %Config{} = config) do
     request("forgot_password", fn ->
       @http_client.delete("user/#{email}/password", headers(), config)
@@ -102,11 +96,7 @@ defmodule Vimond.Client do
     |> handle_forgot_password_response
   end
 
-  @callback logout(
-              vimond_authorization_token :: String.t(),
-              remember_me :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback logout(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def logout(vimond_authorization_token, remember_me, config = %Config{}) do
     request("logout", fn ->
       @http_client.delete(
@@ -118,7 +108,7 @@ defmodule Vimond.Client do
     |> handle_response(&extract_logout/2)
   end
 
-  @callback reauthenticate(remember_me :: String.t(), config :: Config.t()) :: {:ok | :error, map}
+  @callback reauthenticate(String.t(), Config.t()) :: {:ok | :error, map}
   def reauthenticate(remember_me, config = %Config{}) do
     headers = headers(Cookie: "rememberMe=#{remember_me}")
 
@@ -128,14 +118,8 @@ defmodule Vimond.Client do
     |> handle_response(&extract_reauthenticate/2)
   end
 
-  @callback update_password(
-              user_id :: String.t(),
-              vimond_authorization_token :: String.t(),
-              remember_me :: String.t(),
-              old_password :: String.t(),
-              new_password :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback update_password(String.t(), String.t(), String.t(), String.t(), String.t(), Config.t()) ::
+              {:ok | :error, map}
   def update_password(
         user_id,
         vimond_authorization_token,
@@ -162,11 +146,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback update_password_with_token(
-              password_token :: String.t(),
-              new_password :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback update_password_with_token(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def update_password_with_token(password_token, new_password, config = %Config{}) do
     body = Plug.Conn.Query.encode(%{token: password_token, password: new_password})
     headers = headers("Content-Type": "application/x-www-form-urlencoded; charset=UTF-8")
@@ -180,12 +160,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback current_orders(
-              user_id :: String.t(),
-              vimond_authorization_token :: String.t(),
-              remember_me :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback current_orders(String.t(), String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def current_orders(user_id, vimond_authorization_token, remember_me, config = %Config{}) do
     headers = headers_with_tokens(vimond_authorization_token, remember_me)
 
@@ -202,11 +177,7 @@ defmodule Vimond.Client do
     |> handle_response(&extract_orders/2)
   end
 
-  @callback product(
-              product_group_id :: String.t(),
-              product_id :: String.t(),
-              config :: Config.t()
-            ) :: {:ok, map} | {:error, String.t()}
+  @callback product(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
   @deprecated "Use product/2 instead. Vimond ignores the product group id."
   def product(product_group_id, product_id, config = %Config{}) do
     request("product", fn ->
@@ -219,18 +190,12 @@ defmodule Vimond.Client do
     |> handle_product_response
   end
 
-  @callback product(
-              product_id :: String.t(),
-              config :: Config.t()
-            ) :: {:ok, map} | {:error, String.t()}
+  @callback product(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
   def product(product_id, config = %Config{}) do
     product("0", product_id, config)
   end
 
-  @callback products(
-              product_group_id :: String.t(),
-              config :: Config.t()
-            ) :: {:ok, map} | {:error, String.t()}
+  @callback products(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
   def products(product_group_id, config = %Config{}) do
     request("products", fn ->
       @http_client.get(
@@ -242,8 +207,7 @@ defmodule Vimond.Client do
     |> handle_products_response
   end
 
-  @callback product_groups(config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback product_groups(Config.t()) :: {:ok | :error, map}
   def product_groups(config = %Config{}) do
     request("product_groups", fn ->
       @http_client.get("productgroup", headers(), config)
@@ -251,8 +215,7 @@ defmodule Vimond.Client do
     |> handle_product_groups_response
   end
 
-  @callback product_group(product_group_id :: String.t(), config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback product_group(String.t(), Config.t()) :: {:ok | :error, map}
   def product_group(product_group_id, config = %Config{}) do
     request("product_group", fn ->
       @http_client.get("productgroup/#{product_group_id}", headers(), config)
@@ -260,8 +223,7 @@ defmodule Vimond.Client do
     |> handle_product_group_response
   end
 
-  @callback payment_methods(product_id :: String.t(), config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback payment_methods(String.t(), Config.t()) :: {:ok | :error, map}
   def payment_methods(product_id, config = %Config{}) do
     request("payment_methods", fn ->
       @http_client.get("productgroup/0/products/#{product_id}/productPayments", headers(), config)
@@ -269,8 +231,7 @@ defmodule Vimond.Client do
     |> handle_payment_methods_response
   end
 
-  @callback payment(payment_method_id :: String.t(), config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback payment(String.t(), Config.t()) :: {:ok | :error, map}
   def payment(payment_method_id, config = %Config{}) do
     request("payment", fn ->
       @http_client.get(
@@ -282,7 +243,7 @@ defmodule Vimond.Client do
     |> handle_payment_response(String.to_integer(payment_method_id))
   end
 
-  @callback exists_signed(username :: String.t(), config :: Config.t()) :: {:ok, boolean}
+  @callback exists_signed(String.t(), Config.t()) :: {:ok, boolean}
   def exists_signed(username, config = %Config{}) do
     username_exists = fn ->
       @http_client.get_signed("user/username/#{username}", headers(), config)
@@ -319,11 +280,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback user_information(
-              vimond_authorization_token :: String.t(),
-              remember_me :: String.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback user_information(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def user_information(vimond_authorization_token, remember_me, config = %Config{}) do
     with {:ok, data} <-
            fetch_user_information(
@@ -342,8 +299,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback user_information_signed(user_id :: String.t(), config :: Config.t()) ::
-              {:ok | :error, map}
+  @callback user_information_signed(String.t(), Config.t()) :: {:ok | :error, map}
   def user_information_signed(user_id, config = %Config{}) do
     request("user_info", fn ->
       @http_client.get_signed("user/#{user_id}", headers(), config)
@@ -364,13 +320,7 @@ defmodule Vimond.Client do
     end)
   end
 
-  @callback update(
-              vimond_authorization_token :: String.t(),
-              remember_me :: String.t(),
-              user_id :: String.t(),
-              updated_user :: Vimond.User.t(),
-              config :: Config.t()
-            ) :: {:ok | :error, map}
+  @callback update(String.t(), String.t(), String.t(), Vimond.User.t(), Config.t()) :: {:ok | :error, map}
   def update(
         vimond_authorization_token,
         remember_me,
@@ -395,11 +345,9 @@ defmodule Vimond.Client do
              config
            ) do
       # Keep updated tokens and append to result of this function
-      new_vimond_authorization_token =
-        Map.get(user_data, :vimond_authorization_token, vimond_authorization_token)
+      new_vimond_authorization_token = Map.get(user_data, :vimond_authorization_token, vimond_authorization_token)
 
-      user_data =
-        Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
+      user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
 
       # Remove user keys that should not be sent to Vimond in the update request
       old_user = Map.drop(user_data, [:uri, :vimond_authorization_token])
@@ -436,8 +384,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback terminate_order_signed(String.t(), config :: Config.t()) ::
-              {:ok | :error, order_id :: String.t()}
+  @callback terminate_order_signed(String.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
   def terminate_order_signed(order_id, config = %Config{}) do
     {:ok, order} = get_order_signed(order_id, config)
     end_date = DateTime.to_unix(datetime().utc_now(), :millisecond)
@@ -460,8 +407,7 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback update_order_signed(Order.t(), config :: Config.t()) ::
-              {:ok | :error, order_id :: String.t()}
+  @callback update_order_signed(Order.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
   def update_order_signed(order = %Order{order_id: order_id}, config = %Config{}) do
     request("updated order", fn ->
       @http_client.put_signed(
@@ -678,8 +624,7 @@ defmodule Vimond.Client do
     |> Map.values()
     |> case do
       [%Property{id: nil, name: nil, value: nil}] ->
-        {:error,
-         %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
 
       properties ->
         {:ok, properties}
@@ -894,8 +839,7 @@ defmodule Vimond.Client do
   defp handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}, id) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok,
-         %{id: id, name: json["name"], payment_method: json["paymentMethod"], url: json["url"]}}
+        {:ok, %{id: id, name: json["name"], payment_method: json["paymentMethod"], url: json["url"]}}
 
       {:error, _} ->
         Logger.error("handle_payment_response: Unexpected json: '#{inspect(json)}'")
@@ -915,9 +859,7 @@ defmodule Vimond.Client do
     Logger.debug("Vimond response for #{log_message}: #{inspect(vimond_response)}")
 
     Logger.info(
-      "Vimond request time: measure#vimond.#{log_message}=#{div(time, 1000)}ms count#outgoing.vimond.#{
-        log_message
-      }.end=1"
+      "Vimond request time: measure#vimond.#{log_message}=#{div(time, 1000)}ms count#outgoing.vimond.#{log_message}.end=1"
     )
 
     vimond_response
@@ -935,8 +877,7 @@ defmodule Vimond.Client do
         extraction_function.(json, headers)
 
       _ ->
-        {:error,
-         %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
     end
   end
 
@@ -965,8 +906,7 @@ defmodule Vimond.Client do
         {:error, %{type: :user_not_found, source_errors: [reason]}}
 
       _ ->
-        {:error,
-         %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
     end
   end
 

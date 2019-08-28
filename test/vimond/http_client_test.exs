@@ -46,9 +46,7 @@ defmodule Vimond.HTTPClientTest do
     HTTPClientMock
     |> expect(
       :request,
-      fn :get,
-         "https://vimond-rest-api.example.com/api/get/p%C3%A4th",
-         headers: ["Content-Type": "application/json"] ->
+      fn :get, "https://vimond-rest-api.example.com/api/get/p%C3%A4th", headers: ["Content-Type": "application/json"] ->
         %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
       end
     )

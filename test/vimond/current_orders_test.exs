@@ -229,8 +229,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
         end
       )
 
-      current_orders =
-        current_orders("123", "valid_vimond_authorization_token", "valid_remember_me", @config)
+      current_orders = current_orders("123", "valid_vimond_authorization_token", "valid_remember_me", @config)
 
       assert current_orders ==
                {:ok,

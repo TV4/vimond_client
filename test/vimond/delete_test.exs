@@ -61,8 +61,7 @@ defmodule Vimond.Client.DeleteTest do
             %{
               "error" => %{
                 "code" => "NOT_AUTHORIZED",
-                "description" =>
-                  "The permission 'user:UPDATE' is required to execute the requested action",
+                "description" => "The permission 'user:UPDATE' is required to execute the requested action",
                 "id" => "1004",
                 "reference" => "fe5a524a7a8a2864"
               }

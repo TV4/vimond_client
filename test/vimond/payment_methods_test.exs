@@ -120,8 +120,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   id: 2793,
                   init_price: 0,
                   init_period: "PT1209600S",
-                  payment_object_uri:
-                    "/api/cse/productgroup/0/products/1491/productPayments/2793/payment",
+                  payment_object_uri: "/api/cse/productgroup/0/products/1491/productPayments/2793/payment",
                   payment_provider_id: 34,
                   product_id: 1491,
                   product_payment_status: "ENABLED",
@@ -139,8 +138,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   id: 2798,
                   init_price: 0,
                   init_period: "PT1209600S",
-                  payment_object_uri:
-                    "/api/cse/productgroup/0/products/1491/productPayments/2798/payment",
+                  payment_object_uri: "/api/cse/productgroup/0/products/1491/productPayments/2798/payment",
                   payment_provider_id: 35,
                   product_id: 1491,
                   product_payment_status: "ENABLED",
@@ -158,8 +156,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   id: 2712,
                   init_price: 0,
                   init_period: "PT1209600S",
-                  payment_object_uri:
-                    "/api/cse/productgroup/0/products/1491/productPayments/2712/payment",
+                  payment_object_uri: "/api/cse/productgroup/0/products/1491/productPayments/2712/payment",
                   payment_provider_id: 27,
                   product_id: 1491,
                   product_payment_status: "DISABLED",
@@ -177,8 +174,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   id: 5300,
                   init_price: 0,
                   init_period: "PT1209600S",
-                  payment_object_uri:
-                    "/api/cse/productgroup/0/products/1491/productPayments/5300/payment",
+                  payment_object_uri: "/api/cse/productgroup/0/products/1491/productPayments/5300/payment",
                   payment_provider_id: 33,
                   product_id: 1491,
                   product_payment_status: "HIDDEN",

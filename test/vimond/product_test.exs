@@ -65,8 +65,7 @@ defmodule Vimond.Client.ProductTest do
                   },
                   price: 139,
                   product_group_id: 1235,
-                  product_payments_uri:
-                    "/api/cse/productgroup/1235/products/1491/productPayments",
+                  product_payments_uri: "/api/cse/productgroup/1235/products/1491/productPayments",
                   product_status: "ENABLED"
                 }}
     end

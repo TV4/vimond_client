@@ -108,8 +108,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
       }
     end)
 
-    expected =
-      {:error, %{type: :invalid_session, source_errors: ["User can only update profile of self"]}}
+    expected = {:error, %{type: :invalid_session, source_errors: ["User can only update profile of self"]}}
 
     assert update_password(
              "12345",

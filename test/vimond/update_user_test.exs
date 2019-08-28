@@ -543,8 +543,7 @@ defmodule Vimond.Client.UpdateUserTest do
           %{
             "error" => %{
               "code" => "UNKNOWN",
-              "description" =>
-                "Unexpected error - look up reference in logfiles for more details.",
+              "description" => "Unexpected error - look up reference in logfiles for more details.",
               "id" => "0",
               "reference" => "1ee10896d2cf17cd"
             }

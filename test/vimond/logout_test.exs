@@ -60,7 +60,6 @@ defmodule Vimond.Client.LogoutTest do
     end)
 
     assert logout("invalid_vimond_json", "remember_me", @config) ==
-             {:error,
-              %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+             {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
   end
 end

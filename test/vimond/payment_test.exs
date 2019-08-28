@@ -18,8 +18,7 @@ defmodule Vimond.Client.PaymentTest do
                        @config ->
       %HTTPotion.Response{
         status_code: 200,
-        body:
-          Jason.encode!(%{paymentMethod: "KLARNA", name: "Klarna", url: "https://api.klarna.com"}),
+        body: Jason.encode!(%{paymentMethod: "KLARNA", name: "Klarna", url: "https://api.klarna.com"}),
         headers: %HTTPotion.Headers{
           hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
         }
@@ -27,8 +26,7 @@ defmodule Vimond.Client.PaymentTest do
     end)
 
     assert payment("2793", @config) ==
-             {:ok,
-              %{id: 2793, name: "Klarna", payment_method: "KLARNA", url: "https://api.klarna.com"}}
+             {:ok, %{id: 2793, name: "Klarna", payment_method: "KLARNA", url: "https://api.klarna.com"}}
   end
 
   test "with error from Vimond" do
