@@ -1,4 +1,4 @@
-# VimondClient
+# Vimond Client
 
 A simple client for accessing Vimond data
 

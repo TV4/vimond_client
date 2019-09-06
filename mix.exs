@@ -1,4 +1,4 @@
-defmodule VimondClient.MixProject do
+defmodule Vimond.Client.MixProject do
   use Mix.Project
 
   def project do
