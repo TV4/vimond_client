@@ -26,7 +26,7 @@ defmodule Vimond.Client.PaymentTest do
     end)
 
     assert payment("2793", @config) ==
-             {:ok, %{id: 2793, name: "Klarna", payment_method: "KLARNA", url: "https://api.klarna.com"}}
+             {:ok, %Vimond.Payment{id: 2793, name: "Klarna", payment_method: "KLARNA", url: "https://api.klarna.com"}}
   end
 
   test "with error from Vimond" do
