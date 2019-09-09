@@ -58,13 +58,13 @@ defmodule Vimond.Client.ProductsTest do
                {:ok,
                 %{
                   products: [
-                    %{
+                    %Vimond.Product{
                       id: 1491,
                       currency: "SEK",
                       description: nil,
                       enabled: true,
                       minimum_periods: 0,
-                      payment_plan: %{
+                      payment_plan: %Vimond.PaymentPlan{
                         name: "Ordinarie",
                         payment_type: "SUBSCRIPTION",
                         period: "PT2592000S"

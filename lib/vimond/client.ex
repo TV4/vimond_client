@@ -687,13 +687,13 @@ defmodule Vimond.Client do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
-         %{
+         %Vimond.Product{
            id: json["id"],
            currency: json["currency"],
            description: json["description"],
            enabled: json["enabled"],
            minimum_periods: json["minimumPeriods"],
-           payment_plan: %{
+           payment_plan: %Vimond.PaymentPlan{
              name: get_in(json, ["paymentPlan", "name"]),
              payment_type: get_in(json, ["paymentPlan", "paymentType"]),
              period: get_in(json, ["paymentPlan", "period"])
@@ -722,13 +722,13 @@ defmodule Vimond.Client do
          %{
            products:
              Enum.map(products, fn product ->
-               %{
+               %Vimond.Product{
                  id: product["id"],
                  currency: product["currency"],
                  description: product["description"],
                  enabled: product["enabled"],
                  minimum_periods: product["minimumPeriods"],
-                 payment_plan: %{
+                 payment_plan: %Vimond.PaymentPlan{
                    name: get_in(product, ["paymentPlan", "name"]),
                    payment_type: get_in(product, ["paymentPlan", "paymentType"]),
                    period: get_in(product, ["paymentPlan", "period"])

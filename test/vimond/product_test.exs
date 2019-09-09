@@ -52,13 +52,13 @@ defmodule Vimond.Client.ProductTest do
 
       assert product("1235", "1491", @config) ==
                {:ok,
-                %{
+                %Vimond.Product{
                   id: 1491,
                   currency: "SEK",
                   description: nil,
                   enabled: true,
                   minimum_periods: 0,
-                  payment_plan: %{
+                  payment_plan: %Vimond.PaymentPlan{
                     name: "Ordinarie",
                     payment_type: "SUBSCRIPTION",
                     period: "PT2592000S"
@@ -92,13 +92,13 @@ defmodule Vimond.Client.ProductTest do
 
       assert product(1083, 1400, @config) ==
                {:ok,
-                %{
+                %Vimond.Product{
                   id: nil,
                   description: nil,
                   currency: nil,
                   enabled: nil,
                   minimum_periods: nil,
-                  payment_plan: %{name: nil, payment_type: nil, period: nil},
+                  payment_plan: %Vimond.PaymentPlan{name: nil, payment_type: nil, period: nil},
                   price: nil,
                   product_group_id: nil,
                   product_payments_uri: nil,
