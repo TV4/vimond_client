@@ -756,7 +756,7 @@ defmodule Vimond.Client do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
-         Enum.into(json["productGroups"], [], fn productGroup ->
+         Enum.map(json["productGroups"], fn productGroup ->
            %{
              name: productGroup["name"],
              description: productGroup["description"],
@@ -780,7 +780,7 @@ defmodule Vimond.Client do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
-         %{
+         %Vimond.ProductGroup{
            id: json["id"],
            name: json["name"],
            description: json["description"],
@@ -803,7 +803,7 @@ defmodule Vimond.Client do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
-         Enum.into(json["productPaymentList"], [], fn payment_method ->
+         Enum.map(json["productPaymentList"], fn payment_method ->
            %Vimond.PaymentMethod{
              auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
              autorenew_warning_channel: payment_method["autorenewWarningChannel"],

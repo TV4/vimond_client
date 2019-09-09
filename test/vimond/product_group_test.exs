@@ -33,12 +33,7 @@ defmodule Vimond.Client.ProductGroupTest do
 
     assert product_group(1083, @config) ==
              {:ok,
-              %{
-                id: 1083,
-                name: "C More Premium",
-                description: "C More TV4",
-                sale_status: "ENABLED"
-              }}
+              %Vimond.ProductGroup{id: 1083, name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"}}
   end
 
   test "with broken JSON from Vimond" do
