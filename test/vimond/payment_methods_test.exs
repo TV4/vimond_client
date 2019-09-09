@@ -111,7 +111,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
     assert payment_methods(1491, @config) ==
              {:ok,
               [
-                %{
+                %Vimond.PaymentMethod{
                   auto_renew_warning_enabled: false,
                   autorenew_warning_channel: "EMAIL",
                   description: "Standard Klarna Test",
@@ -129,7 +129,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   sort_index: 0,
                   uri: "/api/cse/productgroup/0/products/1491/productPayments/2793"
                 },
-                %{
+                %Vimond.PaymentMethod{
                   auto_renew_warning_enabled: false,
                   autorenew_warning_channel: "EMAIL",
                   description: "Standard Klarna Direkt",
@@ -147,7 +147,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   sort_index: 0,
                   uri: "/api/cse/productgroup/0/products/1491/productPayments/2798"
                 },
-                %{
+                %Vimond.PaymentMethod{
                   auto_renew_warning_enabled: false,
                   autorenew_warning_channel: "EMAIL",
                   description: "Standard",
@@ -165,7 +165,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                   sort_index: 0,
                   uri: "/api/cse/productgroup/0/products/1491/productPayments/2712"
                 },
-                %{
+                %Vimond.PaymentMethod{
                   auto_renew_warning_enabled: false,
                   autorenew_warning_channel: "EMAIL",
                   description: nil,

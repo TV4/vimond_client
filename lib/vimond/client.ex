@@ -804,7 +804,7 @@ defmodule Vimond.Client do
       {:ok, json} ->
         {:ok,
          Enum.into(json["productPaymentList"], [], fn payment_method ->
-           %{
+           %Vimond.PaymentMethod{
              auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
              autorenew_warning_channel: payment_method["autorenewWarningChannel"],
              description: payment_method["description"],
