@@ -757,7 +757,7 @@ defmodule Vimond.Client do
       {:ok, json} ->
         {:ok,
          Enum.map(json["productGroups"], fn productGroup ->
-           %{
+           %Vimond.ProductGroup{
              name: productGroup["name"],
              description: productGroup["description"],
              sale_status: productGroup["saleStatus"]

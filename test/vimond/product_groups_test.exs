@@ -34,8 +34,8 @@ defmodule Vimond.Client.ProductGroupsTest do
     assert product_groups(@config) ==
              {:ok,
               [
-                %{name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"},
-                %{name: "C More", description: "C More", sale_status: "ENABLED"}
+                %Vimond.ProductGroup{name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"},
+                %Vimond.ProductGroup{name: "C More", description: "C More", sale_status: "ENABLED"}
               ]}
   end
 
