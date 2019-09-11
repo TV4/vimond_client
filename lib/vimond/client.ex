@@ -384,6 +384,28 @@ defmodule Vimond.Client do
     end
   end
 
+  @callback voucher(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, message :: String.t()}
+  def voucher(voucher_code, xff, config = %Config{}) do
+    request("voucher", fn ->
+      @http_client.get("/api/voucher/#{voucher_code}", headers("X-Forwarded-For": xff), config)
+    end)
+    |> handle_response(fn
+      %{"error" => %{"description" => message}}, _header ->
+        {:error, %{type: :voucher_not_found, source_errors: [message]}}
+
+      voucher, _header ->
+        {:ok,
+         %Vimond.Voucher{
+           code: voucher["code"],
+           pool: voucher["pool"],
+           start_at: voucher["startDate"],
+           end_at: voucher["expiry"],
+           usages: voucher["usages"],
+           product_id: get_in(voucher, ["product", "id"])
+         }}
+    end)
+  end
+
   @callback terminate_order_signed(String.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
   def terminate_order_signed(order_id, config = %Config{}) do
     {:ok, order} = get_order_signed(order_id, config)
