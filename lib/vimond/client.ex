@@ -389,21 +389,57 @@ defmodule Vimond.Client do
     request("voucher", fn ->
       @http_client.get("/api/voucher/#{voucher_code}", headers("X-Forwarded-For": xff), config)
     end)
-    |> handle_response(fn
-      %{"error" => %{"description" => message}}, _header ->
-        {:error, %{type: :voucher_not_found, source_errors: [message]}}
+    |> handle_response(&extract_voucher/2)
+  end
 
-      voucher, _header ->
-        {:ok,
-         %Vimond.Voucher{
-           code: voucher["code"],
-           pool: voucher["pool"],
-           start_at: voucher["startDate"],
-           end_at: voucher["expiry"],
-           usages: voucher["usages"],
-           product_id: get_in(voucher, ["product", "id"])
-         }}
-    end)
+  defp extract_voucher(%{"error" => %{"description" => message}}, _header) do
+    {:error, %{type: :voucher_invalid, source_errors: [message]}}
+  end
+
+  defp extract_voucher(voucher, _header) do
+    with :ok <- voucher_not_expired(voucher["expiry"]),
+         :ok <- voucher_started(voucher["startDate"]),
+         :ok <- voucher_has_usages_left(voucher["usages"]),
+         :ok <- voucher_has_product(voucher["product"]) do
+      {:ok,
+       %Vimond.Voucher{
+         code: voucher["code"],
+         pool: voucher["pool"],
+         start_at: voucher["startDate"],
+         end_at: voucher["expiry"],
+         usages: voucher["usages"],
+         product_id: get_in(voucher, ["product", "id"])
+       }}
+    else
+      {:invalid, source_error} ->
+        {:error, %{type: :voucher_invalid, source_errors: [source_error]}}
+    end
+  end
+
+  defp voucher_has_product(nil), do: {:invalid, "Voucher has no product"}
+  defp voucher_has_product(_), do: :ok
+
+  defp voucher_has_usages_left(0), do: {:invalid, "Voucher has no more usages"}
+  defp voucher_has_usages_left(_), do: :ok
+
+  defp voucher_started(nil), do: :ok
+
+  defp voucher_started(start_date) do
+    with {:ok, start_at, _} <- DateTime.from_iso8601(start_date),
+         result when result in [:eq, :lt] <- DateTime.compare(start_at, datetime().utc_now()) do
+      :ok
+    else
+      _ -> {:invalid, "Voucher not started"}
+    end
+  end
+
+  defp voucher_not_expired(expiry) do
+    with {:ok, end_at, _} <- DateTime.from_iso8601(expiry),
+         :gt <- DateTime.compare(end_at, datetime().utc_now()) do
+      :ok
+    else
+      _ -> {:invalid, "Voucher expired"}
+    end
   end
 
   @callback terminate_order_signed(String.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
