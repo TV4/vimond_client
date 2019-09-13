@@ -408,7 +408,8 @@ defmodule Vimond.Client do
          start_at: voucher["startDate"],
          end_at: voucher["expiry"],
          usages: voucher["usages"],
-         product_id: get_in(voucher, ["product", "id"])
+         product_id: get_in(voucher, ["product", "id"]),
+         product_payment_ids: List.wrap(voucher["productPaymentIds"])
        }}
     else
       {:invalid, source_error} ->

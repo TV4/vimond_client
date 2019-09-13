@@ -5,6 +5,7 @@ defmodule Vimond.Voucher do
     :usages,
     :start_at,
     :end_at,
-    :product_id
+    :product_id,
+    :product_payment_ids
   ]
 end
