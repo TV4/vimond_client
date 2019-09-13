@@ -231,6 +231,18 @@ defmodule Vimond.Client do
     |> handle_payment_methods_response
   end
 
+  @callback payment_methods(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+  def payment_methods(product_id, voucher_code, config = %Config{}) do
+    request("payment_methods", fn ->
+      @http_client.get(
+        "productgroup/0/products/#{product_id}/productPayments?voucherCode=#{voucher_code}",
+        headers(),
+        config
+      )
+    end)
+    |> handle_payment_methods_response(voucher_code)
+  end
+
   @callback payment(String.t(), Config.t()) :: {:ok | :error, map}
   def payment(payment_method_id, config = %Config{}) do
     request("payment", fn ->
@@ -854,6 +866,14 @@ defmodule Vimond.Client do
 
     {:error, "Failed to fetch product group"}
   end
+
+  defp handle_payment_methods_response(response = %HTTPotion.Response{status_code: 404}, _voucher_code) do
+    Logger.error("handle_payment_methods_response: Invalid voucher: '#{inspect(response)}'")
+
+    {:error, "Failed to fetch payment methods"}
+  end
+
+  defp handle_payment_methods_response(response, _voucher_code), do: handle_payment_methods_response(response)
 
   defp handle_payment_methods_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
