@@ -102,9 +102,6 @@ defmodule Vimond.Client.VoucherTest do
               %Vimond.Voucher{
                 code: "An-existing-voucher-code",
                 pool: "Some-pool-identifier",
-                usages: 1,
-                start_at: FakeDateTime.yesterday() |> DateTime.to_iso8601(),
-                end_at: "2020-08-30T22:00:00Z",
                 product_id: 2420,
                 product_payment_ids: [5442, 5443]
               }}
@@ -141,9 +138,6 @@ defmodule Vimond.Client.VoucherTest do
               %Vimond.Voucher{
                 code: "An-existing-voucher-code",
                 pool: "Some-pool-identifier",
-                usages: 1,
-                start_at: nil,
-                end_at: "2020-08-30T22:00:00Z",
                 product_id: 2420,
                 product_payment_ids: [123, 456]
               }}
@@ -181,9 +175,6 @@ defmodule Vimond.Client.VoucherTest do
               %Vimond.Voucher{
                 code: "An-existing-voucher-code",
                 pool: "Some-pool-identifier",
-                usages: 1,
-                start_at: FakeDateTime.yesterday() |> DateTime.to_iso8601(),
-                end_at: "2020-08-30T22:00:00Z",
                 product_id: 2420,
                 product_payment_ids: [789]
               }}

@@ -405,9 +405,6 @@ defmodule Vimond.Client do
        %Vimond.Voucher{
          code: voucher["code"],
          pool: voucher["pool"],
-         start_at: voucher["startDate"],
-         end_at: voucher["expiry"],
-         usages: voucher["usages"],
          product_id: get_in(voucher, ["product", "id"]),
          product_payment_ids: List.wrap(voucher["productPaymentIds"])
        }}
