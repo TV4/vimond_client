@@ -406,7 +406,7 @@ defmodule Vimond.Client do
          code: voucher["code"],
          pool: voucher["pool"],
          product_id: get_in(voucher, ["product", "id"]),
-         product_payment_ids: List.wrap(voucher["productPaymentIds"])
+         product_payment_ids: voucher["productPaymentIds"]
        }}
     else
       {:invalid, source_error} ->

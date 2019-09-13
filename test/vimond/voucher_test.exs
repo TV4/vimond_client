@@ -143,43 +143,6 @@ defmodule Vimond.Client.VoucherTest do
                   product_payment_ids: [123, 456]
                 }}
     end
-
-    test "with a single payment method attached to the voucher" do
-      Vimond.HTTPClientMock
-      |> expect(:get, fn "/api/voucher/An-existing-voucher-code",
-                         [
-                           Accept: "application/json; v=3; charset=UTF-8",
-                           "Content-Type": "application/json; v=3; charset=UTF-8",
-                           "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
-                         ],
-                         @config ->
-        %HTTPotion.Response{
-          status_code: 200,
-          headers: %HTTPotion.Headers{},
-          body:
-            Jason.encode!(%{
-              "code" => "An-existing-voucher-code",
-              "startDate" => FakeDateTime.yesterday() |> DateTime.to_iso8601(),
-              "expiry" => "2020-08-30T22:00:00Z",
-              "pool" => "Some-pool-identifier",
-              "product" => %{
-                "id" => 2420
-              },
-              "usages" => 1,
-              "productPaymentIds" => 789
-            })
-        }
-      end)
-
-      assert voucher("An-existing-voucher-code", "5.6.7.8, 1.2.3.4", @config) ==
-               {:ok,
-                %Vimond.Voucher{
-                  code: "An-existing-voucher-code",
-                  pool: "Some-pool-identifier",
-                  product_id: 2420,
-                  product_payment_ids: [789]
-                }}
-    end
   end
 
   describe "invalid vouchers" do
