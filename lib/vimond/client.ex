@@ -443,6 +443,8 @@ defmodule Vimond.Client do
     end
   end
 
+  defp voucher_not_expired(nil), do: :ok
+
   defp voucher_not_expired(expiry) do
     with {:ok, end_at, _} <- DateTime.from_iso8601(expiry),
          :gt <- DateTime.compare(end_at, datetime().utc_now()) do
