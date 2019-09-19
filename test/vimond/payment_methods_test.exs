@@ -229,7 +229,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
   describe "with voucher" do
     test "with a valid voucher" do
       Vimond.HTTPClientMock
-      |> expect(:get, fn "productgroup/0/products/1491/productPayments?voucherCode=existing-voucher",
+      |> expect(:get, fn "productgroup/0/products/1491/productPayments?voucherCode=existing%2520voucher",
                          [
                            Accept: "application/json; v=3; charset=UTF-8",
                            "Content-Type": "application/json; v=3; charset=UTF-8"
@@ -288,7 +288,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert payment_methods(1491, "existing-voucher", @config) ==
+      assert payment_methods(1491, "existing%20voucher", @config) ==
                {:ok,
                 [
                   %Vimond.PaymentMethod{
