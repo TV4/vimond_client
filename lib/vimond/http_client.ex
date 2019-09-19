@@ -19,8 +19,13 @@ defmodule Vimond.HTTPClient do
     request(:delete, url, merge(headers, []))
   end
 
+  @callback get(path :: String.t(), query :: map(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  def get(path, query, headers, %Config{base_url: base_url}) do
+    request(:get, vimond_url(base_url, path, query), merge(headers, []))
+  end
+
   @callback get(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
-  def get(path, headers \\ [], %Config{base_url: base_url}) do
+  def get(path, headers, %Config{base_url: base_url}) do
     request(:get, vimond_url(base_url, path), merge(headers, []))
   end
 
@@ -33,22 +38,12 @@ defmodule Vimond.HTTPClient do
     request(:get, url, merge(headers, []))
   end
 
-  @callback post(
-              path :: String.t(),
-              body :: String.t(),
-              headers :: Keyword.t(),
-              config :: Config.t()
-            ) :: any()
+  @callback post(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def post(path, body, headers, %Config{base_url: base_url}) do
     request(:post, vimond_url(base_url, path), merge(body, headers, []))
   end
 
-  @callback post_signed(
-              path :: String.t(),
-              body :: String.t(),
-              headers :: Keyword.t(),
-              config :: Config.t()
-            ) :: any()
+  @callback post_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def post_signed(path, body, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
@@ -57,22 +52,12 @@ defmodule Vimond.HTTPClient do
     request(:post, url, merge(body, headers, []))
   end
 
-  @callback put(
-              path :: String.t(),
-              body :: String.t(),
-              headers :: Keyword.t(),
-              config :: Config.t()
-            ) :: any()
+  @callback put(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def put(path, body, headers, %Config{base_url: base_url}) do
     request(:put, vimond_url(base_url, path), merge(body, headers, []))
   end
 
-  @callback put_signed(
-              path :: String.t(),
-              body :: String.t(),
-              headers :: Keyword.t(),
-              config :: Config.t()
-            ) :: any()
+  @callback put_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def put_signed(path, body, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
@@ -93,6 +78,13 @@ defmodule Vimond.HTTPClient do
     uri = URI.merge(base_url, path)
 
     %URI{uri | path: URI.encode(uri.path)}
+    |> to_string
+  end
+
+  defp vimond_url(base_url, path, query) do
+    uri = URI.merge(base_url, path)
+
+    %URI{uri | path: URI.encode(uri.path), query: Plug.Conn.Query.encode(query)}
     |> to_string
   end
 

@@ -235,7 +235,8 @@ defmodule Vimond.Client do
   def payment_methods(product_id, voucher_code, config = %Config{}) do
     request("payment_methods", fn ->
       @http_client.get(
-        "productgroup/0/products/#{product_id}/productPayments?#{Plug.Conn.Query.encode(%{voucherCode: voucher_code})}",
+        "productgroup/0/products/#{product_id}/productPayments",
+        %{voucherCode: voucher_code},
         headers(),
         config
       )

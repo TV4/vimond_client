@@ -54,6 +54,20 @@ defmodule Vimond.HTTPClientTest do
     Vimond.HTTPClient.get("/api/get/päth", ["Content-Type": "application/json"], @config)
   end
 
+  test "get with query" do
+    HTTPClientMock
+    |> expect(
+      :request,
+      fn :get,
+         "https://vimond-rest-api.example.com/api/get/p%C3%A4th?key=val%2520ue",
+         headers: ["Content-Type": "application/json"] ->
+        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+      end
+    )
+
+    Vimond.HTTPClient.get("/api/get/päth", %{"key" => "val%20ue"}, ["Content-Type": "application/json"], @config)
+  end
+
   test "get_signed" do
     HTTPClientMock
     |> expect(
