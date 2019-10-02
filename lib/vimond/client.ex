@@ -829,9 +829,11 @@ defmodule Vimond.Client do
         {:ok,
          Enum.map(json["productGroups"], fn productGroup ->
            %Vimond.ProductGroup{
+             id: productGroup["id"],
              name: productGroup["name"],
              description: productGroup["description"],
-             sale_status: productGroup["saleStatus"]
+             sale_status: productGroup["saleStatus"],
+             sort_index: productGroup["sortIndex"]
            }
          end)}
 
@@ -855,7 +857,8 @@ defmodule Vimond.Client do
            id: json["id"],
            name: json["name"],
            description: json["description"],
-           sale_status: json["saleStatus"]
+           sale_status: json["saleStatus"],
+           sort_index: json["sortIndex"]
          }}
 
       _ ->

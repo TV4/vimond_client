@@ -21,8 +21,8 @@ defmodule Vimond.Client.ProductGroupsTest do
         body:
           Jason.encode!(%{
             productGroups: [
-              %{name: "C More Premium", description: "C More TV4", saleStatus: "ENABLED"},
-              %{name: "C More", description: "C More", saleStatus: "ENABLED"}
+              %{id: 2075, name: "C More Premium", description: "C More TV4", saleStatus: "ENABLED", sortIndex: 0},
+              %{id: 2060, name: "C More", description: "C More", saleStatus: "ENABLED", sortIndex: 1}
             ]
           }),
         headers: %HTTPotion.Headers{
@@ -34,8 +34,20 @@ defmodule Vimond.Client.ProductGroupsTest do
     assert product_groups(@config) ==
              {:ok,
               [
-                %Vimond.ProductGroup{name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"},
-                %Vimond.ProductGroup{name: "C More", description: "C More", sale_status: "ENABLED"}
+                %Vimond.ProductGroup{
+                  id: 2075,
+                  name: "C More Premium",
+                  description: "C More TV4",
+                  sale_status: "ENABLED",
+                  sort_index: 0
+                },
+                %Vimond.ProductGroup{
+                  id: 2060,
+                  name: "C More",
+                  description: "C More",
+                  sale_status: "ENABLED",
+                  sort_index: 1
+                }
               ]}
   end
 

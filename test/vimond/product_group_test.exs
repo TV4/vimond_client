@@ -23,7 +23,8 @@ defmodule Vimond.Client.ProductGroupTest do
             id: 1083,
             name: "C More Premium",
             description: "C More TV4",
-            saleStatus: "ENABLED"
+            saleStatus: "ENABLED",
+            sortIndex: 0
           }),
         headers: %HTTPotion.Headers{
           hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
@@ -33,7 +34,13 @@ defmodule Vimond.Client.ProductGroupTest do
 
     assert product_group(1083, @config) ==
              {:ok,
-              %Vimond.ProductGroup{id: 1083, name: "C More Premium", description: "C More TV4", sale_status: "ENABLED"}}
+              %Vimond.ProductGroup{
+                id: 1083,
+                name: "C More Premium",
+                description: "C More TV4",
+                sale_status: "ENABLED",
+                sort_index: 0
+              }}
   end
 
   test "with broken JSON from Vimond" do
