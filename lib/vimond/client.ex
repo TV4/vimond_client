@@ -772,7 +772,8 @@ defmodule Vimond.Client do
            price: json["price"],
            product_group_id: json["productGroupId"],
            product_payments_uri: json["productPaymentsUri"]["uri"],
-           product_status: json["productStatus"]
+           product_status: json["productStatus"],
+           sort_index: json["sortIndex"]
          }}
 
       {:error, _} ->
@@ -807,7 +808,8 @@ defmodule Vimond.Client do
                  price: product["price"],
                  product_group_id: product["productGroupId"],
                  product_payments_uri: product["productPaymentsUri"]["uri"],
-                 product_status: product["productStatus"]
+                 product_status: product["productStatus"],
+                 sort_index: product["sortIndex"]
                }
              end)
          }}

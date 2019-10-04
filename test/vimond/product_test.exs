@@ -66,7 +66,8 @@ defmodule Vimond.Client.ProductTest do
                   price: 139,
                   product_group_id: 1235,
                   product_payments_uri: "/api/cse/productgroup/1235/products/1491/productPayments",
-                  product_status: "ENABLED"
+                  product_status: "ENABLED",
+                  sort_index: 1
                 }}
     end
 
@@ -102,7 +103,8 @@ defmodule Vimond.Client.ProductTest do
                   price: nil,
                   product_group_id: nil,
                   product_payments_uri: nil,
-                  product_status: nil
+                  product_status: nil,
+                  sort_index: nil
                 }}
     end
 

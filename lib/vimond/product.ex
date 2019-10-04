@@ -9,6 +9,7 @@ defmodule Vimond.Product do
     :product_group_id,
     :product_payments_uri,
     :product_status,
+    :sort_index,
     payment_plan: %Vimond.PaymentPlan{}
   ]
 end
