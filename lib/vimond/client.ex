@@ -531,11 +531,10 @@ defmodule Vimond.Client do
     end
   end
 
-  @callback subtitles(String.t(), String.t(), Config.t()) ::
-              {:ok, list(Subtitle.t())} | {:error, map()}
-  def subtitles(asset_id, platform, config) do
+  @callback subtitles(String.t(), Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
+  def subtitles(asset_id, config) do
     request("subtitles", fn ->
-      @http_client.get("/api/#{platform}/asset/#{asset_id}/subtitles", headers(), config)
+      @http_client.get("asset/#{asset_id}/subtitles", headers(), config)
     end)
     |> handle_response(fn json, _headers ->
       subtitles =

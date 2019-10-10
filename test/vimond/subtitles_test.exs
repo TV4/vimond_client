@@ -6,14 +6,14 @@ defmodule Vimond.SubtitlesTest do
   setup :verify_on_exit!
 
   @config %Vimond.Config{
-    base_url: "https://vimond-rest-api.example.com/api/platform/",
+    base_url: "https://vimond-rest-api.example.com/api/tv4/",
     api_key: "key",
     api_secret: "secret"
   }
 
   test "get subtitle" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn "/api/tv4/asset/10002224/subtitles",
+    |> expect(:get, fn "asset/10002224/subtitles",
                        [
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8"
@@ -42,7 +42,7 @@ defmodule Vimond.SubtitlesTest do
       }
     end)
 
-    assert Client.subtitles("10002224", "tv4", @config) ==
+    assert Client.subtitles("10002224", @config) ==
              {:ok,
               [
                 %Subtitle{
