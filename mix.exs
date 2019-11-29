@@ -27,7 +27,7 @@ defmodule Vimond.Client.MixProject do
       {:httpotion, "~> 3.0"},
       {:jason, "~> 1.0"},
       {:timex, "~> 3.3"},
-      {:mix_test_watch, "~> 0.5", only: :test, runtime: false},
+      {:mix_test_watch, "~> 1.0", only: :test, runtime: false},
       {:mox, "~> 0.4", only: :test}
     ]
   end
