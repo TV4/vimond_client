@@ -81,6 +81,7 @@ defmodule Vimond.Client do
     |> handle_delete_response()
   end
 
+  @callback delete_signed(String.t(), Config.t()) :: {:ok | :error, map}
   def delete_signed(user_id, config = %Config{}) do
     request("delete_signed", fn ->
       @http_client.delete_signed("user/#{user_id}", headers(), config)
