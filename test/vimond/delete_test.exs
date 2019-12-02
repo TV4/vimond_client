@@ -95,21 +95,19 @@ defmodule Vimond.Client.DeleteTest do
                               Authorization: "Bearer blah"
                             ],
                             @config ->
+        data = %{
+          error: %{
+            code: "NOT_AUTHORIZED",
+            description: "The permission 'user:UPDATE' is required to execute the requested action",
+            id: "1004",
+            reference: "e48e991db4ba7545"
+          }
+        }
+
         %HTTPotion.Response{
-          body:
-            %{
-              "error" => %{
-                "code" => "USER_NOT_FOUND",
-                "description" => nil,
-                "id" => "1023",
-                "reference" => "27ffb84896033f01"
-              }
-            }
-            |> Jason.encode!(),
+          body: Jason.encode!(data),
           headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8"
-            }
+            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
           },
           status_code: 401
         }
@@ -119,7 +117,7 @@ defmodule Vimond.Client.DeleteTest do
                {:error,
                 %{
                   type: :invalid_session,
-                  source_errors: ["USER_NOT_FOUND"]
+                  source_errors: ["The permission 'user:UPDATE' is required to execute the requested action"]
                 }}
     end
   end
@@ -137,19 +135,13 @@ defmodule Vimond.Client.DeleteTest do
           body: "",
           headers: %HTTPotion.Headers{
             hdrs: %{
-              "connection" => "keep-alive",
-              "date" => "Wed, 03 Oct 2018 06:48:31 GMT",
-              "server" => "Apache-Coyote/1.1",
               "set-cookie" => [
                 "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
                 "sumoSession=:::3BoiBFh41RDnkGEzlpsQEQ!!; Domain=.b17g.net; Path=/; Max-Age=31536000; Expires=Thu, 03-Oct-2019 06:48:31 GMT; HttpOnly",
                 "sumoSession=deleteMe; Domain=.b17g.net; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
                 "sumoSession=deleteMe; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
                 "JSESSIONID=279bfc7ef205a173cb552c8ac90a542d860f62a2~C334E42FAE28CB6A47E8AAD79E754CF6; Path=/api/; HttpOnly"
-              ],
-              "via" => "1.1 9ede9483eb891e14681c7c693b47c862.cloudfront.net (CloudFront)",
-              "x-amz-cf-id" => "Dfh11WRdflB9TOY6h-QFVxRDaOpi0ySj-gh1Q2juBpAokfOWigRfPw==",
-              "x-cache" => "Miss from cloudfront"
+              ]
             }
           },
           status_code: 204
@@ -159,7 +151,7 @@ defmodule Vimond.Client.DeleteTest do
       assert delete_signed("12345", @config) == {:ok, %{message: "User has been deleted"}}
     end
 
-    test "when Vimond returns error" do
+    test "when the user does not exist" do
       Vimond.HTTPClientMock
       |> expect(:delete_signed, fn _path, _headers, _config ->
         %HTTPotion.Response{
@@ -178,8 +170,7 @@ defmodule Vimond.Client.DeleteTest do
         }
       end)
 
-      assert delete_signed("12345", @config) ==
-               {:error, %{source_errors: ["USER_NOT_FOUND"], type: :invalid_session}}
+      assert delete_signed("12345", @config) == {:error, %{type: :user_not_found, source_errors: ["USER_NOT_FOUND"]}}
     end
 
     test "with unexpected error" do
@@ -188,8 +179,7 @@ defmodule Vimond.Client.DeleteTest do
         %HTTPotion.ErrorResponse{message: "Oh noes!"}
       end)
 
-      assert delete_signed("12345", @config) ==
-               {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
+      assert delete_signed("12345", @config) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
     end
   end
 end

@@ -998,7 +998,11 @@ defmodule Vimond.Client do
 
   defp handle_delete_response(%HTTPotion.Response{body: body}) do
     %{"error" => %{"description" => reason, "code" => code}} = Jason.decode!(body)
-    error(:invalid_session, reason || code)
+
+    case code do
+      "USER_NOT_FOUND" -> error(:user_not_found, code)
+      _ -> error(:invalid_session, reason || code)
+    end
   end
 
   defp handle_delete_response(_), do: @unexpected_error
