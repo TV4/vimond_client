@@ -296,41 +296,57 @@ defmodule Vimond.Client.UserInformationTest do
           "firstName" => "Valid",
           "id" => 6_572_908,
           "lastName" => "User",
-          "properties" => [
-            %{
-              "hidden" => false,
-              "id" => 7_445_317,
-              "name" => "user_property_c",
-              "userId" => 16_426_403,
-              "value" => "2016-05-20"
-            },
-            %{
-              "hidden" => false,
-              "id" => 7_445_318,
-              "name" => "user_property_d",
-              "userId" => 16_426_403,
-              "value" => "2016-06-17 09:26:17 UTC"
-            },
-            %{
-              "hidden" => false,
-              "id" => 7_445_319,
-              "name" => "user_property_a",
-              "userId" => 16_426_403,
-              "value" => "2018-05-25"
-            },
-            %{
-              "hidden" => false,
-              "id" => 7_445_320,
-              "name" => "user_property_b",
-              "userId" => 16_426_403,
-              "value" => "2018-05-26 08:34:37 UTC"
-            }
-          ],
+          "properties" => [],
           "registrationDate" => "2018-05-07T11:05:01Z",
           "uri" => "/api/platform/user/6572908",
           "userName" => "some.person@example.com",
           "zip" => "923 45"
         }
+
+        %HTTPotion.Response{
+          status_code: 200,
+          body: Jason.encode!(json),
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+          }
+        }
+      end)
+      |> expect(:get_signed, fn "user/12345/properties",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        json = [
+          %{
+            "hidden" => false,
+            "id" => 7_445_317,
+            "name" => "user_property_c",
+            "userId" => 16_426_403,
+            "value" => "2016-05-20"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_318,
+            "name" => "user_property_d",
+            "userId" => 16_426_403,
+            "value" => "2016-06-17 09:26:17 UTC"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_319,
+            "name" => "user_property_a",
+            "userId" => 16_426_403,
+            "value" => "2018-05-25"
+          },
+          %{
+            "hidden" => false,
+            "id" => 7_445_320,
+            "name" => "user_property_b",
+            "userId" => 16_426_403,
+            "value" => "2018-05-26 08:34:37 UTC"
+          }
+        ]
 
         %HTTPotion.Response{
           status_code: 200,

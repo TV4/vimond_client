@@ -296,12 +296,7 @@ defmodule Vimond.Client do
   @callback user_information(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
   def user_information(vimond_authorization_token, remember_me, config = %Config{}) do
     with {:ok, data} <-
-           fetch_user_information(
-             vimond_authorization_token,
-             remember_me,
-             &extract_user_information/1,
-             config
-           ) do
+           fetch_user_information(vimond_authorization_token, remember_me, &extract_user_information/1, config) do
       case Map.pop(data, :vimond_authorization_token) do
         {nil, data} ->
           {:ok, Map.put(data, :session, %Vimond.Session{})}
@@ -314,49 +309,12 @@ defmodule Vimond.Client do
 
   @callback user_information_signed(String.t(), Config.t()) :: {:ok | :error, map}
   def user_information_signed(user_id, config = %Config{}) do
-    request("user_info", fn ->
-      @http_client.get_signed("user/#{user_id}", headers(), config)
-    end)
-    |> handle_response(fn json, headers ->
-      case json do
-        %{"userName" => _} ->
-          with {:ok, data} <- extract_user_information({:ok, reject_nil_values(json)}) do
-            {:ok, Map.merge(data, updated_tokens(headers))}
-          end
-
-        %{"error" => %{"code" => "SESSION_NOT_AUTHENTICATED", "description" => reason}} ->
-          error(:invalid_session, reason)
-
-        _ ->
-          @unexpected_error
-      end
-    end)
+    fetch_user_information_signed(user_id, &extract_user_information/1, config)
   end
 
   @callback update(String.t(), String.t(), String.t(), Vimond.User.t(), Config.t()) :: {:ok | :error, map}
-  def update(
-        vimond_authorization_token,
-        remember_me,
-        user_id,
-        updated_user = %User{},
-        config = %Config{}
-      ) do
-    with {:ok, user_data} <-
-           fetch_user_information(
-             vimond_authorization_token,
-             remember_me,
-             fn result ->
-               with {:ok, json} <- result do
-                 user_data =
-                   json
-                   |> Enum.map(fn {key, value} -> {String.to_atom(key), value} end)
-                   |> Map.new()
-
-                 {:ok, user_data}
-               end
-             end,
-             config
-           ) do
+  def update(vimond_authorization_token, remember_me, user_id, updated_user = %User{}, config = %Config{}) do
+    with {:ok, user_data} <- fetch_user_information(vimond_authorization_token, remember_me, &to_atom_keys/1, config) do
       # Keep updated tokens and append to result of this function
       new_vimond_authorization_token = Map.get(user_data, :vimond_authorization_token, vimond_authorization_token)
 
@@ -381,12 +339,8 @@ defmodule Vimond.Client do
       |> case do
         # Put back updated vimond tokens into result if changed
         {:ok, data} ->
-          if new_vimond_authorization_token &&
-               new_vimond_authorization_token != vimond_authorization_token do
-            {:ok,
-             Map.put(data, :session, %Vimond.Session{
-               vimond_authorization_token: new_vimond_authorization_token
-             })}
+          if new_vimond_authorization_token && new_vimond_authorization_token != vimond_authorization_token do
+            {:ok, Map.put(data, :session, %Vimond.Session{vimond_authorization_token: new_vimond_authorization_token})}
           else
             {:ok, Map.put(data, :session, %Vimond.Session{})}
           end
@@ -394,6 +348,28 @@ defmodule Vimond.Client do
         response ->
           response
       end
+    end
+  end
+
+  @callback update_signed(String.t(), Vimond.User.t(), Config.t()) :: {:ok | :error, map}
+  def update_signed(user_id, updated_user = %User{}, config = %Config{}) do
+    with {:ok, user_data} <- fetch_user_information_signed(user_id, &to_atom_keys/1, config) do
+      user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
+
+      # Remove user keys that should not be sent to Vimond in the update request
+      old_user = Map.delete(user_data, :uri)
+
+      # Merge existing keys in Vimond with updated user values
+      merged_user =
+        Map.merge(old_user, update_user_payload(user_id, updated_user), fn
+          _, left, nil -> left
+          _, _, right -> right
+        end)
+
+      request("update_signed", fn ->
+        @http_client.put_signed("user", Jason.encode!(merged_user), headers(), config)
+      end)
+      |> handle_response(&extract_update_user/2)
     end
   end
 
@@ -701,6 +677,16 @@ defmodule Vimond.Client do
     end
   end
 
+  defp latest_property(property = %Property{}, result) do
+    property_name = property.name
+
+    if result[property_name] == nil || result[property_name].id < property.id do
+      Map.put(result, property_name, property)
+    else
+      result
+    end
+  end
+
   defp latest_property(property, result) do
     property_name = property["name"]
 
@@ -751,6 +737,43 @@ defmodule Vimond.Client do
           @unexpected_error
       end
     end)
+  end
+
+  defp fetch_user_information_signed(user_id, extraction_function, config = %Config{}) do
+    get_properties_task =
+      Task.async(fn ->
+        request("get_properties_signed", fn ->
+          @http_client.get_signed("user/#{user_id}/properties", headers(), config)
+          |> handle_response(fn json, _headers -> json end)
+        end)
+      end)
+
+    request("user_information_signed", fn -> @http_client.get_signed("user/#{user_id}", headers(), config) end)
+    |> handle_response(fn user_data, _headers ->
+      case user_data do
+        %{"userName" => _} ->
+          properties = Task.await(get_properties_task)
+          user_data = Map.put(user_data, "properties", properties)
+          extraction_function.({:ok, reject_nil_values(user_data)})
+
+        %{"error" => %{"code" => "AUTHENTICATION_FAILED", "description" => reason}} ->
+          error(:invalid_session, reason)
+
+        _ ->
+          @unexpected_error
+      end
+    end)
+  end
+
+  defp to_atom_keys(result) do
+    with {:ok, json} <- result do
+      user_data =
+        json
+        |> Enum.map(fn {key, value} -> {String.to_atom(key), value} end)
+        |> Map.new()
+
+      {:ok, user_data}
+    end
   end
 
   defp handle_product_response(%HTTPotion.Response{status_code: 200, body: body}) do
