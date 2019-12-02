@@ -1521,18 +1521,17 @@ defmodule Vimond.Client.UpdateUserTest do
                 }}
     end
 
-    test "with invalid api key" do
+    test "when user does not exist" do
       user = %Vimond.User{username: "some.person@example.com", email: "some.person@example.com"}
 
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/6572908", _headers, _config ->
         json = %{
           "error" => %{
-            "code" => "AUTHENTICATION_FAILED",
-            "description" =>
-              "The credentials provided for account [no.sumo.api.security.token.AdminUserToken@7e7c1b33] did not match the expected credentials.",
-            "id" => "1043",
-            "reference" => "444e08cdf25c66ff"
+            "code" => "USER_NOT_FOUND",
+            "description" => nil,
+            "id" => "1023",
+            "reference" => "c69ab081d6bcebe1"
           }
         }
 
@@ -1545,14 +1544,7 @@ defmodule Vimond.Client.UpdateUserTest do
         }
       end)
 
-      assert update_signed("6572908", user, @config) ==
-               {:error,
-                %{
-                  type: :invalid_session,
-                  source_errors: [
-                    "The credentials provided for account [no.sumo.api.security.token.AdminUserToken@7e7c1b33] did not match the expected credentials."
-                  ]
-                }}
+      assert update_signed("6572908", user, @config) == {:error, %{type: :user_not_found, source_errors: [nil]}}
     end
 
     test "with invalid response" do

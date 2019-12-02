@@ -756,8 +756,8 @@ defmodule Vimond.Client do
           user_data = Map.put(user_data, "properties", properties)
           extraction_function.({:ok, reject_nil_values(user_data)})
 
-        %{"error" => %{"code" => "AUTHENTICATION_FAILED", "description" => reason}} ->
-          error(:invalid_session, reason)
+        %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}} ->
+          error(:user_not_found, reason)
 
         _ ->
           @unexpected_error
