@@ -7,7 +7,7 @@ defmodule Vimond.Client.VoucherTest do
 
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform"}
 
-  describe "valid vouchers" do
+  describe "vouchers response" do
     test "with a voucher with existing data" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "/api/voucher/An-existing-voucher-code",
@@ -104,7 +104,8 @@ defmodule Vimond.Client.VoucherTest do
                   code: "An-existing-voucher-code",
                   pool: "Some-pool-identifier",
                   product_id: 2420,
-                  product_payment_ids: [5442, 5443]
+                  product_payment_ids: [5442, 5443],
+                  valid: true
                 }}
     end
 
@@ -140,7 +141,8 @@ defmodule Vimond.Client.VoucherTest do
                   code: "An-existing-voucher-code",
                   pool: "Some-pool-identifier",
                   product_id: 2420,
-                  product_payment_ids: [123, 456]
+                  product_payment_ids: [123, 456],
+                  valid: true
                 }}
     end
 
@@ -176,12 +178,87 @@ defmodule Vimond.Client.VoucherTest do
                   code: "An-existing-voucher-code",
                   pool: "Some-pool-identifier",
                   product_id: 2420,
-                  product_payment_ids: [123, 456]
+                  product_payment_ids: [123, 456],
+                  valid: true
+                }}
+    end
+
+    test "when the voucher has no more usages" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "/api/voucher/A-voucher-code-with-no-more-usages",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8",
+                           "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
+                         ],
+                         @config ->
+        %HTTPotion.Response{
+          status_code: 200,
+          headers: %HTTPotion.Headers{},
+          body:
+            Jason.encode!(%{
+              "code" => "A-voucher-code-with-no-more-usages",
+              "startDate" => FakeDateTime.yesterday() |> DateTime.to_iso8601(),
+              "expiry" => FakeDateTime.next_year() |> DateTime.to_iso8601(),
+              "pool" => "Some-pool-identifier",
+              "product" => %{
+                "id" => 2420
+              },
+              "productPaymentIds" => [5442, 5443],
+              "usages" => 0
+            })
+        }
+      end)
+
+      assert voucher("A-voucher-code-with-no-more-usages", "5.6.7.8, 1.2.3.4", @config) ==
+               {:ok,
+                %Vimond.Voucher{
+                  code: "A-voucher-code-with-no-more-usages",
+                  pool: "Some-pool-identifier",
+                  product_id: 2420,
+                  product_payment_ids: [5442, 5443],
+                  valid: false
+                }}
+    end
+
+    test "when missing usages" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "/api/voucher/A-voucher-code-with-missing-usages",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8",
+                           "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
+                         ],
+                         @config ->
+        %HTTPotion.Response{
+          status_code: 200,
+          headers: %HTTPotion.Headers{},
+          body:
+            Jason.encode!(%{
+              "code" => "A-voucher-code-with-missing-usages",
+              "pool" => "Some-pool-identifier",
+              "startDate" => FakeDateTime.yesterday() |> DateTime.to_iso8601(),
+              "product" => %{
+                "id" => 2420
+              },
+              "productPaymentIds" => [123, 456]
+            })
+        }
+      end)
+
+      assert voucher("A-voucher-code-with-missing-usages", "5.6.7.8, 1.2.3.4", @config) ==
+               {:ok,
+                %Vimond.Voucher{
+                  code: "A-voucher-code-with-missing-usages",
+                  pool: "Some-pool-identifier",
+                  product_id: 2420,
+                  product_payment_ids: [123, 456],
+                  valid: true
                 }}
     end
   end
 
-  describe "invalid vouchers" do
+  describe "voucher error" do
     test "when the voucher has expired" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "/api/voucher/An-expired-voucher-code",
@@ -209,6 +286,37 @@ defmodule Vimond.Client.VoucherTest do
 
       assert voucher("An-expired-voucher-code", "5.6.7.8, 1.2.3.4", @config) ==
                {:error, %{type: :voucher_invalid, source_errors: ["Voucher expired"]}}
+    end
+
+    test "when startDate in future" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "/api/voucher/A-not-started-voucher-code",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8",
+                           "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
+                         ],
+                         @config ->
+        %HTTPotion.Response{
+          status_code: 200,
+          headers: %HTTPotion.Headers{},
+          body:
+            Jason.encode!(%{
+              "code" => "A-not-started-voucher-code",
+              "startDate" => FakeDateTime.next_year() |> DateTime.to_iso8601(),
+              "expiry" => FakeDateTime.next_year() |> DateTime.to_iso8601(),
+              "pool" => "Some-pool-identifier",
+              "product" => %{
+                "id" => 2420
+              },
+              "productPaymentIds" => [5442, 5443],
+              "usages" => 1
+            })
+        }
+      end)
+
+      assert voucher("A-not-started-voucher-code", "5.6.7.8, 1.2.3.4", @config) ==
+               {:error, %{type: :voucher_invalid, source_errors: ["Voucher not started"]}}
     end
 
     test "when the voucher is not yet active" do
@@ -239,36 +347,6 @@ defmodule Vimond.Client.VoucherTest do
 
       assert voucher("An-unstarted-voucher-code", "5.6.7.8, 1.2.3.4", @config) ==
                {:error, %{type: :voucher_invalid, source_errors: ["Voucher not started"]}}
-    end
-
-    test "when the voucher has no more usages" do
-      Vimond.HTTPClientMock
-      |> expect(:get, fn "/api/voucher/A-used-voucher-code",
-                         [
-                           Accept: "application/json; v=3; charset=UTF-8",
-                           "Content-Type": "application/json; v=3; charset=UTF-8",
-                           "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
-                         ],
-                         @config ->
-        %HTTPotion.Response{
-          status_code: 200,
-          headers: %HTTPotion.Headers{},
-          body:
-            Jason.encode!(%{
-              "code" => "A-used-voucher-code",
-              "startDate" => FakeDateTime.yesterday() |> DateTime.to_iso8601(),
-              "expiry" => FakeDateTime.next_year() |> DateTime.to_iso8601(),
-              "pool" => "Some-pool-identifier",
-              "product" => %{
-                "id" => 2420
-              },
-              "usages" => 0
-            })
-        }
-      end)
-
-      assert voucher("A-used-voucher-code", "5.6.7.8, 1.2.3.4", @config) ==
-               {:error, %{type: :voucher_invalid, source_errors: ["Voucher has no more usages"]}}
     end
 
     test "when the voucher has no product" do
