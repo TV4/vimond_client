@@ -389,10 +389,10 @@ defmodule Vimond.Client do
   defp extract_voucher(voucher, _header) do
     with :ok <- voucher_not_expired(voucher["expiry"]),
          :ok <- voucher_started(voucher["startDate"]),
+         :ok <- voucher_has_usages_left(voucher["usages"]),
          :ok <- voucher_has_product(voucher["product"]) do
       {:ok,
        %Vimond.Voucher{
-         valid: voucher_has_usages_left(voucher["usages"]),
          code: voucher["code"],
          pool: voucher["pool"],
          product_id: get_in(voucher, ["product", "id"]),
@@ -407,8 +407,8 @@ defmodule Vimond.Client do
   defp voucher_has_product(nil), do: {:invalid, "Voucher has no product"}
   defp voucher_has_product(_), do: :ok
 
-  defp voucher_has_usages_left(0), do: false
-  defp voucher_has_usages_left(_), do: true
+  defp voucher_has_usages_left(0), do: {:invalid, "Voucher has no more usages"}
+  defp voucher_has_usages_left(_), do: :ok
 
   defp voucher_started(nil), do: :ok
 
