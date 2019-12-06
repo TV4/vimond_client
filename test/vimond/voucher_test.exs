@@ -30,6 +30,7 @@ defmodule Vimond.Client.VoucherTest do
               "discountTypeString" => "FRACTION",
               "expiry" => "2020-08-30T22:00:00Z",
               "pool" => "Some-pool-identifier",
+              "poolName" => "Some pool name",
               "startDate" => FakeDateTime.yesterday() |> DateTime.to_iso8601(),
               "product" => %{
                 "comment" => "99kr/mån, erbjudande för Blajkunder",
@@ -103,6 +104,7 @@ defmodule Vimond.Client.VoucherTest do
                 %Vimond.Voucher{
                   code: "An-existing-voucher-code",
                   pool: "Some-pool-identifier",
+                  pool_name: "Some pool name",
                   product_id: 2420,
                   product_payment_ids: [5442, 5443]
                 }}

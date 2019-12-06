@@ -395,6 +395,7 @@ defmodule Vimond.Client do
        %Vimond.Voucher{
          code: voucher["code"],
          pool: voucher["pool"],
+         pool_name: voucher["poolName"],
          product_id: get_in(voucher, ["product", "id"]),
          product_payment_ids: voucher["productPaymentIds"]
        }}
