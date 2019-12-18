@@ -55,7 +55,7 @@ defmodule Vimond.Client do
       %{
         userName: user.username,
         password: user.password,
-        email: user.username,
+        email: user.email,
         firstName: user.first_name,
         lastName: user.last_name,
         zip: user.zip_code,

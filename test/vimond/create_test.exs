@@ -20,7 +20,7 @@ defmodule Vimond.Client.CreateTest do
       assert Jason.decode!(body) == %{
                "userName" => "new_user",
                "password" => "password",
-               "email" => "new_user",
+               "email" => "new_user@host.com",
                "firstName" => "New",
                "lastName" => "User",
                "zip" => "123 45",
@@ -38,7 +38,7 @@ defmodule Vimond.Client.CreateTest do
           %{
             "country" => "SWE",
             "dateOfBirth" => "1977-01-01T00:00:00Z",
-            "email" => "new_user",
+            "email" => "new_user@host.com",
             "emailStatus" => 2,
             "firstName" => "New",
             "id" => 12_345_678,
@@ -77,7 +77,7 @@ defmodule Vimond.Client.CreateTest do
     user = %Vimond.User{
       username: "new_user",
       password: "password",
-      email: "ignored",
+      email: "new_user@host.com",
       first_name: "New",
       last_name: "User",
       zip_code: "123 45",
@@ -95,7 +95,7 @@ defmodule Vimond.Client.CreateTest do
                 user: %Vimond.User{
                   user_id: "12345678",
                   username: "new_user",
-                  email: "new_user",
+                  email: "new_user@host.com",
                   first_name: "New",
                   last_name: "User",
                   zip_code: "123 45",
@@ -156,6 +156,7 @@ defmodule Vimond.Client.CreateTest do
 
     user = %Vimond.User{
       username: "existing_user",
+      email: "existing_user@host.com",
       password: "password",
       first_name: "New",
       last_name: "User",
@@ -205,6 +206,7 @@ defmodule Vimond.Client.CreateTest do
 
     user = %Vimond.User{
       username: "existing_user",
+      email: "existing_user@host.com",
       password: "password",
       first_name: "New",
       last_name: "User",
@@ -250,7 +252,8 @@ defmodule Vimond.Client.CreateTest do
     end)
 
     user = %Vimond.User{
-      username: "invalid@email..com",
+      username: "invalid",
+      email: "invalid@email..com",
       password: "password",
       first_name: "New",
       last_name: "User",
