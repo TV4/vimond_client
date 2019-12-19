@@ -1,5 +1,5 @@
 defmodule Vimond.Client.UserInformationTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   import Vimond.Client
   import Mox
 
