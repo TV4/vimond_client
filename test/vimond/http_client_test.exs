@@ -23,10 +23,28 @@ defmodule Vimond.HTTPClientTest do
       end
     )
 
-    assert Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config) == %HTTPotion.Response{
+    assert Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config) == %Vimond.Response{
              body: "",
-             headers: %HTTPotion.Headers{hdrs: %{"connection" => "keep-alive"}},
+             headers: %{"connection" => "keep-alive"},
              status_code: 204
+           }
+  end
+
+  test "delete with error" do
+    HTTPClientMock
+    |> expect(
+      :request,
+      fn :delete,
+         "https://vimond-rest-api.example.com/api/platf%C3%B6rm/delete/p%C3%A4th",
+         [{"Accept", "text/plain"}],
+         "",
+         timeout: _ ->
+        {:error, %Mojito.Error{message: "oh noes!"}}
+      end
+    )
+
+    assert Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config) == %Vimond.Error{
+             message: "oh noes!"
            }
   end
 
@@ -56,9 +74,9 @@ defmodule Vimond.HTTPClientTest do
     )
 
     assert Vimond.HTTPClient.delete_signed("delete_signed/päth", [Accept: "text/plain"], @config) ==
-             %HTTPotion.Response{
+             %Vimond.Response{
                body: "",
-               headers: %HTTPotion.Headers{hdrs: %{"authorization" => ["Bearer def456", "Bearer abc123"]}},
+               headers: %{"authorization" => ["Bearer def456", "Bearer abc123"]},
                status_code: 204
              }
   end
@@ -76,9 +94,9 @@ defmodule Vimond.HTTPClientTest do
       end
     )
 
-    assert Vimond.HTTPClient.get("/api/get/päth", ["Content-Type": "application/json"], @config) == %HTTPotion.Response{
+    assert Vimond.HTTPClient.get("/api/get/päth", ["Content-Type": "application/json"], @config) == %Vimond.Response{
              body: "",
-             headers: %HTTPotion.Headers{hdrs: %{}},
+             headers: %{},
              status_code: 200
            }
   end
@@ -97,7 +115,7 @@ defmodule Vimond.HTTPClientTest do
     )
 
     assert Vimond.HTTPClient.get("/api/get/päth", %{"key" => "val%20ue"}, ["Content-Type": "application/json"], @config) ==
-             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+             %Vimond.Response{body: "", status_code: 200}
   end
 
   test "get_signed" do
@@ -118,7 +136,7 @@ defmodule Vimond.HTTPClientTest do
     )
 
     assert Vimond.HTTPClient.get_signed("get_signed/päth", [Accept: "text/plain"], @config) ==
-             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
+             %Vimond.Response{body: "", status_code: 204}
   end
 
   test "post" do
@@ -138,10 +156,10 @@ defmodule Vimond.HTTPClientTest do
 
     headers = ["Content-Type": "application/json; v=2; charset=UTF-8"]
 
-    assert Vimond.HTTPClient.post("/api/post/päth", "body", headers, @config) == %HTTPotion.Response{
+    assert Vimond.HTTPClient.post("/api/post/päth", "body", headers, @config) == %Vimond.Response{
              status_code: 200,
              body: "",
-             headers: %HTTPotion.Headers{hdrs: %{"content-type" => "text/plain"}}
+             headers: %{"content-type" => "text/plain"}
            }
   end
 
@@ -160,7 +178,7 @@ defmodule Vimond.HTTPClientTest do
     end)
 
     assert Vimond.HTTPClient.post_signed("post_signed/päth", "body", [Accept: "text/plain"], @config) ==
-             %HTTPotion.Response{status_code: 200, body: "", headers: %HTTPotion.Headers{}}
+             %Vimond.Response{status_code: 200, body: ""}
   end
 
   test "put" do
@@ -177,7 +195,7 @@ defmodule Vimond.HTTPClientTest do
     )
 
     assert Vimond.HTTPClient.put("/api/put/päth", "body", ["Content-Type": "application/json"], @config) ==
-             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+             %Vimond.Response{body: "", status_code: 200}
   end
 
   test "put_signed" do
@@ -195,6 +213,6 @@ defmodule Vimond.HTTPClientTest do
     end)
 
     assert Vimond.HTTPClient.put_signed("put_signed/päth", "body", [Accept: "text/plain"], @config) ==
-             %HTTPotion.Response{status_code: 200, body: "", headers: %HTTPotion.Headers{}}
+             %Vimond.Response{status_code: 200, body: ""}
   end
 end

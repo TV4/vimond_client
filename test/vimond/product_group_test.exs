@@ -16,7 +16,7 @@ defmodule Vimond.Client.ProductGroupTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 200,
         body:
           Jason.encode!(%{
@@ -26,9 +26,7 @@ defmodule Vimond.Client.ProductGroupTest do
             saleStatus: "ENABLED",
             sortIndex: 0
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
-        }
+        headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
       }
     end)
 
@@ -51,7 +49,7 @@ defmodule Vimond.Client.ProductGroupTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %HTTPotion.Response{status_code: 200, body: "br|ok3n/JaS0n"}
+      %Vimond.Response{status_code: 200, body: "br|ok3n/JaS0n"}
     end)
 
     assert capture_log(fn ->
@@ -67,7 +65,7 @@ defmodule Vimond.Client.ProductGroupTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %HTTPotion.Response{status_code: 500}
+      %Vimond.Response{status_code: 500}
     end)
 
     assert capture_log(fn ->

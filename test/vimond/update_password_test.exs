@@ -29,13 +29,12 @@ defmodule Vimond.Client.UpdatePasswordTest do
         }
       )
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 204,
         body: "",
-        headers: %HTTPotion.Headers{
-          hdrs: %{
+        headers: %{
             "content-type" => "application/json; v=\"3\";charset=UTF-8"
-          }
+
         }
       }
     end)
@@ -53,7 +52,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
   test "with wrong password" do
     Vimond.HTTPClientMock
     |> expect(:put, fn "user/password", _body, _headers, _config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 409,
         body:
           Jason.encode!(%{
@@ -64,10 +63,9 @@ defmodule Vimond.Client.UpdatePasswordTest do
               "reference" => "aa15278261be1cd0"
             }
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
+        headers: %{
             "content-type" => "application/json; v=\"3\";charset=UTF-8"
-          }
+
         }
       }
     end)
@@ -89,7 +87,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
   test "with an expired remember me token" do
     Vimond.HTTPClientMock
     |> expect(:put, fn "user/password", _body, _headers, _config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 401,
         body:
           Jason.encode!(%{
@@ -100,10 +98,9 @@ defmodule Vimond.Client.UpdatePasswordTest do
               "reference" => "32e9730e2bf1ea1d"
             }
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
+        headers: %{
             "content-type" => "application/json; v=\"3\";charset=UTF-8"
-          }
+
         }
       }
     end)

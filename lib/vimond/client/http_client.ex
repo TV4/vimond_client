@@ -70,17 +70,20 @@ defmodule Vimond.HTTPClient do
     headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
 
     @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000))
-    |> (fn {:ok,
-            %Mojito.Response{
+    |> (fn
+          {:error, %Mojito.Error{message: message}} ->
+            %Vimond.Error{message: message}
+
+          {:ok,
+           %Mojito.Response{
+             body: body,
+             headers: headers,
+             status_code: status_code
+           }} ->
+            %Vimond.Response{
               body: body,
-              headers: headers,
-              status_code: status_code
-            }} ->
-          %HTTPotion.Response{
-            body: body,
-            status_code: status_code,
-            headers: %HTTPotion.Headers{
-              hdrs:
+              status_code: status_code,
+              headers:
                 Enum.reduce(headers, %{}, fn {key, value}, headers ->
                   Map.update(headers, key, value, fn
                     current_value when is_list(current_value) -> [value | current_value]
@@ -88,7 +91,6 @@ defmodule Vimond.HTTPClient do
                   end)
                 end)
             }
-          }
         end).()
   end
 

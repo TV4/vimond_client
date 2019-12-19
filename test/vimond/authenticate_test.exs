@@ -27,7 +27,7 @@ defmodule Vimond.Client.AuthenticateTest do
                "expand" => "user"
              }
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 200,
         body:
           Jason.encode!(%{
@@ -46,15 +46,13 @@ defmodule Vimond.Client.AuthenticateTest do
             },
             "userId" => 6_572_908
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "content-type" => "application/json; v=3;charset=UTF-8",
-            "authorization" => "Bearer valid_vimond_authorization_token",
-            "set-cookie" => [
-              "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Mon, 13-Feb-2017 13:29:05 GMT",
-              "rememberMe=VIMOND_REMEMBER_ME; Path=/api; Max-Age=31536000; Expires=Wed, 14-Feb-2018 13:29:05 GMT; HttpOnly"
-            ]
-          }
+        headers: %{
+          "content-type" => "application/json; v=3;charset=UTF-8",
+          "authorization" => "Bearer valid_vimond_authorization_token",
+          "set-cookie" => [
+            "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Mon, 13-Feb-2017 13:29:05 GMT",
+            "rememberMe=VIMOND_REMEMBER_ME; Path=/api; Max-Age=31536000; Expires=Wed, 14-Feb-2018 13:29:05 GMT; HttpOnly"
+          ]
         }
       }
     end)
@@ -83,7 +81,7 @@ defmodule Vimond.Client.AuthenticateTest do
   test "with invalid credentials" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 401,
         body:
           Jason.encode!(%{
@@ -92,9 +90,7 @@ defmodule Vimond.Client.AuthenticateTest do
             "reference" => "157e55a3a8e3b97e",
             "status" => 401
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-        }
+        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
       }
     end)
 
@@ -109,12 +105,10 @@ defmodule Vimond.Client.AuthenticateTest do
   test "handles errors" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 200,
         body: Jason.encode!(%{"unexpected" => "value"}),
-        headers: %HTTPotion.Headers{
-          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-        }
+        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
       }
     end)
 

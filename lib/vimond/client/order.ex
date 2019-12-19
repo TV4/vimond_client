@@ -16,7 +16,7 @@ defmodule Vimond.Client.Order do
           @http_client.post_signed("order/#{user_id}/create", body, headers(), config)
         end)
         |> case do
-          %HTTPotion.Response{body: body, status_code: 200} ->
+          %Vimond.Response{body: body, status_code: 200} ->
             case Jason.decode(body) do
               {:ok, %{"id" => order_id}} -> {:ok, order_id}
             end
@@ -62,7 +62,7 @@ defmodule Vimond.Client.Order do
           @http_client.put_signed("order/#{order_id}", body, headers(), config)
         end)
         |> case do
-          %HTTPotion.Response{status_code: 200} -> {:ok, order_id}
+          %Vimond.Response{status_code: 200} -> {:ok, order_id}
           _ -> {:error, order_id}
         end
       end
@@ -85,7 +85,7 @@ defmodule Vimond.Client.Order do
           @http_client.get_signed("order/#{order_id}", headers(), config)
         end)
         |> case do
-          %HTTPotion.Response{body: body, status_code: 200} -> Jason.decode(body)
+          %Vimond.Response{body: body, status_code: 200} -> Jason.decode(body)
         end
       end
 
