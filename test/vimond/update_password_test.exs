@@ -33,8 +33,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
         status_code: 204,
         body: "",
         headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
-
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
         }
       }
     end)
@@ -64,8 +63,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
             }
           }),
         headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
-
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
         }
       }
     end)
@@ -99,8 +97,7 @@ defmodule Vimond.Client.UpdatePasswordTest do
             }
           }),
         headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
-
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
         }
       }
     end)
