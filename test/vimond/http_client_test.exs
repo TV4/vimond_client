@@ -16,13 +16,18 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :delete,
          "https://vimond-rest-api.example.com/api/platf%C3%B6rm/delete/p%C3%A4th",
-         headers: [Accept: "text/plain"],
+         [{"Accept", "text/plain"}],
+         "",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
+        {:ok, %Mojito.Response{body: "", headers: [{"connection", "keep-alive"}], status_code: 204}}
       end
     )
 
-    Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config)
+    assert Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config) == %HTTPotion.Response{
+             body: "",
+             headers: %HTTPotion.Headers{hdrs: %{"connection" => "keep-alive"}},
+             status_code: 204
+           }
   end
 
   test "delete_signed" do
@@ -31,17 +36,31 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :delete,
          "https://vimond-rest-api.example.com/api/platf%C3%B6rm/delete_signed/p%C3%A4th",
-         headers: [
-           Authorization: "SUMO key:2m4KdoMUScnkGqcqeMjhD+eC9LM=",
-           Date: "Wed, 02 Sep 2015 13:24:35 +0000",
-           Accept: "text/plain"
+         [
+           {"Authorization", "SUMO key:2m4KdoMUScnkGqcqeMjhD+eC9LM="},
+           {"Date", "Wed, 02 Sep 2015 13:24:35 +0000"},
+           {"Accept", "text/plain"}
          ],
+         "",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
+        {:ok,
+         %Mojito.Response{
+           body: "",
+           headers: [
+             {"authorization", "Bearer abc123"},
+             {"authorization", "Bearer def456"}
+           ],
+           status_code: 204
+         }}
       end
     )
 
-    Vimond.HTTPClient.delete_signed("delete_signed/päth", [Accept: "text/plain"], @config)
+    assert Vimond.HTTPClient.delete_signed("delete_signed/päth", [Accept: "text/plain"], @config) ==
+             %HTTPotion.Response{
+               body: "",
+               headers: %HTTPotion.Headers{hdrs: %{"authorization" => ["Bearer def456", "Bearer abc123"]}},
+               status_code: 204
+             }
   end
 
   test "get" do
@@ -50,13 +69,18 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :get,
          "https://vimond-rest-api.example.com/api/get/p%C3%A4th",
-         headers: ["Content-Type": "application/json"],
+         [{"Content-Type", "application/json"}],
+         "",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+        {:ok, %Mojito.Response{body: "", status_code: 200}}
       end
     )
 
-    Vimond.HTTPClient.get("/api/get/päth", ["Content-Type": "application/json"], @config)
+    assert Vimond.HTTPClient.get("/api/get/päth", ["Content-Type": "application/json"], @config) == %HTTPotion.Response{
+             body: "",
+             headers: %HTTPotion.Headers{hdrs: %{}},
+             status_code: 200
+           }
   end
 
   test "get with query" do
@@ -65,13 +89,15 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :get,
          "https://vimond-rest-api.example.com/api/get/p%C3%A4th?key=val%2520ue",
-         headers: ["Content-Type": "application/json"],
+         [{"Content-Type", "application/json"}],
+         "",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+        {:ok, %Mojito.Response{body: "", status_code: 200}}
       end
     )
 
-    Vimond.HTTPClient.get("/api/get/päth", %{"key" => "val%20ue"}, ["Content-Type": "application/json"], @config)
+    assert Vimond.HTTPClient.get("/api/get/päth", %{"key" => "val%20ue"}, ["Content-Type": "application/json"], @config) ==
+             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
   end
 
   test "get_signed" do
@@ -80,53 +106,61 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :get,
          "https://vimond-rest-api.example.com/api/platf%C3%B6rm/get_signed/p%C3%A4th",
-         headers: [
-           Authorization: "SUMO key:/2eNQMZn5zrGM98d4dEf45F/DuM=",
-           Date: "Wed, 02 Sep 2015 13:24:35 +0000",
-           Accept: "text/plain"
+         [
+           {"Authorization", "SUMO key:/2eNQMZn5zrGM98d4dEf45F/DuM="},
+           {"Date", "Wed, 02 Sep 2015 13:24:35 +0000"},
+           {"Accept", "text/plain"}
          ],
+         "",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
+        {:ok, %Mojito.Response{body: "", status_code: 204}}
       end
     )
 
-    Vimond.HTTPClient.get_signed("get_signed/päth", [Accept: "text/plain"], @config)
+    assert Vimond.HTTPClient.get_signed("get_signed/päth", [Accept: "text/plain"], @config) ==
+             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
   end
 
   test "post" do
     HTTPClientMock
     |> expect(:request, fn :post,
                            "https://vimond-rest-api.example.com/api/post/p%C3%A4th",
-                           body: "body",
-                           headers: ["Content-Type": "application/json; v=2; charset=UTF-8"],
+                           [{"Content-Type", "application/json; v=2; charset=UTF-8"}],
+                           "body",
                            timeout: _ ->
-      %HTTPotion.Response{
-        status_code: 200,
-        body: "",
-        headers: %HTTPotion.Headers{hdrs: %{"content-type" => "text/plain"}}
-      }
+      {:ok,
+       %Mojito.Response{
+         status_code: 200,
+         body: "",
+         headers: [{"content-type", "text/plain"}]
+       }}
     end)
 
     headers = ["Content-Type": "application/json; v=2; charset=UTF-8"]
 
-    Vimond.HTTPClient.post("/api/post/päth", "body", headers, @config)
+    assert Vimond.HTTPClient.post("/api/post/päth", "body", headers, @config) == %HTTPotion.Response{
+             status_code: 200,
+             body: "",
+             headers: %HTTPotion.Headers{hdrs: %{"content-type" => "text/plain"}}
+           }
   end
 
   test "post_signed" do
     HTTPClientMock
     |> expect(:request, fn :post,
                            "https://vimond-rest-api.example.com/api/platf%C3%B6rm/post_signed/p%C3%A4th",
-                           body: "body",
-                           headers: [
-                             Authorization: "SUMO key:JVpWxOkvgRWirA2D6f2uv7q62wU=",
-                             Date: "Wed, 02 Sep 2015 13:24:35 +0000",
-                             Accept: "text/plain"
+                           [
+                             {"Authorization", "SUMO key:JVpWxOkvgRWirA2D6f2uv7q62wU="},
+                             {"Date", "Wed, 02 Sep 2015 13:24:35 +0000"},
+                             {"Accept", "text/plain"}
                            ],
+                           "body",
                            timeout: _ ->
-      %HTTPotion.Response{status_code: 200, body: ""}
+      {:ok, %Mojito.Response{status_code: 200, body: ""}}
     end)
 
-    Vimond.HTTPClient.post_signed("post_signed/päth", "body", [Accept: "text/plain"], @config)
+    assert Vimond.HTTPClient.post_signed("post_signed/päth", "body", [Accept: "text/plain"], @config) ==
+             %HTTPotion.Response{status_code: 200, body: "", headers: %HTTPotion.Headers{}}
   end
 
   test "put" do
@@ -135,30 +169,32 @@ defmodule Vimond.HTTPClientTest do
       :request,
       fn :put,
          "https://vimond-rest-api.example.com/api/put/p%C3%A4th",
-         body: "body",
-         headers: ["Content-Type": "application/json"],
+         [{"Content-Type", "application/json"}],
+         "body",
          timeout: _ ->
-        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
+        {:ok, %Mojito.Response{body: "", status_code: 200}}
       end
     )
 
-    Vimond.HTTPClient.put("/api/put/päth", "body", ["Content-Type": "application/json"], @config)
+    assert Vimond.HTTPClient.put("/api/put/päth", "body", ["Content-Type": "application/json"], @config) ==
+             %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 200}
   end
 
   test "put_signed" do
     HTTPClientMock
     |> expect(:request, fn :put,
                            "https://vimond-rest-api.example.com/api/platf%C3%B6rm/put_signed/p%C3%A4th",
-                           body: "body",
-                           headers: [
-                             Authorization: "SUMO key:eDYzJ3v7hLIacu6NsANcGqPYG6k=",
-                             Date: "Wed, 02 Sep 2015 13:24:35 +0000",
-                             Accept: "text/plain"
+                           [
+                             {"Authorization", "SUMO key:eDYzJ3v7hLIacu6NsANcGqPYG6k="},
+                             {"Date", "Wed, 02 Sep 2015 13:24:35 +0000"},
+                             {"Accept", "text/plain"}
                            ],
+                           "body",
                            timeout: _ ->
-      %HTTPotion.Response{status_code: 200, body: ""}
+      {:ok, %Mojito.Response{status_code: 200, body: ""}}
     end)
 
-    Vimond.HTTPClient.put_signed("put_signed/päth", "body", [Accept: "text/plain"], @config)
+    assert Vimond.HTTPClient.put_signed("put_signed/päth", "body", [Accept: "text/plain"], @config) ==
+             %HTTPotion.Response{status_code: 200, body: "", headers: %HTTPotion.Headers{}}
   end
 end
