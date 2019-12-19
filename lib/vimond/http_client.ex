@@ -68,7 +68,7 @@ defmodule Vimond.HTTPClient do
 
   defp request(method, url, options) do
     Logger.debug("Vimond request: #{inspect({method, url, options})}")
-    @http_client.request(method, url, options)
+    @http_client.request(method, url, Keyword.merge(options, timeout: 30_000))
   end
 
   defp merge(headers, options), do: Keyword.merge(options, headers: headers)
