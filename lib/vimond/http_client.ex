@@ -69,7 +69,7 @@ defmodule Vimond.HTTPClient do
     Logger.debug("Vimond request: #{inspect({method, url, headers, body, options})}")
     headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
 
-    @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000, protocols: [:http1]))
+    @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000))
     |> (fn {:ok,
             %Mojito.Response{
               body: body,
