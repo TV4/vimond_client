@@ -2,7 +2,7 @@ defmodule Vimond.HTTPClient do
   alias Vimond.Config
   require Logger
 
-  @http_client Application.get_env(:vimond_client, :http_client, Mojito)
+  @http_client Application.get_env(:vimond_client, :http_client, HTTPoison)
 
   @callback delete(url :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def delete(path, headers, %Config{base_url: base_url}) do
@@ -69,18 +69,18 @@ defmodule Vimond.HTTPClient do
     Logger.debug("Vimond request: #{inspect({method, url, headers, body, options})}")
     headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
 
-    @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000))
+    @http_client.request(method, url, body, headers, Keyword.merge(options, recv_timeout: 25_000))
     |> translate_response
   end
 
-  defp translate_response({:error, %Mojito.Error{message: message}}) do
+  defp translate_response({:error, %HTTPoison.Error{reason: message}}) do
     %Vimond.Error{message: message}
   end
 
-  defp translate_response({:ok, %Mojito.Response{body: body, headers: headers, status_code: status_code}}) do
+  defp translate_response({:ok, %HTTPoison.Response{body: body, headers: headers, status_code: status_code}}) do
     headers =
       Enum.reduce(headers, %{}, fn {key, value}, headers ->
-        Map.update(headers, key, value, fn
+        Map.update(headers, String.downcase(key), value, fn
           current_value when is_list(current_value) -> [value | current_value]
           current_value -> [value | [current_value]]
         end)
@@ -119,4 +119,6 @@ defmodule Vimond.HTTPClient do
   end
 
   defp datetime, do: Application.get_env(:vimond_client, :datetime, DateTime)
+
+  defp timeout, do: Application.get_env(:vimond_client, :timeout, 10_000)
 end

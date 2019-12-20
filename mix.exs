@@ -26,7 +26,7 @@ defmodule Vimond.Client.MixProject do
       {:plug, "~> 1.6"},
       {:jason, "~> 1.0"},
       {:timex, "~> 3.3"},
-      {:mojito, "~> 0.6"},
+      {:httpoison, "~> 1.6"},
       {:mix_test_watch, "~> 1.0", only: :test, runtime: false},
       {:mox, "~> 0.4", only: :test}
     ]
