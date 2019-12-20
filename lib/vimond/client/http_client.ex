@@ -70,28 +70,23 @@ defmodule Vimond.HTTPClient do
     headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
 
     @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000))
-    |> (fn
-          {:error, %Mojito.Error{message: message}} ->
-            %Vimond.Error{message: message}
+    |> translate_response
+  end
 
-          {:ok,
-           %Mojito.Response{
-             body: body,
-             headers: headers,
-             status_code: status_code
-           }} ->
-            %Vimond.Response{
-              body: body,
-              status_code: status_code,
-              headers:
-                Enum.reduce(headers, %{}, fn {key, value}, headers ->
-                  Map.update(headers, key, value, fn
-                    current_value when is_list(current_value) -> [value | current_value]
-                    current_value -> [value | [current_value]]
-                  end)
-                end)
-            }
-        end).()
+  defp translate_response({:error, %Mojito.Error{message: message}}) do
+    %Vimond.Error{message: message}
+  end
+
+  defp translate_response({:ok, %Mojito.Response{body: body, headers: headers, status_code: status_code}}) do
+    headers =
+      Enum.reduce(headers, %{}, fn {key, value}, headers ->
+        Map.update(headers, key, value, fn
+          current_value when is_list(current_value) -> [value | current_value]
+          current_value -> [value | [current_value]]
+        end)
+      end)
+
+    %Vimond.Response{body: body, status_code: status_code, headers: headers}
   end
 
   defp vimond_url(base_url, path) do

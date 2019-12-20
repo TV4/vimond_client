@@ -19,26 +19,6 @@ defmodule Vimond.HTTPClientTest do
          [{"Accept", "text/plain"}],
          "",
          timeout: _ ->
-        {:ok, %Mojito.Response{body: "", headers: [{"connection", "keep-alive"}], status_code: 204}}
-      end
-    )
-
-    assert Vimond.HTTPClient.delete("delete/päth", [Accept: "text/plain"], @config) == %Vimond.Response{
-             body: "",
-             headers: %{"connection" => "keep-alive"},
-             status_code: 204
-           }
-  end
-
-  test "delete with error" do
-    HTTPClientMock
-    |> expect(
-      :request,
-      fn :delete,
-         "https://vimond-rest-api.example.com/api/platf%C3%B6rm/delete/p%C3%A4th",
-         [{"Accept", "text/plain"}],
-         "",
-         timeout: _ ->
         {:error, %Mojito.Error{message: "oh noes!"}}
       end
     )
