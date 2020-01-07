@@ -80,14 +80,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -190,14 +188,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=3;charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -311,14 +307,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=3;charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -419,14 +413,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=3;charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -497,13 +489,11 @@ defmodule Vimond.Client.UpdateUserTest do
           }
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 401,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
         }
       end)
@@ -524,21 +514,19 @@ defmodule Vimond.Client.UpdateUserTest do
 
       Vimond.HTTPClientMock
       |> expect(:get, fn _path, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
 
       Vimond.HTTPClientMock
       |> expect(:put, fn _path, _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           body:
             %{
               "error" => %{
@@ -549,10 +537,8 @@ defmodule Vimond.Client.UpdateUserTest do
               }
             }
             |> Jason.encode!(),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           },
           status_code: 500
         }
@@ -570,21 +556,19 @@ defmodule Vimond.Client.UpdateUserTest do
     test "with email already registered response" do
       Vimond.HTTPClientMock
       |> expect(:get, fn _path, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
 
       Vimond.HTTPClientMock
       |> expect(:put, fn _path, _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -595,11 +579,9 @@ defmodule Vimond.Client.UpdateUserTest do
                 "reference" => "7f6be90d2281dc21"
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -623,21 +605,19 @@ defmodule Vimond.Client.UpdateUserTest do
     test "with invalid email" do
       Vimond.HTTPClientMock
       |> expect(:get, fn _path, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
 
       Vimond.HTTPClientMock
       |> expect(:put, fn _path, _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -648,10 +628,8 @@ defmodule Vimond.Client.UpdateUserTest do
                 "reference" => "de175e7a0ee05cbf"
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
         }
       end)
@@ -677,20 +655,18 @@ defmodule Vimond.Client.UpdateUserTest do
 
       Vimond.HTTPClientMock
       |> expect(:get, fn _path, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8"
           }
         }
       end)
 
       Vimond.HTTPClientMock
       |> expect(:put, fn _path, _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -702,26 +678,14 @@ defmodule Vimond.Client.UpdateUserTest do
                 "status" => nil
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8"
           }
         }
       end)
 
-      assert update(
-               "valid_vimond_authorization_token",
-               "valid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) ==
-               {:error,
-                %{
-                  type: :username_already_in_use,
-                  source_errors: ["Email address is already registered"]
-                }}
+      assert update("valid_vimond_authorization_token", "valid_remember_me", "6572908", user, @config) ==
+               {:error, %{type: :username_already_in_use, source_errors: ["Email address is already registered"]}}
     end
 
     test "with renewed authorization token" do
@@ -734,19 +698,15 @@ defmodule Vimond.Client.UpdateUserTest do
                            Cookie: "rememberMe=valid_remember_me"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8",
-              "authorization" => "Bearer renewed_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer renewed_authorization_token"
           }
         }
       end)
-
-      Vimond.HTTPClientMock
       |> expect(:put, fn "user",
                          body,
                          [
@@ -763,7 +723,7 @@ defmodule Vimond.Client.UpdateUserTest do
                  "properties" => []
                }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body:
             Jason.encode!(%{
@@ -772,11 +732,9 @@ defmodule Vimond.Client.UpdateUserTest do
               "properties" => [],
               "userName" => "lodakai"
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"2\";charset=UTF-8",
-              "authorization" => "Bearer renewed_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"2\";charset=UTF-8",
+            "authorization" => "Bearer renewed_authorization_token"
           }
         }
       end)
@@ -786,13 +744,7 @@ defmodule Vimond.Client.UpdateUserTest do
         email: "some.person@example.com"
       }
 
-      assert update(
-               "expired_authorization_token",
-               "valid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) ==
+      assert update("expired_authorization_token", "valid_remember_me", "6572908", user, @config) ==
                {:ok,
                 %{
                   user: %Vimond.User{
@@ -870,14 +822,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=3;charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -973,14 +923,12 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=3;charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=3;charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -1077,12 +1025,10 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties",
@@ -1126,12 +1072,10 @@ defmodule Vimond.Client.UpdateUserTest do
           }
         ]
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user",
@@ -1229,12 +1173,10 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
 
@@ -1327,12 +1269,10 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties",
@@ -1360,12 +1300,10 @@ defmodule Vimond.Client.UpdateUserTest do
           }
         ]
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user",
@@ -1461,12 +1399,10 @@ defmodule Vimond.Client.UpdateUserTest do
           "zip" => "123 45"
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end)
 
@@ -1535,12 +1471,10 @@ defmodule Vimond.Client.UpdateUserTest do
           }
         }
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 401,
           body: Jason.encode!(json),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
         }
       end)
 
@@ -1552,25 +1486,21 @@ defmodule Vimond.Client.UpdateUserTest do
 
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/6572908", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!([]),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user", _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           body:
             %{
               "error" => %{
@@ -1581,9 +1511,7 @@ defmodule Vimond.Client.UpdateUserTest do
               }
             }
             |> Jason.encode!(),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-          },
+          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"},
           status_code: 500
         }
       end)
@@ -1594,25 +1522,21 @@ defmodule Vimond.Client.UpdateUserTest do
     test "with email already registered response" do
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/6572908", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!([]),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user", _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -1623,11 +1547,9 @@ defmodule Vimond.Client.UpdateUserTest do
                 "reference" => "7f6be90d2281dc21"
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8",
-              "authorization" => "Bearer valid_authorization_token"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8",
+            "authorization" => "Bearer valid_authorization_token"
           }
         }
       end)
@@ -1641,25 +1563,21 @@ defmodule Vimond.Client.UpdateUserTest do
     test "with invalid email" do
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/6572908", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!([]),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user", _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -1670,10 +1588,8 @@ defmodule Vimond.Client.UpdateUserTest do
                 "reference" => "de175e7a0ee05cbf"
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{
-              "content-type" => "application/json; v=\"3\";charset=UTF-8"
-            }
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
           }
         }
       end)
@@ -1689,25 +1605,21 @@ defmodule Vimond.Client.UpdateUserTest do
 
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/6572908", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
         }
       end)
       |> expect(:get_signed, fn "user/6572908/properties", _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body: Jason.encode!([]),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
       |> expect(:put_signed, fn "user", _body, _headers, _config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body:
             Jason.encode!(%{
@@ -1719,9 +1631,7 @@ defmodule Vimond.Client.UpdateUserTest do
                 "status" => nil
               }
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
 

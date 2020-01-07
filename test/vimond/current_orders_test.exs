@@ -78,12 +78,10 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body: body,
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json;v=3;charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json;v=3;charset=UTF-8"}
           }
         end
       )
@@ -219,12 +217,10 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body: body,
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
           }
         end
       )
@@ -268,12 +264,10 @@ defmodule Vimond.Client.CurrentOrdersTest do
           }
           |> Jason.encode!()
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 401,
           body: body,
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json;v=\"2\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json;v=\"2\";charset=UTF-8"}
         }
       end)
 
@@ -302,12 +296,10 @@ defmodule Vimond.Client.CurrentOrdersTest do
           }
           |> Jason.encode!()
 
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 400,
           body: body,
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
         }
       end)
 
@@ -386,12 +378,10 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body: body,
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json;v=3;charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json;v=3;charset=UTF-8"}
           }
         end
       )

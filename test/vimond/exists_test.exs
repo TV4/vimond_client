@@ -21,7 +21,7 @@ defmodule Vimond.Client.ExistsTest do
            "Content-Type": "application/json; v=3; charset=UTF-8"
          ],
          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
           body:
             Jason.encode!(%{
@@ -38,9 +38,7 @@ defmodule Vimond.Client.ExistsTest do
               "userName" => "johan@adaptiv.se",
               "zip" => "12345"
             }),
-          headers: %HTTPotion.Headers{
-            hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-          }
+          headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
         }
       end
     )
@@ -59,7 +57,7 @@ defmodule Vimond.Client.ExistsTest do
              "Content-Type": "application/json; v=3; charset=UTF-8"
            ],
            @config ->
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body:
               Jason.encode!(%{
@@ -76,9 +74,7 @@ defmodule Vimond.Client.ExistsTest do
                 "userName" => "johan",
                 "zip" => "12345"
               }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
           }
         end
       )
@@ -96,7 +92,7 @@ defmodule Vimond.Client.ExistsTest do
              "Content-Type": "application/json; v=3; charset=UTF-8"
            ],
            @config ->
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 400,
             body:
               Jason.encode!(%{
@@ -107,9 +103,7 @@ defmodule Vimond.Client.ExistsTest do
                   "reference" => "b86ecc3d7b64cf37"
                 }
               }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
           }
         end
       )
@@ -121,7 +115,7 @@ defmodule Vimond.Client.ExistsTest do
              "Content-Type": "application/json; v=3; charset=UTF-8"
            ],
            @config ->
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body:
               Jason.encode!(%{
@@ -138,9 +132,7 @@ defmodule Vimond.Client.ExistsTest do
                 "userName" => "johan",
                 "zip" => "12345"
               }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
           }
         end
       )
@@ -157,7 +149,7 @@ defmodule Vimond.Client.ExistsTest do
                                    "Content-Type": "application/json; v=3; charset=UTF-8"
                                  ],
                                  @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 400,
         body:
           Jason.encode!(%{
@@ -168,9 +160,7 @@ defmodule Vimond.Client.ExistsTest do
               "reference" => "b86ecc3d7b64cf37"
             }
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-        }
+        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
       }
     end)
 
@@ -179,14 +169,14 @@ defmodule Vimond.Client.ExistsTest do
 
   test "handles errors" do
     Vimond.HTTPClientMock
-    |> expect(:get_signed, fn _, _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
+    |> expect(:get_signed, fn _, _, _ -> %Vimond.Error{message: "Oh noes!"} end)
 
     assert exists_signed("kalle", @config) ==
              {:error, %{type: :http_error, source_errors: ["Oh noes!"]}}
 
     Vimond.HTTPClientMock
-    |> expect(:get_signed, fn _, _, _ -> %HTTPotion.Response{status_code: 400} end)
-    |> expect(:get_signed, fn _, _, _ -> %HTTPotion.ErrorResponse{message: "Oh noes!"} end)
+    |> expect(:get_signed, fn _, _, _ -> %Vimond.Response{status_code: 400} end)
+    |> expect(:get_signed, fn _, _, _ -> %Vimond.Error{message: "Oh noes!"} end)
 
     assert exists_signed("kalle@example.com", @config) ==
              {:error, %{type: :http_error, source_errors: ["Oh noes!"]}}

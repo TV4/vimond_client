@@ -17,9 +17,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "allCodes" => ["An-existing-voucher-code"],
@@ -119,9 +118,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "An-existing-voucher-code",
@@ -155,9 +153,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "An-existing-voucher-code",
@@ -193,9 +190,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "An-expired-voucher-code",
@@ -222,9 +218,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "An-unstarted-voucher-code",
@@ -252,9 +247,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "A-used-voucher-code",
@@ -282,9 +276,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 200,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               "code" => "A-voucher-code-without-product",
@@ -309,9 +302,8 @@ defmodule Vimond.Client.VoucherTest do
                            "X-Forwarded-For": "5.6.7.8, 1.2.3.4"
                          ],
                          @config ->
-        %HTTPotion.Response{
+        %Vimond.Response{
           status_code: 404,
-          headers: %HTTPotion.Headers{},
           body:
             Jason.encode!(%{
               error: %{

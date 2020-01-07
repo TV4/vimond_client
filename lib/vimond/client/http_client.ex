@@ -2,31 +2,30 @@ defmodule Vimond.HTTPClient do
   alias Vimond.Config
   require Logger
 
-  @http_client Application.get_env(:vimond_client, :http_client, HTTPotion)
+  @http_client Application.get_env(:vimond_client, :http_client, Mojito)
 
   @callback delete(url :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def delete(path, headers, %Config{base_url: base_url}) do
-    request(:delete, vimond_url(base_url, path), merge(headers, []))
+    request(:delete, vimond_url(base_url, path), headers, "", [])
   end
 
-  @callback delete_signed(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) ::
-              any()
+  @callback delete_signed(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def delete_signed(path, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
 
     headers = headers |> signed_headers("DELETE", path, config)
-    request(:delete, url, merge(headers, []))
+    request(:delete, url, headers, "", [])
   end
 
   @callback get(path :: String.t(), query :: map(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def get(path, query, headers, %Config{base_url: base_url}) do
-    request(:get, vimond_url(base_url, path, query), merge(headers, []))
+    request(:get, vimond_url(base_url, path, query), headers, "", [])
   end
 
   @callback get(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def get(path, headers, %Config{base_url: base_url}) do
-    request(:get, vimond_url(base_url, path), merge(headers, []))
+    request(:get, vimond_url(base_url, path), headers, "", [])
   end
 
   @callback get_signed(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
@@ -35,12 +34,12 @@ defmodule Vimond.HTTPClient do
     path = URI.parse(url).path
 
     headers = headers |> signed_headers("GET", path, config)
-    request(:get, url, merge(headers, []))
+    request(:get, url, headers, "", [])
   end
 
   @callback post(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def post(path, body, headers, %Config{base_url: base_url}) do
-    request(:post, vimond_url(base_url, path), merge(body, headers, []))
+    request(:post, vimond_url(base_url, path), headers, body, [])
   end
 
   @callback post_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
@@ -49,12 +48,12 @@ defmodule Vimond.HTTPClient do
     path = URI.parse(url).path
 
     headers = headers |> signed_headers("POST", path, config)
-    request(:post, url, merge(body, headers, []))
+    request(:post, url, headers, body, [])
   end
 
   @callback put(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def put(path, body, headers, %Config{base_url: base_url}) do
-    request(:put, vimond_url(base_url, path), merge(body, headers, []))
+    request(:put, vimond_url(base_url, path), headers, body, [])
   end
 
   @callback put_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
@@ -63,16 +62,32 @@ defmodule Vimond.HTTPClient do
     path = URI.parse(url).path
 
     headers = headers |> signed_headers("PUT", path, config)
-    request(:put, url, merge(body, headers, []))
+    request(:put, url, headers, body, [])
   end
 
-  defp request(method, url, options) do
-    Logger.debug("Vimond request: #{inspect({method, url, options})}")
-    @http_client.request(method, url, Keyword.merge(options, timeout: 30_000))
+  defp request(method, url, headers, body, options) do
+    Logger.debug("Vimond request: #{inspect({method, url, headers, body, options})}")
+    headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
+
+    @http_client.request(method, url, headers, body, Keyword.merge(options, timeout: 25_000))
+    |> translate_response
   end
 
-  defp merge(headers, options), do: Keyword.merge(options, headers: headers)
-  defp merge(body, headers, options), do: Keyword.merge(options, body: body, headers: headers)
+  defp translate_response({:error, %Mojito.Error{message: message}}) do
+    %Vimond.Error{message: message}
+  end
+
+  defp translate_response({:ok, %Mojito.Response{body: body, headers: headers, status_code: status_code}}) do
+    headers =
+      Enum.reduce(headers, %{}, fn {key, value}, headers ->
+        Map.update(headers, key, value, fn
+          current_value when is_list(current_value) -> [value | current_value]
+          current_value -> [value | [current_value]]
+        end)
+      end)
+
+    %Vimond.Response{body: body, status_code: status_code, headers: headers}
+  end
 
   defp vimond_url(base_url, path) do
     uri = URI.merge(base_url, path)

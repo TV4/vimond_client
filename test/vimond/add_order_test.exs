@@ -29,7 +29,7 @@ defmodule Vimond.Client.AddOrderTest do
           "startDate" => 1_441_200_275_000
         } = Jason.decode!(body)
 
-        %HTTPotion.Response{status_code: 200, body: Jason.encode!(%{"id" => 123})}
+        %Vimond.Response{status_code: 200, body: Jason.encode!(%{"id" => 123})}
       end)
 
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
@@ -57,14 +57,14 @@ defmodule Vimond.Client.AddOrderTest do
           "description" => "No ProductPayment with id 11111"
         }
 
-        %HTTPotion.Response{status_code: 404, body: Jason.encode!(json)}
+        %Vimond.Response{status_code: 404, body: Jason.encode!(json)}
       end)
 
       order = %Vimond.Order{product_payment_id: 11111, referrer: "telia OTT-B2B"}
 
       assert capture_log(fn ->
                assert add_order_signed("12345", order, @config) == {:error, :failed_to_add_order}
-             end) =~ ~r/Error adding order: %HTTPotion.Response/
+             end) =~ ~r/Error adding order: %Vimond.Response/
     end
   end
 end

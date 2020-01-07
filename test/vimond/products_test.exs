@@ -19,7 +19,7 @@ defmodule Vimond.Client.ProductsTest do
              "Content-Type": "application/json; v=3; charset=UTF-8"
            ],
            @config ->
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body:
               Jason.encode!(%{
@@ -47,9 +47,7 @@ defmodule Vimond.Client.ProductsTest do
                   }
                 ]
               }),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
           }
         end
       )
@@ -89,12 +87,10 @@ defmodule Vimond.Client.ProductsTest do
              "Content-Type": "application/json; v=3; charset=UTF-8"
            ],
            @config ->
-          %HTTPotion.Response{
+          %Vimond.Response{
             status_code: 200,
             body: Jason.encode!(%{products: []}),
-            headers: %HTTPotion.Headers{
-              hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
-            }
+            headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
           }
         end
       )
@@ -110,7 +106,7 @@ defmodule Vimond.Client.ProductsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %HTTPotion.Response{status_code: 500}
+        %Vimond.Response{status_code: 500}
       end)
 
       assert capture_log(fn ->

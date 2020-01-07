@@ -21,13 +21,11 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
                         @config ->
       %{"token" => "valid_password_token", "password" => "password"} = URI.decode_query(body)
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 204,
         body: "",
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
-          }
+        headers: %{
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
         }
       }
     end)
@@ -46,7 +44,7 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
                         @config ->
       %{"token" => "expired_password_token", "password" => "password"} = URI.decode_query(body)
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 409,
         body:
           Jason.encode!(%{
@@ -57,10 +55,8 @@ defmodule Vimond.Client.UpdatePasswordWithTokenTest do
               "reference" => "4fc2b50cd99583a7"
             }
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
-          }
+        headers: %{
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
         }
       }
     end)

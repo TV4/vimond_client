@@ -24,9 +24,9 @@ defmodule Vimond.Client.MixProject do
   defp deps do
     [
       {:plug, "~> 1.6"},
-      {:httpotion, "~> 3.0"},
       {:jason, "~> 1.0"},
       {:timex, "~> 3.3"},
+      {:mojito, "~> 0.6"},
       {:mix_test_watch, "~> 1.0", only: :test, runtime: false},
       {:mox, "~> 0.4", only: :test}
     ]
