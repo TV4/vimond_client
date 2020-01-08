@@ -88,7 +88,7 @@ defmodule Vimond.Client.Product do
     end
   end
 
-  def handle_product_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_product_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
@@ -121,7 +121,7 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch product"}
   end
 
-  def handle_products_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_products_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, %{"products" => products}} ->
         {:ok,
@@ -159,7 +159,7 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch products"}
   end
 
-  def handle_product_groups_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_product_groups_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
@@ -185,7 +185,7 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch product groups"}
   end
 
-  def handle_product_group_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_product_group_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
@@ -209,7 +209,7 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch product group"}
   end
 
-  def handle_payment_methods_response(response = %Vimond.Response{status_code: 404}, _voucher_code) do
+  def handle_payment_methods_response(response = %HTTPotion.Response{status_code: 404}, _voucher_code) do
     Logger.error("handle_payment_methods_response: Invalid voucher: '#{inspect(response)}'")
 
     {:error, "Failed to fetch payment methods"}
@@ -217,7 +217,7 @@ defmodule Vimond.Client.Product do
 
   def handle_payment_methods_response(response, _voucher_code), do: handle_payment_methods_response(response)
 
-  def handle_payment_methods_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_payment_methods_response(%HTTPotion.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok,
@@ -254,7 +254,7 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch payment methods"}
   end
 
-  def handle_payment_response(%Vimond.Response{status_code: 200, body: body}, id) do
+  def handle_payment_response(%HTTPotion.Response{status_code: 200, body: body}, id) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok, %Payment{id: id, name: json["name"], payment_method: json["paymentMethod"], url: json["url"]}}

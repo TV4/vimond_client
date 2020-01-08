@@ -16,7 +16,7 @@ defmodule Vimond.Client.UpdateOrderTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         body:
           %{
             "accessEndDate" => "2020-03-13T14:45:16Z",
@@ -47,8 +47,10 @@ defmodule Vimond.Client.UpdateOrderTest do
             "userPaymentMethod" => %{}
           }
           |> Jason.encode!(),
-        headers: %{
-          "content-type" => "application/json; v=3;charset=UTF-8"
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8"
+          }
         },
         status_code: 200
       }
@@ -83,7 +85,7 @@ defmodule Vimond.Client.UpdateOrderTest do
                "userId" => 100_076_004
              }
 
-      %Vimond.Response{
+      %HTTPotion.Response{
         body:
           %{
             "accessEndDate" => "2044-03-18T13:37:56Z",
@@ -109,8 +111,10 @@ defmodule Vimond.Client.UpdateOrderTest do
             "userPaymentMethod" => %{}
           }
           |> Jason.encode!(),
-        headers: %{
-          "content-type" => "application/json; v=3;charset=UTF-8"
+        headers: %HTTPotion.Headers{
+          hdrs: %{
+            "content-type" => "application/json; v=3;charset=UTF-8"
+          }
         },
         status_code: 200
       }

@@ -18,7 +18,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
            "Content-Type": "application/json; v=3; charset=UTF-8"
          ],
          @config ->
-        %Vimond.Response{body: "", status_code: 204}
+        %HTTPotion.Response{body: "", headers: %HTTPotion.Headers{}, status_code: 204}
       end
     )
 
@@ -36,7 +36,7 @@ defmodule Vimond.Client.ForgotPasswordTest do
            "Content-Type": "application/json; v=3; charset=UTF-8"
          ],
          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 404,
           body:
             Jason.encode!(%{
@@ -47,8 +47,10 @@ defmodule Vimond.Client.ForgotPasswordTest do
                 "reference" => "f83c168502b7ec02"
               }
             }),
-          headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"3\";charset=UTF-8"
+            }
           }
         }
       end
@@ -72,11 +74,13 @@ defmodule Vimond.Client.ForgotPasswordTest do
            "Content-Type": "application/json; v=3; charset=UTF-8"
          ],
          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 404,
           body: "",
-          headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"3\";charset=UTF-8"
+            }
           }
         }
       end
@@ -96,11 +100,13 @@ defmodule Vimond.Client.ForgotPasswordTest do
            "Content-Type": "application/json; v=3; charset=UTF-8"
          ],
          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 500,
           body: Jason.encode!(%{"error" => %{"code" => "UNEXPECTED_ERROR"}}),
-          headers: %{
-            "content-type" => "application/json; v=\"2\";charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"2\";charset=UTF-8"
+            }
           }
         }
       end

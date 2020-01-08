@@ -16,7 +16,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body:
             Jason.encode!(%{
@@ -102,7 +102,9 @@ defmodule Vimond.Client.PaymentMethodsTest do
                 }
               ]
             }),
-          headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -192,13 +194,15 @@ defmodule Vimond.Client.PaymentMethodsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body:
             Jason.encode!(%{
               productPaymentList: []
             }),
-          headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -213,7 +217,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %Vimond.Response{status_code: 500}
+        %HTTPotion.Response{status_code: 500}
       end)
 
       assert capture_log(fn ->
@@ -232,7 +236,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body:
             Jason.encode!(%{
@@ -279,7 +283,9 @@ defmodule Vimond.Client.PaymentMethodsTest do
                 }
               ]
             }),
-          headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -334,7 +340,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8"
                          ],
                          @config ->
-        %Vimond.Response{status_code: 404}
+        %HTTPotion.Response{status_code: 404}
       end)
 
       assert capture_log(fn ->

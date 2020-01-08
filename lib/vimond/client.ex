@@ -26,7 +26,7 @@ defmodule Vimond.Client do
   Only made public for ease of testing.
   """
   def handle_response(
-        %Vimond.Response{body: body, headers: headers},
+        %HTTPotion.Response{body: body, headers: %HTTPotion.Headers{hdrs: headers}},
         extraction_function
       ) do
     case Jason.decode(body) do
@@ -38,7 +38,7 @@ defmodule Vimond.Client do
     end
   end
 
-  def handle_response(%Vimond.Error{message: reason}, _) do
+  def handle_response(%HTTPotion.ErrorResponse{message: reason}, _) do
     {:error, %{type: :http_error, source_errors: [reason]}}
   end
 

@@ -65,15 +65,17 @@ defmodule Vimond.Client.UserInformationTest do
           "zip" => "923 45"
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %{
-            "authorization" => [
-              "Bearer valid_authorization_token",
-              "Bearer valid_authorization_token"
-            ],
-            "content-type" => "application/json; v=3;charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "authorization" => [
+                "Bearer valid_authorization_token",
+                "Bearer valid_authorization_token"
+              ],
+              "content-type" => "application/json; v=3;charset=UTF-8"
+            }
           }
         }
       end)
@@ -166,12 +168,14 @@ defmodule Vimond.Client.UserInformationTest do
           "zip" => "923 45"
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8",
-            "authorization" => "Bearer renewed_authorization_token"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"3\";charset=UTF-8",
+              "authorization" => "Bearer renewed_authorization_token"
+            }
           }
         }
       end)
@@ -230,10 +234,12 @@ defmodule Vimond.Client.UserInformationTest do
           }
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 401,
           body: Jason.encode!(json),
-          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -259,10 +265,12 @@ defmodule Vimond.Client.UserInformationTest do
           }
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 401,
           body: Jason.encode!(json),
-          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -295,10 +303,12 @@ defmodule Vimond.Client.UserInformationTest do
           "zip" => "923 45"
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+          }
         }
       end)
       |> expect(:get_signed, fn "user/12345/properties",
@@ -338,10 +348,12 @@ defmodule Vimond.Client.UserInformationTest do
           }
         ]
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 200,
           body: Jason.encode!(json),
-          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -399,11 +411,13 @@ defmodule Vimond.Client.UserInformationTest do
           "status" => 401
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 401,
           body: Jason.encode!(json),
-          headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"3\";charset=UTF-8"
+            }
           }
         }
       end)
@@ -420,7 +434,7 @@ defmodule Vimond.Client.UserInformationTest do
                                   "Content-Type": "application/json; v=3; charset=UTF-8"
                                 ],
                                 @config ->
-        %Vimond.Error{message: "econnrefused"}
+        %HTTPotion.ErrorResponse{message: "econnrefused"}
       end)
 
       assert user_information_signed("12345", @config) ==

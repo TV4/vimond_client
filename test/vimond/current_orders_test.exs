@@ -78,10 +78,12 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %Vimond.Response{
+          %HTTPotion.Response{
             status_code: 200,
             body: body,
-            headers: %{"content-type" => "application/json;v=3;charset=UTF-8"}
+            headers: %HTTPotion.Headers{
+              hdrs: %{"content-type" => "application/json;v=3;charset=UTF-8"}
+            }
           }
         end
       )
@@ -217,10 +219,12 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %Vimond.Response{
+          %HTTPotion.Response{
             status_code: 200,
             body: body,
-            headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+            headers: %HTTPotion.Headers{
+              hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+            }
           }
         end
       )
@@ -264,10 +268,12 @@ defmodule Vimond.Client.CurrentOrdersTest do
           }
           |> Jason.encode!()
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 401,
           body: body,
-          headers: %{"content-type" => "application/json;v=\"2\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json;v=\"2\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -296,10 +302,12 @@ defmodule Vimond.Client.CurrentOrdersTest do
           }
           |> Jason.encode!()
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           status_code: 400,
           body: body,
-          headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+          }
         }
       end)
 
@@ -378,10 +386,12 @@ defmodule Vimond.Client.CurrentOrdersTest do
             ]
             |> Jason.encode!()
 
-          %Vimond.Response{
+          %HTTPotion.Response{
             status_code: 200,
             body: body,
-            headers: %{"content-type" => "application/json;v=3;charset=UTF-8"}
+            headers: %HTTPotion.Headers{
+              hdrs: %{"content-type" => "application/json;v=3;charset=UTF-8"}
+            }
           }
         end
       )

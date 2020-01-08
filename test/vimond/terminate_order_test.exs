@@ -82,7 +82,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
         "uri" => "/api/platform/user/65473025/orders/75382498"
       }
 
-      %Vimond.Response{status_code: 200, body: Jason.encode!(json)}
+      %HTTPotion.Response{status_code: 200, body: Jason.encode!(json)}
     end)
 
     Vimond.HTTPClientMock
@@ -135,7 +135,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
         "uri" => "/api/platform/user/65473025/orders/75382498"
       }
 
-      %Vimond.Response{status_code: 200, body: Jason.encode!(json)}
+      %HTTPotion.Response{status_code: 200, body: Jason.encode!(json)}
     end)
 
     assert terminate_order_signed(123, @config) == {:ok, 123}
@@ -211,7 +211,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
         "uri" => "/api/platform/user/65473025/orders/75382498"
       }
 
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(json)
       }
@@ -247,7 +247,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
                "userId" => 65_473_025
              }
 
-      %Vimond.Response{status_code: 400, body: Jason.encode!(%{})}
+      %HTTPotion.Response{status_code: 400, body: Jason.encode!(%{})}
     end)
 
     assert terminate_order_signed(123, @config) == {:error, 123}

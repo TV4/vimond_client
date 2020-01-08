@@ -22,21 +22,23 @@ defmodule Vimond.Client.DeleteTest do
                               Authorization: "Bearer blah"
                             ],
                             @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           body: "",
-          headers: %{
-            "authorization" => [
-              "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92",
-              "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92"
-            ],
-            "connection" => "keep-alive",
-            "date" => "Mon, 07 May 2018 11:03:00 GMT",
-            "server" => "Apache-Coyote/1.1",
-            "set-cookie" =>
-              "JSESSIONID=2681c00654e664bfa3418335d21a8199e3f9796b~33AA3932A7E40E6984433543FB758B22; Path=/api/; HttpOnly",
-            "via" => "1.1 10f829d037cedbccf7e2d171413666c7.cloudfront.net (CloudFront)",
-            "x-amz-cf-id" => "AI7efPJiVchnfl1Yy1ZrwbffGQVFF1QSDLvSnYP527SX36j_H3Oeyw==",
-            "x-cache" => "Miss from cloudfront"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "authorization" => [
+                "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92",
+                "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92"
+              ],
+              "connection" => "keep-alive",
+              "date" => "Mon, 07 May 2018 11:03:00 GMT",
+              "server" => "Apache-Coyote/1.1",
+              "set-cookie" =>
+                "JSESSIONID=2681c00654e664bfa3418335d21a8199e3f9796b~33AA3932A7E40E6984433543FB758B22; Path=/api/; HttpOnly",
+              "via" => "1.1 10f829d037cedbccf7e2d171413666c7.cloudfront.net (CloudFront)",
+              "x-amz-cf-id" => "AI7efPJiVchnfl1Yy1ZrwbffGQVFF1QSDLvSnYP527SX36j_H3Oeyw==",
+              "x-cache" => "Miss from cloudfront"
+            }
           },
           status_code: 204
         }
@@ -54,7 +56,7 @@ defmodule Vimond.Client.DeleteTest do
                               Authorization: "Bearer blah"
                             ],
                             @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           body:
             %{
               "error" => %{
@@ -65,8 +67,10 @@ defmodule Vimond.Client.DeleteTest do
               }
             }
             |> Jason.encode!(),
-          headers: %{
-            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "content-type" => "application/json; v=\"3\";charset=UTF-8"
+            }
           },
           status_code: 401
         }
@@ -100,9 +104,11 @@ defmodule Vimond.Client.DeleteTest do
           }
         }
 
-        %Vimond.Response{
+        %HTTPotion.Response{
           body: Jason.encode!(data),
-          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"},
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          },
           status_code: 401
         }
       end)
@@ -125,16 +131,18 @@ defmodule Vimond.Client.DeleteTest do
                                      "Content-Type": "application/json; v=3; charset=UTF-8"
                                    ],
                                    @config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           body: "",
-          headers: %{
-            "set-cookie" => [
-              "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
-              "sumoSession=:::3BoiBFh41RDnkGEzlpsQEQ!!; Domain=.b17g.net; Path=/; Max-Age=31536000; Expires=Thu, 03-Oct-2019 06:48:31 GMT; HttpOnly",
-              "sumoSession=deleteMe; Domain=.b17g.net; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
-              "sumoSession=deleteMe; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
-              "JSESSIONID=279bfc7ef205a173cb552c8ac90a542d860f62a2~C334E42FAE28CB6A47E8AAD79E754CF6; Path=/api/; HttpOnly"
-            ]
+          headers: %HTTPotion.Headers{
+            hdrs: %{
+              "set-cookie" => [
+                "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
+                "sumoSession=:::3BoiBFh41RDnkGEzlpsQEQ!!; Domain=.b17g.net; Path=/; Max-Age=31536000; Expires=Thu, 03-Oct-2019 06:48:31 GMT; HttpOnly",
+                "sumoSession=deleteMe; Domain=.b17g.net; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
+                "sumoSession=deleteMe; Path=/; Max-Age=0; Expires=Tue, 02-Oct-2018 06:48:31 GMT",
+                "JSESSIONID=279bfc7ef205a173cb552c8ac90a542d860f62a2~C334E42FAE28CB6A47E8AAD79E754CF6; Path=/api/; HttpOnly"
+              ]
+            }
           },
           status_code: 204
         }
@@ -146,7 +154,7 @@ defmodule Vimond.Client.DeleteTest do
     test "when the user does not exist" do
       Vimond.HTTPClientMock
       |> expect(:delete_signed, fn _path, _headers, _config ->
-        %Vimond.Response{
+        %HTTPotion.Response{
           body:
             Jason.encode!(%{
               "error" => %{
@@ -155,7 +163,9 @@ defmodule Vimond.Client.DeleteTest do
                 "id" => "1023"
               }
             }),
-          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"},
+          headers: %HTTPotion.Headers{
+            hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+          },
           status_code: 404
         }
       end)
@@ -166,7 +176,7 @@ defmodule Vimond.Client.DeleteTest do
     test "with unexpected error" do
       Vimond.HTTPClientMock
       |> expect(:delete_signed, fn _path, _headers, _config ->
-        %Vimond.Error{message: "Oh noes!"}
+        %HTTPotion.ErrorResponse{message: "Oh noes!"}
       end)
 
       assert delete_signed("12345", @config) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}

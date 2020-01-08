@@ -16,10 +16,12 @@ defmodule Vimond.Client.PaymentTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 200,
         body: Jason.encode!(%{paymentMethod: "KLARNA", name: "Klarna", url: "https://api.klarna.com"}),
-        headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -35,7 +37,7 @@ defmodule Vimond.Client.PaymentTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %Vimond.Response{status_code: 500}
+      %HTTPotion.Response{status_code: 500}
     end)
 
     assert capture_log(fn ->

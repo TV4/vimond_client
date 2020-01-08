@@ -32,7 +32,7 @@ defmodule Vimond.Client.CreateTest do
                ]
              }
 
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 200,
         body:
           %{
@@ -68,7 +68,9 @@ defmodule Vimond.Client.CreateTest do
             "zip" => "123 45"
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        }
       }
     end)
 
@@ -120,7 +122,7 @@ defmodule Vimond.Client.CreateTest do
   test "returns an error when the user already exists in Vimond" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body:
           %{
@@ -146,7 +148,9 @@ defmodule Vimond.Client.CreateTest do
             }
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -174,7 +178,7 @@ defmodule Vimond.Client.CreateTest do
   test "returns an error when the users email exists in Vimond" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body:
           %{
@@ -194,7 +198,9 @@ defmodule Vimond.Client.CreateTest do
             }
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -219,7 +225,7 @@ defmodule Vimond.Client.CreateTest do
   test "returns an error when the users email is invalid in Vimond" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body:
           %{
@@ -239,7 +245,9 @@ defmodule Vimond.Client.CreateTest do
             }
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -260,7 +268,7 @@ defmodule Vimond.Client.CreateTest do
   test "returns an error when there is an unknown USER_MULTIPLE_VALIDATION_ERRORS type" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body:
           %{
@@ -286,7 +294,9 @@ defmodule Vimond.Client.CreateTest do
             }
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -310,7 +320,7 @@ defmodule Vimond.Client.CreateTest do
   test "with an unknown error code" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body:
           %{
@@ -322,7 +332,9 @@ defmodule Vimond.Client.CreateTest do
             }
           }
           |> Jason.encode!(),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 
@@ -342,10 +354,12 @@ defmodule Vimond.Client.CreateTest do
   test "with an unknown response" do
     Vimond.HTTPClientMock
     |> expect(:post, fn _path, _body, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 400,
         body: Jason.encode!(%{"hello" => "world"}),
-        headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
       }
     end)
 

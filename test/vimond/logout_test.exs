@@ -18,7 +18,7 @@ defmodule Vimond.Client.LogoutTest do
                             Cookie: "rememberMe=valid_or_invalid_remember_me"
                           ],
                           @config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 200,
         body:
           Jason.encode!(%{
@@ -27,7 +27,9 @@ defmodule Vimond.Client.LogoutTest do
             "reference" => "2ae4a65131783eb2",
             "status" => 200
           }),
-        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        }
       }
     end)
 
@@ -38,7 +40,7 @@ defmodule Vimond.Client.LogoutTest do
   test "handles errors" do
     Vimond.HTTPClientMock
     |> expect(:delete, fn _path, _headers, _config ->
-      %Vimond.Error{message: "Because reason"}
+      %HTTPotion.ErrorResponse{message: "Because reason"}
     end)
 
     assert logout("vimond_down_error", "remember_me", @config) ==
@@ -48,10 +50,12 @@ defmodule Vimond.Client.LogoutTest do
   test "handles invalid JSON responses from Vimond" do
     Vimond.HTTPClientMock
     |> expect(:delete, fn _path, _headers, _config ->
-      %Vimond.Response{
+      %HTTPotion.Response{
         status_code: 200,
         body: "not_json",
-        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        headers: %HTTPotion.Headers{
+          hdrs: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+        }
       }
     end)
 
