@@ -19,7 +19,7 @@ defmodule Vimond.SubtitlesTest do
                          "Content-Type": "application/json; v=3; charset=UTF-8"
                        ],
                        @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 200,
         body:
           [
@@ -34,10 +34,8 @@ defmodule Vimond.SubtitlesTest do
             }
           ]
           |> Jason.encode!(),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "content-type" => "application/json; v=3;charset=UTF-8"
-          }
+        headers: %{
+          "content-type" => "application/json; v=3;charset=UTF-8"
         }
       }
     end)

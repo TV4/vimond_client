@@ -20,7 +20,7 @@ defmodule Vimond.Client.SetPropertyTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           [
             %{
@@ -57,7 +57,7 @@ defmodule Vimond.Client.SetPropertyTest do
                "value" => true
              } == Jason.decode!(body)
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           %{
             "allowUserToUpdate" => false,
@@ -89,7 +89,7 @@ defmodule Vimond.Client.SetPropertyTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           [
             %{
@@ -135,7 +135,7 @@ defmodule Vimond.Client.SetPropertyTest do
                "value" => false
              } == Jason.decode!(body)
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           %{
             "allowUserToUpdate" => false,
@@ -167,7 +167,7 @@ defmodule Vimond.Client.SetPropertyTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           [
             %{
@@ -221,7 +221,7 @@ defmodule Vimond.Client.SetPropertyTest do
                "value" => true
              } == Jason.decode!(body)
 
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           %{
             "allowUserToUpdate" => false,

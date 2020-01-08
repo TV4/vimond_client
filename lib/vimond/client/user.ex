@@ -152,11 +152,11 @@ defmodule Vimond.Client.User do
 
   def extract_user_information(error = {:error, _}), do: error
 
-  def handle_delete_response(%HTTPotion.Response{status_code: 204}) do
+  def handle_delete_response(%Vimond.Response{status_code: 204}) do
     {:ok, %{message: "User has been deleted"}}
   end
 
-  def handle_delete_response(%HTTPotion.Response{body: body}) do
+  def handle_delete_response(%Vimond.Response{body: body}) do
     %{"error" => %{"description" => reason, "code" => code}} = Jason.decode!(body)
 
     case code do
@@ -167,11 +167,11 @@ defmodule Vimond.Client.User do
 
   def handle_delete_response(_), do: @unexpected_error
 
-  def handle_forgot_password_response(%HTTPotion.Response{status_code: 204}) do
+  def handle_forgot_password_response(%Vimond.Response{status_code: 204}) do
     {:ok, %{message: "Reset password email sent"}}
   end
 
-  def handle_forgot_password_response(%HTTPotion.Response{body: body, status_code: 404}) do
+  def handle_forgot_password_response(%Vimond.Response{body: body, status_code: 404}) do
     case Jason.decode(body) do
       {:ok, %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}}} ->
         {:error, %{type: :user_not_found, source_errors: [reason]}}
@@ -581,7 +581,7 @@ defmodule Vimond.Client.User do
           @http_client.put("user/password", body, headers, config)
         end)
         |> case do
-          %HTTPotion.Response{status_code: 204} -> {:ok, %{}}
+          %Vimond.Response{status_code: 204} -> {:ok, %{}}
           response -> handle_response(response, &extract_update_password/2)
         end
       end
@@ -595,7 +595,7 @@ defmodule Vimond.Client.User do
           @http_client.post("user/password", body, headers, config)
         end)
         |> case do
-          %HTTPotion.Response{status_code: 204} -> {:ok, %{}}
+          %Vimond.Response{status_code: 204} -> {:ok, %{}}
           response -> handle_response(response, &extract_update_password/2)
         end
       end
@@ -623,7 +623,7 @@ defmodule Vimond.Client.User do
             @http_client.get_signed("user/#{user_id}/properties", headers(), config)
           end)
 
-        with %HTTPotion.Response{body: body, status_code: 200} <- response,
+        with %Vimond.Response{body: body, status_code: 200} <- response,
              {:ok, properties} <- Jason.decode(body) do
           extract_properties(properties)
         end
@@ -636,7 +636,7 @@ defmodule Vimond.Client.User do
           @http_client.post_signed("user/#{user_id}/property", body, headers(), config)
         end)
         |> case do
-          %HTTPotion.Response{status_code: 200} -> :ok
+          %Vimond.Response{status_code: 200} -> :ok
         end
       end
 
@@ -647,7 +647,7 @@ defmodule Vimond.Client.User do
           @http_client.put_signed("user/#{user_id}/property/#{property.id}", body, headers(), config)
         end)
         |> case do
-          %HTTPotion.Response{status_code: 200} -> :ok
+          %Vimond.Response{status_code: 200} -> :ok
         end
       end
 
@@ -679,7 +679,7 @@ defmodule Vimond.Client.User do
 
       defp parse_exists_vimond_response(request_fun) do
         case request("exists", request_fun) do
-          %HTTPotion.Response{status_code: 200} ->
+          %Vimond.Response{status_code: 200} ->
             {:ok, %{exists: true}}
 
           # When using the username lookup endpoint in Vimond, it can return the following things:
@@ -690,10 +690,10 @@ defmodule Vimond.Client.User do
           # For a username that looks like a username and doesn't exist -> 400, unhandled Java error "UserNotFoundException"
           #
           # 😱
-          %HTTPotion.Response{status_code: _} ->
+          %Vimond.Response{status_code: _} ->
             :maybe
 
-          %HTTPotion.ErrorResponse{message: message} ->
+          %Vimond.Error{message: message} ->
             {:error, %{type: :http_error, source_errors: [message]}}
         end
       end

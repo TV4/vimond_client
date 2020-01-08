@@ -19,7 +19,7 @@ defmodule Vimond.Client.ReauthenticateTest do
                          Cookie: "rememberMe=valid_remember_me"
                        ],
                        @config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         body:
           %{
             "code" => "SESSION_AUTHENTICATED",
@@ -29,11 +29,9 @@ defmodule Vimond.Client.ReauthenticateTest do
             "userId" => 100_059_309
           }
           |> Jason.encode!(),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "authorization" => "Bearer d800ec18-0dea-47cf-9101-690d286637c7",
-            "content-type" => "application/json; v=3;charset=UTF-8"
-          }
+        headers: %{
+          "authorization" => "Bearer d800ec18-0dea-47cf-9101-690d286637c7",
+          "content-type" => "application/json; v=3;charset=UTF-8"
         },
         status_code: 200
       }
@@ -51,7 +49,7 @@ defmodule Vimond.Client.ReauthenticateTest do
   test "with an expired 'remember me'" do
     Vimond.HTTPClientMock
     |> expect(:get, fn _path, _headers, _config ->
-      %HTTPotion.Response{
+      %Vimond.Response{
         status_code: 200,
         body:
           Jason.encode!(%{
@@ -60,10 +58,8 @@ defmodule Vimond.Client.ReauthenticateTest do
             "reference" => "a24ceec0c04092cd",
             "status" => 200
           }),
-        headers: %HTTPotion.Headers{
-          hdrs: %{
-            "content-type" => "application/json; v=3;charset=UTF-8"
-          }
+        headers: %{
+          "content-type" => "application/json; v=3;charset=UTF-8"
         }
       }
     end)
