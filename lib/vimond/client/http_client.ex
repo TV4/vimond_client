@@ -66,7 +66,7 @@ defmodule Vimond.HTTPClient do
   end
 
   defp request(method, url, headers, body, options) do
-    Logger.debug("Vimond request: #{inspect({method, url, headers, body, options})}")
+    Logger.debug("Vimond request: #{inspect({method, url, body, headers, options})}")
     headers = Enum.map(headers, fn {key, value} -> {to_string(key), value} end)
 
     @http_client.request(method, url, body, headers, Keyword.merge(options, recv_timeout: timeout()))
@@ -104,7 +104,7 @@ defmodule Vimond.HTTPClient do
   end
 
   defp signed_headers(headers, method, path, %Config{api_key: key, api_secret: secret}) do
-    timestamp = Timex.format!(datetime().utc_now(), "{RFC1123}")
+    timestamp = Calendar.DateTime.Format.rfc2822(datetime().utc_now())
 
     [
       Authorization: "SUMO #{key}:#{vimond_signature(method, path, timestamp, secret)}",

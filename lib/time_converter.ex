@@ -1,8 +1,9 @@
 defmodule TimeConverter do
-  def format_expires_timestamp(timestamp) do
+  def parse_vimond_expires_timestamp(timestamp) do
     timestamp
-    |> Timex.parse!("{WDshort}, {0D}-{Mshort}-{YYYY} {h24}:{0m}:{0s} {Zname}")
-    |> Timex.to_unix()
+    |> String.replace("-", " ")
+    |> Calendar.DateTime.Parse.httpdate!()
+    |> DateTime.to_unix()
   end
 
   def year_to_iso8601(nil), do: nil

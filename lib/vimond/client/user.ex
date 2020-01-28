@@ -293,7 +293,7 @@ defmodule Vimond.Client.User do
 
   defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
     extract_header_value(~r/rememberMe=(?!deleteMe).*Expires=([^;]*)/, cookies)
-    |> TimeConverter.format_expires_timestamp()
+    |> TimeConverter.parse_vimond_expires_timestamp()
   end
 
   defp extract_header_value(_regex, []), do: nil
