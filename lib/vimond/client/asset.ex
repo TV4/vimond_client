@@ -1,7 +1,22 @@
 defmodule Vimond.Client.Asset do
   defmacro __using__(_) do
     quote do
-      alias Vimond.{Config, Subtitle}
+      alias Vimond.{Asset, Config, Subtitle}
+
+      @callback asset(binary, Config.t()) :: {:ok, Asset.t()}
+      def asset(asset_id, config) do
+        request("subtitles", fn ->
+          @http_client.get("asset/#{asset_id}/productgroups", headers(), config)
+        end)
+        |> handle_response(fn data, _headers ->
+          product_group_ids =
+            data
+            |> Map.get("productGroups")
+            |> Enum.map(&Map.get(&1, "id"))
+
+          {:ok, %Asset{product_group_ids: product_group_ids}}
+        end)
+      end
 
       @callback subtitles(String.t(), Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
       def subtitles(asset_id, config) do
