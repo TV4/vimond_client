@@ -5,7 +5,7 @@ defmodule Vimond.Client.Asset do
 
       @callback asset(binary, Config.t()) :: {:ok, Asset.t()}
       def asset(asset_id, config) do
-        request("subtitles", fn ->
+        request("asset", fn ->
           @http_client.get("asset/#{asset_id}/productgroups", headers(), config)
         end)
         |> handle_response(fn
