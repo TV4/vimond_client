@@ -498,15 +498,8 @@ defmodule Vimond.Client.UpdateUserTest do
         }
       end)
 
-      expected = {:error, %{type: :invalid_session, source_errors: ["User is not authenticated"]}}
-
-      assert update(
-               "invalid_vimond_authorization_token",
-               "invalid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) == expected
+      assert update("invalid_vimond_authorization_token", "invalid_remember_me", "6572908", user, @config) ==
+               {:error, %{type: :invalid_session, source_errors: ["User is not authenticated"]}}
     end
 
     test "with invalid response" do
@@ -544,13 +537,8 @@ defmodule Vimond.Client.UpdateUserTest do
         }
       end)
 
-      assert update(
-               "valid_vimond_authorization_token",
-               "valid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) == {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
+      assert update("valid_vimond_authorization_token", "valid_remember_me", "6572908", user, @config) ==
+               {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
     end
 
     test "with email already registered response" do
@@ -588,18 +576,8 @@ defmodule Vimond.Client.UpdateUserTest do
 
       user = %Vimond.User{username: "some.person@example.com"}
 
-      assert update(
-               "valid_vimond_athorization_token",
-               "valid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) ==
-               {:error,
-                %{
-                  type: :email_already_in_use,
-                  source_errors: ["Email address is already registered"]
-                }}
+      assert update("valid_vimond_athorization_token", "valid_remember_me", "6572908", user, @config) ==
+               {:error, %{type: :email_already_in_use, source_errors: ["Email address is already registered"]}}
     end
 
     test "with invalid email" do
@@ -636,18 +614,8 @@ defmodule Vimond.Client.UpdateUserTest do
 
       user = %Vimond.User{username: "some.person@example"}
 
-      assert update(
-               "valid_vimond_athorization_token",
-               "valid_remember_me",
-               "6572908",
-               user,
-               @config
-             ) ==
-               {:error,
-                %{
-                  type: :email_invalid,
-                  source_errors: ["Cannot change email to invalid format"]
-                }}
+      assert update("valid_vimond_athorization_token", "valid_remember_me", "6572908", user, @config) ==
+               {:error, %{type: :email_invalid, source_errors: ["Cannot change email to invalid format"]}}
     end
 
     test "with username already registered response" do

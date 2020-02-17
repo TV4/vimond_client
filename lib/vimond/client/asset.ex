@@ -8,13 +8,17 @@ defmodule Vimond.Client.Asset do
         request("subtitles", fn ->
           @http_client.get("asset/#{asset_id}/productgroups", headers(), config)
         end)
-        |> handle_response(fn data, _headers ->
-          product_group_ids =
-            data
-            |> Map.get("productGroups")
-            |> Enum.map(&Map.get(&1, "id"))
+        |> handle_response(fn
+          %{"productGroups" => product_groups}, _headers ->
+            product_group_ids = Enum.map(product_groups, &Map.get(&1, "id"))
 
-          {:ok, %Asset{product_group_ids: product_group_ids}}
+            {:ok, %Asset{product_group_ids: product_group_ids}}
+
+          %{"error" => %{"description" => description}}, _headers ->
+            {:error, %{type: :generic, source_errors: [description]}}
+
+          _, _headers ->
+            {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
         end)
       end
 

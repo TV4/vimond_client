@@ -237,13 +237,11 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      expected = {:error, %{type: :invalid_session, source_errors: ["User is not authenticated"]}}
-
       assert user_information(
                "invalid_vimond_authorization_token",
                "invalid_remember_me",
                @config
-             ) == expected
+             ) == {:error, %{type: :invalid_session, source_errors: ["User is not authenticated"]}}
     end
 
     test "with an unknown response" do
@@ -266,9 +264,8 @@ defmodule Vimond.Client.UserInformationTest do
         }
       end)
 
-      expected = {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
-
-      assert user_information("uncategorized_error", "crazy_remember_me", @config) == expected
+      assert user_information("uncategorized_error", "crazy_remember_me", @config) ==
+               {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
     end
   end
 

@@ -86,24 +86,22 @@ defmodule Vimond.Client.CurrentOrdersTest do
         end
       )
 
-      expected = {
-        :ok,
-        %{
-          orders: [
-            %Vimond.Order{
-              asset_id: nil,
-              end_date: 1_553_676_476,
-              order_id: 100_366_001,
-              product_group_id: 1235,
-              product_id: 1491,
-              product_payment_id: 5540,
-              referrer: "Com Hem"
-            }
-          ]
-        }
-      }
-
-      assert current_orders("123", "valid_vimond_token", "valid_remember_me", @config) == expected
+      assert current_orders("123", "valid_vimond_token", "valid_remember_me", @config) == {
+               :ok,
+               %{
+                 orders: [
+                   %Vimond.Order{
+                     asset_id: nil,
+                     end_date: 1_553_676_476,
+                     order_id: 100_366_001,
+                     product_group_id: 1235,
+                     product_id: 1491,
+                     product_payment_id: 5540,
+                     referrer: "Com Hem"
+                   }
+                 ]
+               }
+             }
     end
 
     test "with valid credentials and multiple orders" do
@@ -271,14 +269,8 @@ defmodule Vimond.Client.CurrentOrdersTest do
         }
       end)
 
-      expected = {:error, %{type: :invalid_credentials, source_errors: ["Not authorized"]}}
-
-      assert current_orders(
-               "123",
-               "invalid_vimond_authorization_token",
-               "invalid_remember_me",
-               @config
-             ) == expected
+      assert current_orders("123", "invalid_vimond_authorization_token", "invalid_remember_me", @config) ==
+               {:error, %{type: :invalid_credentials, source_errors: ["Not authorized"]}}
     end
 
     test "with an unknown response" do
@@ -303,14 +295,8 @@ defmodule Vimond.Client.CurrentOrdersTest do
         }
       end)
 
-      expected = {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
-
-      assert current_orders(
-               "123",
-               "valid_vimond_authorization_token",
-               "valid_remember_me",
-               @config
-             ) == expected
+      assert current_orders("123", "valid_vimond_authorization_token", "valid_remember_me", @config) ==
+               {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
     end
   end
 

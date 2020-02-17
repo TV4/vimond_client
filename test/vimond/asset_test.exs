@@ -139,4 +139,31 @@ defmodule Vimond.AssetTest do
 
     assert Client.asset("10002224", @config) == {:ok, %Asset{product_group_ids: [1009, 1017, 1243, 1008]}}
   end
+
+  test "asset not found" do
+    Vimond.HTTPClientMock
+    |> expect(:get, fn "asset/10002224/productgroups",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8"
+                       ],
+                       @config ->
+      %Vimond.Response{
+        body:
+          %{
+            "error" => %{
+              "code" => "ASSET_NOT_FOUND",
+              "description" => "Asset with id '10002224' was not found",
+              "id" => "1055",
+              "reference" => "9cc849847f7bebef"
+            }
+          }
+          |> Jason.encode!(),
+        status_code: 404
+      }
+    end)
+
+    assert Client.asset("10002224", @config) ==
+             {:error, %{type: :generic, source_errors: ["Asset with id '10002224' was not found"]}}
+  end
 end
