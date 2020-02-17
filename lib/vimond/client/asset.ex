@@ -14,8 +14,8 @@ defmodule Vimond.Client.Asset do
 
             {:ok, %Asset{product_group_ids: product_group_ids}}
 
-          %{"error" => %{"description" => description}}, _headers ->
-            {:error, %{type: :generic, source_errors: [description]}}
+          %{"error" => %{"code" => "ASSET_NOT_FOUND", "description" => description}}, _headers ->
+            {:error, %{type: :asset_not_found, source_errors: [description]}}
 
           _, _headers ->
             {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}

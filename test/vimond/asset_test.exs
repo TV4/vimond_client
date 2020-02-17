@@ -164,6 +164,6 @@ defmodule Vimond.AssetTest do
     end)
 
     assert Client.asset("10002224", @config) ==
-             {:error, %{type: :generic, source_errors: ["Asset with id '10002224' was not found"]}}
+             {:error, %{type: :asset_not_found, source_errors: ["Asset with id '10002224' was not found"]}}
   end
 end
