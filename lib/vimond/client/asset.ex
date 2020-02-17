@@ -17,6 +17,9 @@ defmodule Vimond.Client.Asset do
           %{"error" => %{"code" => "ASSET_NOT_FOUND", "description" => description}}, _headers ->
             {:error, %{type: :asset_not_found, source_errors: [description]}}
 
+          %{"error" => %{"code" => "ASSET_NOT_PUBLISHED", "description" => description}}, _headers ->
+            {:error, %{type: :asset_not_published, source_errors: [description]}}
+
           _, _headers ->
             {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
         end)

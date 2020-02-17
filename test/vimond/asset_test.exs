@@ -166,4 +166,31 @@ defmodule Vimond.AssetTest do
     assert Client.asset("10002224", @config) ==
              {:error, %{type: :asset_not_found, source_errors: ["Asset with id '10002224' was not found"]}}
   end
+
+  test "asset not published" do
+    Vimond.HTTPClientMock
+    |> expect(:get, fn "asset/10002224/productgroups",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8"
+                       ],
+                       @config ->
+      %Vimond.Response{
+        body:
+          %{
+            "error" => %{
+              "code" => "ASSET_NOT_PUBLISHED",
+              "description" => "Asset is not published on platform 'cmore-se'",
+              "id" => "1058",
+              "reference" => "42f48086937017a2"
+            }
+          }
+          |> Jason.encode!(),
+        status_code: 404
+      }
+    end)
+
+    assert Client.asset("10002224", @config) ==
+             {:error, %{type: :asset_not_published, source_errors: ["Asset is not published on platform 'cmore-se'"]}}
+  end
 end
