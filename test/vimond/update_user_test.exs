@@ -6,6 +6,7 @@ defmodule Vimond.Client.UpdateUserTest do
   setup :verify_on_exit!
 
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
+
   describe "user authenticated" do
     test "when replacing a property and keeping a property" do
       Vimond.HTTPClientMock

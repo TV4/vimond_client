@@ -93,13 +93,16 @@ defmodule Vimond.Client.Order do
     end
   end
 
-  def build_order(%Order{referrer: referrer, product_payment_id: product_payment_id})
+  def build_order(%Order{referrer: referrer, product_payment_id: product_payment_id, asset_id: asset_id})
       when not is_nil(referrer) and not is_nil(product_payment_id) do
     %{
       startDate: DateTime.to_unix(datetime().utc_now(), :millisecond),
+      progId: asset_id,
       productPaymentId: product_payment_id,
       referrer: referrer
     }
+    |> Enum.filter(fn {_key, value} -> !is_nil(value) end)
+    |> Map.new()
   end
 
   def extract_orders(json, _) do
@@ -131,7 +134,7 @@ defmodule Vimond.Client.Order do
     order =
       order
       |> Map.from_struct()
-      |> Enum.reject(&(elem(&1, 1) == nil))
+      |> Enum.filter(fn {_key, value} -> !is_nil(value) end)
       |> Enum.flat_map(fn
         {:end_date, value} ->
           [
@@ -141,6 +144,9 @@ defmodule Vimond.Client.Order do
 
         {:order_id, value} ->
           [{"id", value}]
+
+        {:asset_id, value} ->
+          [{"progId", value}]
 
         {key, value} ->
           [{key |> Atom.to_string() |> camelize(), value}]

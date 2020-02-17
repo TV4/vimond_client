@@ -23,16 +23,40 @@ defmodule Vimond.Client.AddOrderTest do
                                    "Content-Type": "application/json; v=3; charset=UTF-8"
                                  ],
                                  @config ->
-        %{
-          "productPaymentId" => 4224,
-          "referrer" => "telia OTT-B2B",
-          "startDate" => 1_441_200_275_000
-        } = Jason.decode!(body)
+        assert Jason.decode!(body) == %{
+                 "productPaymentId" => 4224,
+                 "referrer" => "telia OTT-B2B",
+                 "startDate" => 1_441_200_275_000
+               }
 
         %Vimond.Response{status_code: 200, body: Jason.encode!(%{"id" => 123})}
       end)
 
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
+
+      assert add_order_signed("12345", order, @config) == {:ok, 123}
+    end
+
+    test "with asset" do
+      Vimond.HTTPClientMock
+      |> expect(:post_signed, fn "order/12345/create",
+                                 body,
+                                 [
+                                   Accept: "application/json; v=3; charset=UTF-8",
+                                   "Content-Type": "application/json; v=3; charset=UTF-8"
+                                 ],
+                                 @config ->
+        assert Jason.decode!(body) == %{
+                 "productPaymentId" => 4224,
+                 "progId" => "12345678",
+                 "referrer" => "telia OTT-B2B",
+                 "startDate" => 1_441_200_275_000
+               }
+
+        %Vimond.Response{status_code: 200, body: Jason.encode!(%{"id" => 123})}
+      end)
+
+      order = %Vimond.Order{product_payment_id: 4224, asset_id: "12345678", referrer: "telia OTT-B2B"}
 
       assert add_order_signed("12345", order, @config) == {:ok, 123}
     end
@@ -46,11 +70,11 @@ defmodule Vimond.Client.AddOrderTest do
                                    "Content-Type": "application/json; v=3; charset=UTF-8"
                                  ],
                                  @config ->
-        %{
-          "productPaymentId" => 11111,
-          "referrer" => "telia OTT-B2B",
-          "startDate" => 1_441_200_275_000
-        } = body |> Jason.decode!()
+        assert Jason.decode!(body) == %{
+                 "productPaymentId" => 11111,
+                 "referrer" => "telia OTT-B2B",
+                 "startDate" => 1_441_200_275_000
+               }
 
         json = %{
           "code" => "PRODUCT_PAYMENT_NOT_FOUND",
