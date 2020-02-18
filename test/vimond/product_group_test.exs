@@ -24,7 +24,8 @@ defmodule Vimond.Client.ProductGroupTest do
             name: "C More Premium",
             description: "C More TV4",
             saleStatus: "ENABLED",
-            sortIndex: 0
+            sortIndex: 0,
+            productsUri: %{products: []}
           }),
         headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
       }

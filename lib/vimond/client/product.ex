@@ -37,6 +37,14 @@ defmodule Vimond.Client.Product do
         |> handle_products_response
       end
 
+      @callback product_groups(map, Config.t()) :: {:ok | :error, map}
+      def product_groups(query, config = %Config{}) do
+        request("product_groups", fn ->
+          @http_client.get("productgroup", query, headers(), config)
+        end)
+        |> handle_product_groups_response
+      end
+
       @callback product_groups(Config.t()) :: {:ok | :error, map}
       def product_groups(config = %Config{}) do
         request("product_groups", fn ->
@@ -91,24 +99,7 @@ defmodule Vimond.Client.Product do
   def handle_product_response(%Vimond.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok,
-         %Product{
-           id: json["id"],
-           currency: json["currency"],
-           description: json["description"],
-           enabled: json["enabled"],
-           minimum_periods: json["minimumPeriods"],
-           payment_plan: %PaymentPlan{
-             name: get_in(json, ["paymentPlan", "name"]),
-             payment_type: get_in(json, ["paymentPlan", "paymentType"]),
-             period: get_in(json, ["paymentPlan", "period"])
-           },
-           price: json["price"],
-           product_group_id: json["productGroupId"],
-           product_payments_uri: json["productPaymentsUri"]["uri"],
-           product_status: json["productStatus"],
-           sort_index: json["sortIndex"]
-         }}
+        {:ok, to_product(json)}
 
       {:error, _} ->
         Logger.error("handle_product_response: Unexpected json: '#{inspect(json)}'")
@@ -124,29 +115,7 @@ defmodule Vimond.Client.Product do
   def handle_products_response(%Vimond.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, %{"products" => products}} ->
-        {:ok,
-         %{
-           products:
-             Enum.map(products, fn product ->
-               %Product{
-                 id: product["id"],
-                 currency: product["currency"],
-                 description: product["description"],
-                 enabled: product["enabled"],
-                 minimum_periods: product["minimumPeriods"],
-                 payment_plan: %PaymentPlan{
-                   name: get_in(product, ["paymentPlan", "name"]),
-                   payment_type: get_in(product, ["paymentPlan", "paymentType"]),
-                   period: get_in(product, ["paymentPlan", "period"])
-                 },
-                 price: product["price"],
-                 product_group_id: product["productGroupId"],
-                 product_payments_uri: product["productPaymentsUri"]["uri"],
-                 product_status: product["productStatus"],
-                 sort_index: product["sortIndex"]
-               }
-             end)
-         }}
+        {:ok, %{products: Enum.map(products, &to_product/1)}}
 
       _ ->
         Logger.error("handle_products_response: Unexpected json: '#{inspect(json)}'")
@@ -162,16 +131,7 @@ defmodule Vimond.Client.Product do
   def handle_product_groups_response(%Vimond.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok,
-         Enum.map(json["productGroups"], fn productGroup ->
-           %ProductGroup{
-             id: productGroup["id"],
-             name: productGroup["name"],
-             description: productGroup["description"],
-             sale_status: productGroup["saleStatus"],
-             sort_index: productGroup["sortIndex"]
-           }
-         end)}
+        {:ok, Enum.map(json["productGroups"], &to_product_group/1)}
 
       _ ->
         Logger.error("handle_product_group_response: Unexpected json: '#{inspect(json)}'")
@@ -186,19 +146,12 @@ defmodule Vimond.Client.Product do
   end
 
   def handle_product_group_response(%Vimond.Response{status_code: 200, body: body}) do
-    case json = Jason.decode(body) do
-      {:ok, json} ->
-        {:ok,
-         %ProductGroup{
-           id: json["id"],
-           name: json["name"],
-           description: json["description"],
-           sale_status: json["saleStatus"],
-           sort_index: json["sortIndex"]
-         }}
+    case Jason.decode(body) do
+      {:ok, data} ->
+        {:ok, to_product_group(data)}
 
-      _ ->
-        Logger.error("handle_product_group_response: Unexpected json: '#{inspect(json)}'")
+      error ->
+        Logger.error("handle_product_group_response: Unexpected json: '#{inspect(error)}'")
         {:error, "Failed to parse product group"}
     end
   end
@@ -220,27 +173,7 @@ defmodule Vimond.Client.Product do
   def handle_payment_methods_response(%Vimond.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
-        {:ok,
-         Enum.map(json["productPaymentList"], fn payment_method ->
-           %PaymentMethod{
-             auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
-             autorenew_warning_channel: payment_method["autorenewWarningChannel"],
-             description: payment_method["description"],
-             discounted_price: payment_method["discountedPrice"],
-             enabled: payment_method["enabled"],
-             id: payment_method["id"],
-             init_period: payment_method["initPeriod"],
-             init_price: payment_method["initPrice"],
-             payment_object_uri: get_in(payment_method, ["paymentObjectUri", "uri"]),
-             payment_provider_id: payment_method["paymentProviderId"],
-             product_id: payment_method["productId"],
-             product_payment_status: payment_method["productPaymentStatus"],
-             recurring_discounted_price: payment_method["recurringDiscountedPrice"],
-             recurring_price: payment_method["recurringPrice"],
-             sort_index: payment_method["sortIndex"],
-             uri: payment_method["uri"]
-           }
-         end)}
+        {:ok, Enum.map(json["productPaymentList"], &to_product_payment/1)}
 
       {:error, _} ->
         Logger.error("handle_payment_methods_response: Unexpected json: '#{inspect(json)}'")
@@ -255,12 +188,12 @@ defmodule Vimond.Client.Product do
   end
 
   def handle_payment_response(%Vimond.Response{status_code: 200, body: body}, id) do
-    case json = Jason.decode(body) do
+    case Jason.decode(body) do
       {:ok, json} ->
         {:ok, %Payment{id: id, name: json["name"], payment_method: json["paymentMethod"], url: json["url"]}}
 
-      {:error, _} ->
-        Logger.error("handle_payment_response: Unexpected json: '#{inspect(json)}'")
+      {:error, _} = error ->
+        Logger.error("handle_payment_response: Unexpected json: '#{inspect(error)}'")
         {:error, "Failed to parse payment"}
     end
   end
@@ -269,5 +202,60 @@ defmodule Vimond.Client.Product do
     Logger.error("handle_payment_response: Unexpected response: '#{inspect(response)}'")
 
     {:error, "Failed to fetch payment"}
+  end
+
+  defp to_product_group(product_group) do
+    %ProductGroup{
+      id: product_group["id"],
+      name: product_group["name"],
+      description: product_group["description"],
+      sale_status: product_group["saleStatus"],
+      sort_index: product_group["sortIndex"],
+      products: get_in(product_group, ["productsUri", "products"]) |> Enum.map(&to_product/1)
+    }
+  end
+
+  defp to_product(product) do
+    %Product{
+      id: product["id"],
+      currency: product["currency"],
+      description: product["description"],
+      enabled: product["enabled"],
+      minimum_periods: product["minimumPeriods"],
+      payment_plan: %PaymentPlan{
+        name: get_in(product, ["paymentPlan", "name"]),
+        payment_type: get_in(product, ["paymentPlan", "paymentType"]),
+        period: get_in(product, ["paymentPlan", "period"])
+      },
+      price: product["price"],
+      product_group_id: product["productGroupId"],
+      product_payments_uri: product["productPaymentsUri"]["uri"],
+      product_status: product["productStatus"],
+      sort_index: product["sortIndex"],
+      product_payments:
+        (get_in(product, ["productPayments", "productPaymentList"]) || [])
+        |> Enum.map(&to_product_payment/1)
+    }
+  end
+
+  defp to_product_payment(payment_method) do
+    %PaymentMethod{
+      auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
+      autorenew_warning_channel: payment_method["autorenewWarningChannel"],
+      description: payment_method["description"],
+      discounted_price: payment_method["discountedPrice"],
+      enabled: payment_method["enabled"],
+      id: payment_method["id"],
+      init_period: payment_method["initPeriod"],
+      init_price: payment_method["initPrice"],
+      payment_object_uri: get_in(payment_method, ["paymentObjectUri", "uri"]),
+      payment_provider_id: payment_method["paymentProviderId"],
+      product_id: payment_method["productId"],
+      product_payment_status: payment_method["productPaymentStatus"],
+      recurring_discounted_price: payment_method["recurringDiscountedPrice"],
+      recurring_price: payment_method["recurringPrice"],
+      sort_index: payment_method["sortIndex"],
+      uri: payment_method["uri"]
+    }
   end
 end

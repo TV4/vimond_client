@@ -41,7 +41,8 @@ defmodule Vimond.Client.ProductTest do
                 id: 1491,
                 currency: "SEK",
                 productStatus: "ENABLED",
-                comment: "Buy: C More TV4. Ordinarie produkt."
+                comment: "Buy: C More TV4. Ordinarie produkt.",
+                productPayments: %{productPaymentList: []}
               }),
             headers: %{"content-type" => "application/json;v=\"3\";charset=UTF-8"}
           }
@@ -100,7 +101,8 @@ defmodule Vimond.Client.ProductTest do
                   product_group_id: nil,
                   product_payments_uri: nil,
                   product_status: nil,
-                  sort_index: nil
+                  sort_index: nil,
+                  product_payments: []
                 }}
     end
 

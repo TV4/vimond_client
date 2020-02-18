@@ -94,7 +94,7 @@ defmodule Vimond.HTTPClientTest do
       end
     )
 
-    assert Vimond.HTTPClient.get("/api/get/päth", %{"key" => "val%20ue"}, ["Content-Type": "application/json"], @config) ==
+    assert Vimond.HTTPClient.get("/api/get/päth", %{key: "val%20ue"}, ["Content-Type": "application/json"], @config) ==
              %Vimond.Response{body: "", status_code: 200}
   end
 

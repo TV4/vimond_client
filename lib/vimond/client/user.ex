@@ -11,355 +11,6 @@ defmodule Vimond.Client.User do
     country_code: :country
   }
 
-  def extract_fetch_user_information(json, headers, extraction_function) do
-    case json do
-      %{"userName" => _} ->
-        with {:ok, data} <- extraction_function.({:ok, reject_nil_values(json)}) do
-          {:ok, Map.merge(data, updated_tokens(headers))}
-        end
-
-      %{"error" => %{"code" => "SESSION_NOT_AUTHENTICATED", "description" => reason}} ->
-        error(:invalid_session, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def extract_fetch_user_information_signed(user_data, extraction_function, get_properties_task) do
-    case user_data do
-      %{"userName" => _} ->
-        properties = Task.await(get_properties_task)
-        user_data = Map.put(user_data, "properties", properties)
-        extraction_function.({:ok, reject_nil_values(user_data)})
-
-      %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}} ->
-        error(:user_not_found, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def extract_create_user(json, _headers) do
-    case json do
-      %{"id" => _, "userName" => _} ->
-        {:ok, extract_user(json)}
-
-      %{"error" => %{"code" => "USER_MULTIPLE_VALIDATION_ERRORS", "errors" => errors}}
-      when is_list(errors) ->
-        handle_multiple_validation_errors(errors)
-
-      %{"error" => %{"code" => code}} ->
-        error(:user_creation_failed, code)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def updated_properties_payload(user_data, updated_user) do
-    {:ok, properties} =
-      Map.get(user_data, :properties)
-      |> extract_properties()
-
-    properties =
-      Enum.reject(properties, fn property ->
-        property.allow_user_to_update == false
-      end)
-
-    new_properties = properties_payload(updated_user)
-
-    updated_properties =
-      Enum.map(new_properties, fn property ->
-        if old_property = Enum.find(properties, &(&1.name == property.name)) do
-          Map.put(old_property, :value, property.value)
-        else
-          property
-        end
-      end)
-
-    Enum.reduce(properties, updated_properties, fn property, acc ->
-      if Enum.find(acc, &(&1.name == property.name)) do
-        acc
-      else
-        [property | acc]
-      end
-    end)
-  end
-
-  def update_user_payload(user_id, user) do
-    mandatory = %{
-      id: String.to_integer(user_id),
-      userName: user.username,
-      # Handle users with different username and email (The lodakai scenario)
-      email: user.email || user.username
-    }
-
-    user
-    |> Map.take(Map.keys(@remapper))
-    |> Enum.reject(fn {_, value} -> missing?(value) end)
-    |> Enum.map(fn {key, value} ->
-      case Map.get(@remapper, key) do
-        {remapped_key, remap_function} -> {remapped_key, remap_function.(value)}
-        remapped_key -> {remapped_key, value}
-      end
-    end)
-    |> Map.new()
-    |> Map.merge(mandatory)
-  end
-
-  def extract_update_user(json, _headers) do
-    case json do
-      %{"id" => _, "userName" => _} ->
-        {:ok, extract_user(json)}
-
-      %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
-        error(:invalid_session, reason)
-
-      %{"error" => %{"code" => "USER_INVALID_EMAIL", "description" => reason}} ->
-        if reason == "Email address is already registered" do
-          error(:email_already_in_use, reason)
-        else
-          error(:email_invalid, reason)
-        end
-
-      %{"error" => %{"code" => "USER_INVALID_USERNAME", "description" => reason}} ->
-        error(:username_already_in_use, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def extract_properties(nil), do: {:ok, []}
-
-  def extract_properties(properties) do
-    Enum.reduce(properties, %{}, &latest_property/2)
-    |> Map.values()
-    |> case do
-      [%Property{id: nil, name: nil, value: nil}] ->
-        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
-
-      properties ->
-        {:ok, properties}
-    end
-  end
-
-  def extract_user_information({:ok, json}) do
-    {:ok, extract_user(json)}
-  end
-
-  def extract_user_information(error = {:error, _}), do: error
-
-  def handle_delete_response(%Vimond.Response{status_code: 204}) do
-    {:ok, %{message: "User has been deleted"}}
-  end
-
-  def handle_delete_response(%Vimond.Response{body: body}) do
-    %{"error" => %{"description" => reason, "code" => code}} = Jason.decode!(body)
-
-    case code do
-      "USER_NOT_FOUND" -> error(:user_not_found, code)
-      _ -> error(:invalid_session, reason || code)
-    end
-  end
-
-  def handle_delete_response(_), do: @unexpected_error
-
-  def handle_forgot_password_response(%Vimond.Response{status_code: 204}) do
-    {:ok, %{message: "Reset password email sent"}}
-  end
-
-  def handle_forgot_password_response(%Vimond.Response{body: body, status_code: 404}) do
-    case Jason.decode(body) do
-      {:ok, %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}}} ->
-        {:error, %{type: :user_not_found, source_errors: [reason]}}
-
-      _ ->
-        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
-    end
-  end
-
-  def handle_forgot_password_response(_), do: @unexpected_error
-
-  def extract_authenticate(json, headers) do
-    case json do
-      %{"code" => "AUTHENTICATION_OK"} ->
-        {
-          :ok,
-          %{
-            session: %Session{
-              expires: extract_remember_me_expiry(headers),
-              vimond_remember_me: extract_remember_me(headers),
-              vimond_authorization_token: extract_authorization_token(headers)
-            }
-          }
-          |> Map.merge(extract_user(json["user"]))
-        }
-
-      %{"code" => "AUTHENTICATION_FAILED", "description" => reason} ->
-        error(:invalid_credentials, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def extract_reauthenticate(json, headers) do
-    case json do
-      %{"code" => "SESSION_AUTHENTICATED"} ->
-        {:ok, %{session: struct(Vimond.Session, updated_tokens(headers))}}
-
-      %{"code" => "SESSION_NOT_AUTHENTICATED", "description" => reason} ->
-        error(:invalid_session, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  def properties_payload(user) do
-    user.properties
-  end
-
-  def extract_logout(%{"code" => "SESSION_AUTHENTICATED"}, _),
-    do: {:ok, %{vimond_session: :valid}}
-
-  def extract_logout(%{"code" => "SESSION_INVALIDATED"}, _),
-    do: {:ok, %{message: "User logged out"}}
-
-  def extract_logout(_, _), do: {:ok, %{vimond_session: :invalid}}
-
-  def extract_update_password(json, _headers) do
-    case json do
-      %{"error" => %{"code" => "INVALID_TOKEN", "description" => reason}} ->
-        error(:generic, reason)
-
-      %{"error" => %{"code" => "USER_INVALID_PASSWORD", "description" => reason}} ->
-        error(:invalid_credentials, reason)
-
-      %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
-        error(:invalid_session, reason)
-
-      _ ->
-        @unexpected_error
-    end
-  end
-
-  defp latest_property(property = %Property{}, result) do
-    property_name = property.name
-
-    if result[property_name] == nil || result[property_name].id < property.id do
-      Map.put(result, property_name, property)
-    else
-      result
-    end
-  end
-
-  defp latest_property(property, result) do
-    property_name = property["name"]
-
-    if result[property_name] == nil || result[property_name].id < property["id"] do
-      Map.put(result, property_name, %Property{
-        id: property["id"],
-        name: property_name,
-        value: property["value"],
-        allow_user_to_update: property["allowUserToUpdate"]
-      })
-    else
-      result
-    end
-  end
-
-  defp missing?(nil), do: true
-  defp missing?(""), do: true
-  defp missing?(_), do: false
-
-  defp updated_tokens(headers) do
-    %{vimond_authorization_token: extract_authorization_token(headers)}
-    |> reject_nil_values
-  end
-
-  defp extract_authorization_token(%{"authorization" => authorization}) do
-    extract_header_value(~r/Bearer (.*)/, authorization)
-  end
-
-  defp extract_authorization_token(_), do: nil
-
-  defp extract_remember_me(%{"set-cookie" => cookies}) do
-    extract_header_value(~r/rememberMe=(?!deleteMe)([^;]*)/, cookies)
-  end
-
-  defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
-    extract_header_value(~r/rememberMe=(?!deleteMe).*Expires=([^;]*)/, cookies)
-    |> TimeConverter.parse_vimond_expires_timestamp()
-  end
-
-  defp extract_header_value(_regex, []), do: nil
-
-  defp extract_header_value(regex, [header_value | tail]) do
-    Regex.run(regex, header_value, capture: :all_but_first)
-    |> case do
-      [token] when is_binary(token) -> token
-      _ -> extract_header_value(regex, tail)
-    end
-  end
-
-  defp extract_header_value(regex, header_value) when is_binary(header_value) do
-    extract_header_value(regex, [header_value])
-  end
-
-  defp extract_header_value(_regex, _), do: nil
-
-  defp handle_multiple_validation_errors(errors) do
-    error_codes = Enum.map(errors, &Kernel.get_in(&1, ["code"]))
-    error_messages = Enum.map(errors, &Kernel.get_in(&1, ["description"]))
-
-    cond do
-      Enum.member?(error_codes, "USER_INVALID_USERNAME") ->
-        error(:username_already_in_use, error_messages)
-
-      Enum.member?(error_codes, "USER_INVALID_EMAIL") ->
-        if Enum.member?(error_messages, "Email address is already registered") do
-          error(:email_already_in_use, error_messages)
-        else
-          error(:email_invalid, error_messages)
-        end
-
-      true ->
-        error(:user_creation_failed, error_messages)
-    end
-  end
-
-  defp extract_user(json) do
-    %{
-      user: %User{
-        user_id: to_string(json["id"]),
-        username: json["userName"],
-        email: json["email"],
-        first_name: json["firstName"],
-        last_name: json["lastName"],
-        zip_code: json["zip"],
-        country_code: json["country"],
-        year_of_birth: TimeConverter.iso8601_to_year(json["dateOfBirth"]),
-        properties: extract_properties(json["properties"]) |> elem(1)
-      }
-    }
-  end
-
-  defp reject_nil_values(map) do
-    map
-    |> Enum.reject(fn {_, value} -> is_nil(value) end)
-    |> Map.new()
-  end
-
-  defp error(type, source_errors) when is_list(source_errors) do
-    {:error, %{type: type, source_errors: source_errors}}
-  end
-
-  defp error(type, source_error), do: error(type, [source_error])
-
   defmacro __using__(_) do
     quote do
       import Vimond.Client.User
@@ -710,4 +361,353 @@ defmodule Vimond.Client.User do
       end
     end
   end
+
+  def extract_fetch_user_information(json, headers, extraction_function) do
+    case json do
+      %{"userName" => _} ->
+        with {:ok, data} <- extraction_function.({:ok, reject_nil_values(json)}) do
+          {:ok, Map.merge(data, updated_tokens(headers))}
+        end
+
+      %{"error" => %{"code" => "SESSION_NOT_AUTHENTICATED", "description" => reason}} ->
+        error(:invalid_session, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def extract_fetch_user_information_signed(user_data, extraction_function, get_properties_task) do
+    case user_data do
+      %{"userName" => _} ->
+        properties = Task.await(get_properties_task)
+        user_data = Map.put(user_data, "properties", properties)
+        extraction_function.({:ok, reject_nil_values(user_data)})
+
+      %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}} ->
+        error(:user_not_found, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def extract_create_user(json, _headers) do
+    case json do
+      %{"id" => _, "userName" => _} ->
+        {:ok, extract_user(json)}
+
+      %{"error" => %{"code" => "USER_MULTIPLE_VALIDATION_ERRORS", "errors" => errors}}
+      when is_list(errors) ->
+        handle_multiple_validation_errors(errors)
+
+      %{"error" => %{"code" => code}} ->
+        error(:user_creation_failed, code)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def updated_properties_payload(user_data, updated_user) do
+    {:ok, properties} =
+      Map.get(user_data, :properties)
+      |> extract_properties()
+
+    properties =
+      Enum.reject(properties, fn property ->
+        property.allow_user_to_update == false
+      end)
+
+    new_properties = properties_payload(updated_user)
+
+    updated_properties =
+      Enum.map(new_properties, fn property ->
+        if old_property = Enum.find(properties, &(&1.name == property.name)) do
+          Map.put(old_property, :value, property.value)
+        else
+          property
+        end
+      end)
+
+    Enum.reduce(properties, updated_properties, fn property, acc ->
+      if Enum.find(acc, &(&1.name == property.name)) do
+        acc
+      else
+        [property | acc]
+      end
+    end)
+  end
+
+  def update_user_payload(user_id, user) do
+    mandatory = %{
+      id: String.to_integer(user_id),
+      userName: user.username,
+      # Handle users with different username and email (The lodakai scenario)
+      email: user.email || user.username
+    }
+
+    user
+    |> Map.take(Map.keys(@remapper))
+    |> Enum.reject(fn {_, value} -> missing?(value) end)
+    |> Enum.map(fn {key, value} ->
+      case Map.get(@remapper, key) do
+        {remapped_key, remap_function} -> {remapped_key, remap_function.(value)}
+        remapped_key -> {remapped_key, value}
+      end
+    end)
+    |> Map.new()
+    |> Map.merge(mandatory)
+  end
+
+  def extract_update_user(json, _headers) do
+    case json do
+      %{"id" => _, "userName" => _} ->
+        {:ok, extract_user(json)}
+
+      %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
+        error(:invalid_session, reason)
+
+      %{"error" => %{"code" => "USER_INVALID_EMAIL", "description" => reason}} ->
+        if reason == "Email address is already registered" do
+          error(:email_already_in_use, reason)
+        else
+          error(:email_invalid, reason)
+        end
+
+      %{"error" => %{"code" => "USER_INVALID_USERNAME", "description" => reason}} ->
+        error(:username_already_in_use, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def extract_properties(nil), do: {:ok, []}
+
+  def extract_properties(properties) do
+    Enum.reduce(properties, %{}, &latest_property/2)
+    |> Map.values()
+    |> case do
+      [%Property{id: nil, name: nil, value: nil}] ->
+        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+
+      properties ->
+        {:ok, properties}
+    end
+  end
+
+  def extract_user_information({:ok, json}) do
+    {:ok, extract_user(json)}
+  end
+
+  def extract_user_information(error = {:error, _}), do: error
+
+  def handle_delete_response(%Vimond.Response{status_code: 204}) do
+    {:ok, %{message: "User has been deleted"}}
+  end
+
+  def handle_delete_response(%Vimond.Response{body: body}) do
+    %{"error" => %{"description" => reason, "code" => code}} = Jason.decode!(body)
+
+    case code do
+      "USER_NOT_FOUND" -> error(:user_not_found, code)
+      _ -> error(:invalid_session, reason || code)
+    end
+  end
+
+  def handle_delete_response(_), do: @unexpected_error
+
+  def handle_forgot_password_response(%Vimond.Response{status_code: 204}) do
+    {:ok, %{message: "Reset password email sent"}}
+  end
+
+  def handle_forgot_password_response(%Vimond.Response{body: body, status_code: 404}) do
+    case Jason.decode(body) do
+      {:ok, %{"error" => %{"code" => "USER_NOT_FOUND", "description" => reason}}} ->
+        {:error, %{type: :user_not_found, source_errors: [reason]}}
+
+      _ ->
+        {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
+    end
+  end
+
+  def handle_forgot_password_response(_), do: @unexpected_error
+
+  def extract_authenticate(json, headers) do
+    case json do
+      %{"code" => "AUTHENTICATION_OK"} ->
+        {
+          :ok,
+          %{
+            session: %Session{
+              expires: extract_remember_me_expiry(headers),
+              vimond_remember_me: extract_remember_me(headers),
+              vimond_authorization_token: extract_authorization_token(headers)
+            }
+          }
+          |> Map.merge(extract_user(json["user"]))
+        }
+
+      %{"code" => "AUTHENTICATION_FAILED", "description" => reason} ->
+        error(:invalid_credentials, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def extract_reauthenticate(json, headers) do
+    case json do
+      %{"code" => "SESSION_AUTHENTICATED"} ->
+        {:ok, %{session: struct(Vimond.Session, updated_tokens(headers))}}
+
+      %{"code" => "SESSION_NOT_AUTHENTICATED", "description" => reason} ->
+        error(:invalid_session, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  def properties_payload(user) do
+    user.properties
+  end
+
+  def extract_logout(%{"code" => "SESSION_AUTHENTICATED"}, _),
+    do: {:ok, %{vimond_session: :valid}}
+
+  def extract_logout(%{"code" => "SESSION_INVALIDATED"}, _),
+    do: {:ok, %{message: "User logged out"}}
+
+  def extract_logout(_, _), do: {:ok, %{vimond_session: :invalid}}
+
+  def extract_update_password(json, _headers) do
+    case json do
+      %{"error" => %{"code" => "INVALID_TOKEN", "description" => reason}} ->
+        error(:generic, reason)
+
+      %{"error" => %{"code" => "USER_INVALID_PASSWORD", "description" => reason}} ->
+        error(:invalid_credentials, reason)
+
+      %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
+        error(:invalid_session, reason)
+
+      _ ->
+        @unexpected_error
+    end
+  end
+
+  defp latest_property(property = %Property{}, result) do
+    property_name = property.name
+
+    if result[property_name] == nil || result[property_name].id < property.id do
+      Map.put(result, property_name, property)
+    else
+      result
+    end
+  end
+
+  defp latest_property(property, result) do
+    property_name = property["name"]
+
+    if result[property_name] == nil || result[property_name].id < property["id"] do
+      Map.put(result, property_name, %Property{
+        id: property["id"],
+        name: property_name,
+        value: property["value"],
+        allow_user_to_update: property["allowUserToUpdate"]
+      })
+    else
+      result
+    end
+  end
+
+  defp missing?(nil), do: true
+  defp missing?(""), do: true
+  defp missing?(_), do: false
+
+  defp updated_tokens(headers) do
+    %{vimond_authorization_token: extract_authorization_token(headers)}
+    |> reject_nil_values
+  end
+
+  defp extract_authorization_token(%{"authorization" => authorization}) do
+    extract_header_value(~r/Bearer (.*)/, authorization)
+  end
+
+  defp extract_authorization_token(_), do: nil
+
+  defp extract_remember_me(%{"set-cookie" => cookies}) do
+    extract_header_value(~r/rememberMe=(?!deleteMe)([^;]*)/, cookies)
+  end
+
+  defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
+    extract_header_value(~r/rememberMe=(?!deleteMe).*Expires=([^;]*)/, cookies)
+    |> TimeConverter.parse_vimond_expires_timestamp()
+  end
+
+  defp extract_header_value(_regex, []), do: nil
+
+  defp extract_header_value(regex, [header_value | tail]) do
+    Regex.run(regex, header_value, capture: :all_but_first)
+    |> case do
+      [token] when is_binary(token) -> token
+      _ -> extract_header_value(regex, tail)
+    end
+  end
+
+  defp extract_header_value(regex, header_value) when is_binary(header_value) do
+    extract_header_value(regex, [header_value])
+  end
+
+  defp extract_header_value(_regex, _), do: nil
+
+  defp handle_multiple_validation_errors(errors) do
+    error_codes = Enum.map(errors, &Kernel.get_in(&1, ["code"]))
+    error_messages = Enum.map(errors, &Kernel.get_in(&1, ["description"]))
+
+    cond do
+      Enum.member?(error_codes, "USER_INVALID_USERNAME") ->
+        error(:username_already_in_use, error_messages)
+
+      Enum.member?(error_codes, "USER_INVALID_EMAIL") ->
+        if Enum.member?(error_messages, "Email address is already registered") do
+          error(:email_already_in_use, error_messages)
+        else
+          error(:email_invalid, error_messages)
+        end
+
+      true ->
+        error(:user_creation_failed, error_messages)
+    end
+  end
+
+  defp extract_user(json) do
+    %{
+      user: %User{
+        user_id: to_string(json["id"]),
+        username: json["userName"],
+        email: json["email"],
+        first_name: json["firstName"],
+        last_name: json["lastName"],
+        zip_code: json["zip"],
+        country_code: json["country"],
+        year_of_birth: TimeConverter.iso8601_to_year(json["dateOfBirth"]),
+        properties: extract_properties(json["properties"]) |> elem(1)
+      }
+    }
+  end
+
+  defp reject_nil_values(map) do
+    map
+    |> Enum.reject(fn {_, value} -> is_nil(value) end)
+    |> Map.new()
+  end
+
+  defp error(type, source_errors) when is_list(source_errors) do
+    {:error, %{type: type, source_errors: source_errors}}
+  end
+
+  defp error(type, source_error), do: error(type, [source_error])
 end

@@ -43,7 +43,8 @@ defmodule Vimond.Client.ProductsTest do
                     id: 1491,
                     currency: "SEK",
                     productStatus: "ENABLED",
-                    comment: "Buy: C More TV4. Ordinarie produkt."
+                    comment: "Buy: C More TV4. Ordinarie produkt.",
+                    productPayments: %{productPaymentList: []}
                   }
                 ]
               }),
