@@ -1,4 +1,4 @@
-defmodule Vimond.Client.PaymentMethodsTest do
+defmodule Vimond.Client.ProductPaymentTest do
   use ExUnit.Case, async: true
   alias Vimond.Client
   import Mox
@@ -7,8 +7,8 @@ defmodule Vimond.Client.PaymentMethodsTest do
   setup :verify_on_exit!
 
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
-  describe "product methods without voucher" do
-    test "with several payment methods" do
+  describe "product payments without voucher" do
+    test "with several product payments" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "productgroup/0/products/1491/productPayments",
                          [
@@ -106,10 +106,10 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert Client.payment_methods(1491, @config) ==
+      assert Client.product_payments(1491, @config) ==
                {:ok,
                 [
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: "Standard Klarna Test",
@@ -127,7 +127,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                     sort_index: 0,
                     uri: "/api/cse/productgroup/0/products/1491/productPayments/2793"
                   },
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: "Standard Klarna Direkt",
@@ -145,7 +145,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                     sort_index: 0,
                     uri: "/api/cse/productgroup/0/products/1491/productPayments/2798"
                   },
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: "Standard",
@@ -163,7 +163,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                     sort_index: 0,
                     uri: "/api/cse/productgroup/0/products/1491/productPayments/2712"
                   },
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: nil,
@@ -184,7 +184,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                 ]}
     end
 
-    test "without payment methods" do
+    test "without product payments" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "productgroup/0/products/1491/productPayments",
                          [
@@ -202,7 +202,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert Client.payment_methods(1491, @config) == {:ok, []}
+      assert Client.product_payments(1491, @config) == {:ok, []}
     end
 
     test "with error from Vimond" do
@@ -217,8 +217,8 @@ defmodule Vimond.Client.PaymentMethodsTest do
       end)
 
       assert capture_log(fn ->
-               assert Client.payment_methods(1491, @config) == {:error, "Failed to fetch payment methods"}
-             end) =~ "handle_payment_methods_response: Unexpected response"
+               assert Client.product_payments(1491, @config) == {:error, "Failed to fetch product payments"}
+             end) =~ "handle_product_payments_response: Unexpected response"
     end
   end
 
@@ -283,10 +283,10 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert Client.payment_methods(1491, "existing%20voucher", @config) ==
+      assert Client.product_payments(1491, "existing%20voucher", @config) ==
                {:ok,
                 [
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: "Standard Klarna Direkt",
@@ -304,7 +304,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
                     sort_index: 0,
                     uri: "/api/cse/productgroup/0/products/1491/productPayments/2798"
                   },
-                  %Vimond.PaymentMethod{
+                  %Vimond.ProductPayment{
                     auto_renew_warning_enabled: false,
                     autorenew_warning_channel: "EMAIL",
                     description: "Standard",
@@ -338,9 +338,9 @@ defmodule Vimond.Client.PaymentMethodsTest do
       end)
 
       assert capture_log(fn ->
-               assert Client.payment_methods(1491, "invalid-voucher", @config) ==
-                        {:error, "Failed to fetch payment methods"}
-             end) =~ "handle_payment_methods_response: Invalid voucher"
+               assert Client.product_payments(1491, "invalid-voucher", @config) ==
+                        {:error, "Failed to fetch product payments"}
+             end) =~ "handle_product_payments_response: Invalid voucher"
     end
   end
 
@@ -378,7 +378,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
 
       assert Client.product_payment(5960, @config) ==
                {:ok,
-                %Vimond.PaymentMethod{
+                %Vimond.ProductPayment{
                   auto_renew_warning_enabled: false,
                   autorenew_warning_channel: "EMAIL",
                   enabled: true,

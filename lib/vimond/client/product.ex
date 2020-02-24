@@ -1,6 +1,6 @@
 defmodule Vimond.Client.Product do
   require Logger
-  alias Vimond.{Payment, PaymentMethod, PaymentPlan, Product, ProductGroup}
+  alias Vimond.{Payment, PaymentPlan, Product, ProductGroup, ProductPayment}
 
   defmacro __using__(_) do
     quote do
@@ -61,17 +61,17 @@ defmodule Vimond.Client.Product do
         product("0", product_id, config)
       end
 
-      @callback payment_methods(String.t(), Config.t()) :: {:ok | :error, map}
-      def payment_methods(product_id, config = %Config{}) do
-        request("payment_methods", fn ->
+      @callback product_payments(String.t(), Config.t()) :: {:ok | :error, map}
+      def product_payments(product_id, config = %Config{}) do
+        request("product_payments", fn ->
           @http_client.get("productgroup/0/products/#{product_id}/productPayments", headers(), config)
         end)
-        |> handle_payment_methods_response
+        |> handle_product_payments_response
       end
 
-      @callback payment_methods(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
-      def payment_methods(product_id, voucher_code, config = %Config{}) do
-        request("payment_methods", fn ->
+      @callback product_payments(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      def product_payments(product_id, voucher_code, config = %Config{}) do
+        request("product_payments_with_voucher", fn ->
           @http_client.get(
             "productgroup/0/products/#{product_id}/productPayments",
             %{voucherCode: voucher_code},
@@ -79,7 +79,7 @@ defmodule Vimond.Client.Product do
             config
           )
         end)
-        |> handle_payment_methods_response(voucher_code)
+        |> handle_product_payments_response(voucher_code)
       end
 
       @callback product_payment(integer | binary, Config.t()) :: {:ok | :error, map}
@@ -91,15 +91,15 @@ defmodule Vimond.Client.Product do
       end
 
       @callback payment(String.t(), Config.t()) :: {:ok | :error, map}
-      def payment(payment_method_id, config = %Config{}) do
+      def payment(product_payment_id, config = %Config{}) do
         request("payment", fn ->
           @http_client.get(
-            "productgroup/0/products/0/productPayments/#{payment_method_id}/payment",
+            "productgroup/0/products/0/productPayments/#{product_payment_id}/payment",
             headers(),
             config
           )
         end)
-        |> handle_payment_response(String.to_integer(payment_method_id))
+        |> handle_payment_response(String.to_integer(product_payment_id))
       end
     end
   end
@@ -170,29 +170,29 @@ defmodule Vimond.Client.Product do
     {:error, "Failed to fetch product group"}
   end
 
-  def handle_payment_methods_response(response = %Vimond.Response{status_code: 404}, _voucher_code) do
-    Logger.error("handle_payment_methods_response: Invalid voucher: '#{inspect(response)}'")
+  def handle_product_payments_response(response = %Vimond.Response{status_code: 404}, _voucher_code) do
+    Logger.error("handle_product_payments_response: Invalid voucher: '#{inspect(response)}'")
 
-    {:error, "Failed to fetch payment methods"}
+    {:error, "Failed to fetch product payments"}
   end
 
-  def handle_payment_methods_response(response, _voucher_code), do: handle_payment_methods_response(response)
+  def handle_product_payments_response(response, _voucher_code), do: handle_product_payments_response(response)
 
-  def handle_payment_methods_response(%Vimond.Response{status_code: 200, body: body}) do
+  def handle_product_payments_response(%Vimond.Response{status_code: 200, body: body}) do
     case json = Jason.decode(body) do
       {:ok, json} ->
         {:ok, Enum.map(json["productPaymentList"], &to_product_payment/1)}
 
       {:error, _} ->
-        Logger.error("handle_payment_methods_response: Unexpected json: '#{inspect(json)}'")
-        {:error, "Failed to parse payment methods"}
+        Logger.error("handle_product_payments_response: Unexpected json: '#{inspect(json)}'")
+        {:error, "Failed to parse product payments"}
     end
   end
 
-  def handle_payment_methods_response(response) do
-    Logger.error("handle_payment_methods_response: Unexpected response: '#{inspect(response)}'")
+  def handle_product_payments_response(response) do
+    Logger.error("handle_product_payments_response: Unexpected response: '#{inspect(response)}'")
 
-    {:error, "Failed to fetch payment methods"}
+    {:error, "Failed to fetch product payments"}
   end
 
   def extract_product_payment(%{"paymentObjectUri" => _} = product_payment, _headers) do
@@ -261,24 +261,24 @@ defmodule Vimond.Client.Product do
     }
   end
 
-  defp to_product_payment(payment_method) do
-    %PaymentMethod{
-      auto_renew_warning_enabled: payment_method["autoRenewWarningEnabled"],
-      autorenew_warning_channel: payment_method["autorenewWarningChannel"],
-      description: payment_method["description"],
-      discounted_price: payment_method["discountedPrice"],
-      enabled: payment_method["enabled"],
-      id: payment_method["id"],
-      init_period: payment_method["initPeriod"],
-      init_price: payment_method["initPrice"],
-      payment_object_uri: get_in(payment_method, ["paymentObjectUri", "uri"]),
-      payment_provider_id: payment_method["paymentProviderId"],
-      product_id: payment_method["productId"],
-      product_payment_status: payment_method["productPaymentStatus"],
-      recurring_discounted_price: payment_method["recurringDiscountedPrice"],
-      recurring_price: payment_method["recurringPrice"],
-      sort_index: payment_method["sortIndex"],
-      uri: payment_method["uri"]
+  defp to_product_payment(product_payment) do
+    %ProductPayment{
+      auto_renew_warning_enabled: product_payment["autoRenewWarningEnabled"],
+      autorenew_warning_channel: product_payment["autorenewWarningChannel"],
+      description: product_payment["description"],
+      discounted_price: product_payment["discountedPrice"],
+      enabled: product_payment["enabled"],
+      id: product_payment["id"],
+      init_period: product_payment["initPeriod"],
+      init_price: product_payment["initPrice"],
+      payment_object_uri: get_in(product_payment, ["paymentObjectUri", "uri"]),
+      payment_provider_id: product_payment["paymentProviderId"],
+      product_id: product_payment["productId"],
+      product_payment_status: product_payment["productPaymentStatus"],
+      recurring_discounted_price: product_payment["recurringDiscountedPrice"],
+      recurring_price: product_payment["recurringPrice"],
+      sort_index: product_payment["sortIndex"],
+      uri: product_payment["uri"]
     }
   end
 end

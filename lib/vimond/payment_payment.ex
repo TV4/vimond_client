@@ -1,4 +1,4 @@
-defmodule Vimond.PaymentMethod do
+defmodule Vimond.ProductPayment do
   defstruct [
     :auto_renew_warning_enabled,
     :autorenew_warning_channel,

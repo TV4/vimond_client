@@ -1573,19 +1573,22 @@ defmodule Vimond.Client.UpdateUserTest do
       user = %Vimond.User{username: "some.person@example.com"}
 
       Vimond.HTTPClientMock
-      |> expect(:get_signed, fn "user/6572908", _headers, _config ->
-        %Vimond.Response{
-          status_code: 200,
-          body: Jason.encode!(%{"userName" => "some_user@example.com"}),
-          headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
-        }
-      end)
-      |> expect(:get_signed, fn "user/6572908/properties", _headers, _config ->
-        %Vimond.Response{
-          status_code: 200,
-          body: Jason.encode!([]),
-          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
-        }
+      |> expect(:get_signed, 2, fn path, _headers, _config ->
+        case path do
+          "user/6572908" ->
+            %Vimond.Response{
+              status_code: 200,
+              body: Jason.encode!(%{"userName" => "some_user@example.com"}),
+              headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+            }
+
+          "user/6572908/properties" ->
+            %Vimond.Response{
+              status_code: 200,
+              body: Jason.encode!([]),
+              headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+            }
+        end
       end)
       |> expect(:put_signed, fn "user", _body, _headers, _config ->
         %Vimond.Response{

@@ -208,7 +208,7 @@ defmodule Vimond.Client.ProductGroupsTest do
                           period: "PT2592000S"
                         },
                         product_payments: [
-                          %Vimond.PaymentMethod{
+                          %Vimond.ProductPayment{
                             auto_renew_warning_enabled: false,
                             autorenew_warning_channel: "EMAIL",
                             description: "Standard",
@@ -221,7 +221,7 @@ defmodule Vimond.Client.ProductGroupsTest do
                             product_payment_status: "ENABLED",
                             sort_index: 0
                           },
-                          %Vimond.PaymentMethod{
+                          %Vimond.ProductPayment{
                             auto_renew_warning_enabled: false,
                             autorenew_warning_channel: "EMAIL",
                             description: "Standard Klarna Direkt",
