@@ -7,36 +7,6 @@ defmodule Vimond.Client.Product do
       import Vimond.Client.Product
       alias Vimond.Config
 
-      @callback product(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
-      @deprecated "Use product/2 instead. Vimond ignores the product group id."
-      def product(product_group_id, product_id, config = %Config{}) do
-        request("product", fn ->
-          @http_client.get(
-            "productgroup/#{product_group_id}/products/#{product_id}",
-            headers(),
-            config
-          )
-        end)
-        |> handle_product_response
-      end
-
-      @callback product(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
-      def product(product_id, config = %Config{}) do
-        product("0", product_id, config)
-      end
-
-      @callback products(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
-      def products(product_group_id, config = %Config{}) do
-        request("products", fn ->
-          @http_client.get(
-            "productgroup/#{product_group_id}/products",
-            headers(),
-            config
-          )
-        end)
-        |> handle_products_response
-      end
-
       @callback product_groups(map, Config.t()) :: {:ok | :error, map}
       def product_groups(query, config = %Config{}) do
         request("product_groups", fn ->
@@ -61,6 +31,36 @@ defmodule Vimond.Client.Product do
         |> handle_product_group_response
       end
 
+      @callback products(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      def products(product_group_id, config = %Config{}) do
+        request("products", fn ->
+          @http_client.get(
+            "productgroup/#{product_group_id}/products",
+            headers(),
+            config
+          )
+        end)
+        |> handle_products_response
+      end
+
+      @callback product(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      @deprecated "Use product/2 instead. Vimond ignores the product group id."
+      def product(product_group_id, product_id, config = %Config{}) do
+        request("product", fn ->
+          @http_client.get(
+            "productgroup/#{product_group_id}/products/#{product_id}",
+            headers(),
+            config
+          )
+        end)
+        |> handle_product_response
+      end
+
+      @callback product(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      def product(product_id, config = %Config{}) do
+        product("0", product_id, config)
+      end
+
       @callback payment_methods(String.t(), Config.t()) :: {:ok | :error, map}
       def payment_methods(product_id, config = %Config{}) do
         request("payment_methods", fn ->
@@ -80,6 +80,14 @@ defmodule Vimond.Client.Product do
           )
         end)
         |> handle_payment_methods_response(voucher_code)
+      end
+
+      @callback product_payment(integer | binary, Config.t()) :: {:ok | :error, map}
+      def product_payment(product_payment_id, config = %Config{}) do
+        request("product_payment", fn ->
+          @http_client.get("productgroup/0/products/0/productPayments/#{product_payment_id}", headers(), config)
+        end)
+        |> handle_response(&extract_product_payment/2)
       end
 
       @callback payment(String.t(), Config.t()) :: {:ok | :error, map}
@@ -185,6 +193,21 @@ defmodule Vimond.Client.Product do
     Logger.error("handle_payment_methods_response: Unexpected response: '#{inspect(response)}'")
 
     {:error, "Failed to fetch payment methods"}
+  end
+
+  def extract_product_payment(%{"paymentObjectUri" => _} = product_payment, _headers) do
+    {:ok, to_product_payment(product_payment)}
+  end
+
+  def extract_product_payment(
+        %{"error" => %{"code" => "PRODUCT_PAYMENT_NOT_FOUND", "description" => description}},
+        _headers
+      ) do
+    {:error, %{type: :product_payment_not_found, source_errors: [description]}}
+  end
+
+  def extract_product_payment(_data, _headers) do
+    {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
   end
 
   def handle_payment_response(%Vimond.Response{status_code: 200, body: body}, id) do

@@ -1,13 +1,13 @@
 defmodule Vimond.Client.PaymentMethodsTest do
   use ExUnit.Case, async: true
-  import Vimond.Client
+  alias Vimond.Client
   import Mox
   import ExUnit.CaptureLog
 
   setup :verify_on_exit!
 
   @config %Vimond.Config{base_url: "https://vimond-rest-api.example.com/api/platform/"}
-  describe "without voucher" do
+  describe "product methods without voucher" do
     test "with several payment methods" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "productgroup/0/products/1491/productPayments",
@@ -106,7 +106,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert payment_methods(1491, @config) ==
+      assert Client.payment_methods(1491, @config) ==
                {:ok,
                 [
                   %Vimond.PaymentMethod{
@@ -202,7 +202,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert payment_methods(1491, @config) == {:ok, []}
+      assert Client.payment_methods(1491, @config) == {:ok, []}
     end
 
     test "with error from Vimond" do
@@ -217,12 +217,12 @@ defmodule Vimond.Client.PaymentMethodsTest do
       end)
 
       assert capture_log(fn ->
-               assert payment_methods(1491, @config) == {:error, "Failed to fetch payment methods"}
+               assert Client.payment_methods(1491, @config) == {:error, "Failed to fetch payment methods"}
              end) =~ "handle_payment_methods_response: Unexpected response"
     end
   end
 
-  describe "with voucher" do
+  describe "product methods with voucher" do
     test "with a valid voucher" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "productgroup/0/products/1491/productPayments",
@@ -283,7 +283,7 @@ defmodule Vimond.Client.PaymentMethodsTest do
         }
       end)
 
-      assert payment_methods(1491, "existing%20voucher", @config) ==
+      assert Client.payment_methods(1491, "existing%20voucher", @config) ==
                {:ok,
                 [
                   %Vimond.PaymentMethod{
@@ -338,8 +338,87 @@ defmodule Vimond.Client.PaymentMethodsTest do
       end)
 
       assert capture_log(fn ->
-               assert payment_methods(1491, "invalid-voucher", @config) == {:error, "Failed to fetch payment methods"}
+               assert Client.payment_methods(1491, "invalid-voucher", @config) ==
+                        {:error, "Failed to fetch payment methods"}
              end) =~ "handle_payment_methods_response: Invalid voucher"
+    end
+  end
+
+  describe "product payment with product payment id" do
+    test "with existing product payment" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "productgroup/0/products/0/productPayments/5960",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8"
+                         ],
+                         @config ->
+        %Vimond.Response{
+          body:
+            %{
+              "autoRenewWarningEnabled" => false,
+              "autorenewWarningChannel" => "EMAIL",
+              "enabled" => true,
+              "id" => 5960,
+              "initPeriod" => "PT864000000S",
+              "initPrice" => 0.0,
+              "paymentObjectUri" => %{
+                "uri" => "/api/cse/productgroup/0/products/2861/productPayments/5960/payment"
+              },
+              "paymentProviderId" => 50,
+              "productId" => 2861,
+              "productPaymentStatus" => "ENABLED",
+              "sortIndex" => 0,
+              "uri" => "/api/cse/productgroup/0/products/2861/productPayments/5960"
+            }
+            |> Jason.encode!(),
+          status_code: 200
+        }
+      end)
+
+      assert Client.product_payment(5960, @config) ==
+               {:ok,
+                %Vimond.PaymentMethod{
+                  auto_renew_warning_enabled: false,
+                  autorenew_warning_channel: "EMAIL",
+                  enabled: true,
+                  id: 5960,
+                  init_period: "PT864000000S",
+                  init_price: 0.0,
+                  payment_object_uri: "/api/cse/productgroup/0/products/2861/productPayments/5960/payment",
+                  payment_provider_id: 50,
+                  product_id: 2861,
+                  product_payment_status: "ENABLED",
+                  sort_index: 0,
+                  uri: "/api/cse/productgroup/0/products/2861/productPayments/5960"
+                }}
+    end
+
+    test "when it does not exist" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "productgroup/0/products/0/productPayments/5960",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8"
+                         ],
+                         @config ->
+        %Vimond.Response{
+          body:
+            %{
+              "error" => %{
+                "code" => "PRODUCT_PAYMENT_NOT_FOUND",
+                "description" => "No ProductPayment with id 5960",
+                "id" => "1081",
+                "reference" => "8ec3b887078043c4"
+              }
+            }
+            |> Jason.encode!(),
+          status_code: 404
+        }
+      end)
+
+      assert Client.product_payment(5960, @config) ==
+               {:error, %{type: :product_payment_not_found, source_errors: ["No ProductPayment with id 5960"]}}
     end
   end
 end
