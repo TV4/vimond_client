@@ -1,7 +1,7 @@
 defmodule Vimond.Client.PaymentTest do
   use ExUnit.Case, async: true
   import Vimond.Client
-  import Mox
+  import Hammox
   import ExUnit.CaptureLog
 
   setup :verify_on_exit!

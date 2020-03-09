@@ -1,6 +1,6 @@
 defmodule Vimond.HTTPClientTest do
   use ExUnit.Case, async: true
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 
@@ -48,7 +48,10 @@ defmodule Vimond.HTTPClientTest do
              {"authorization", "Bearer abc123"},
              {"authorization", "Bearer def456"}
            ],
-           status_code: 204
+           status_code: 204,
+           request: %HTTPoison.Request{
+             url: "https://vimond-rest-api.example.com/api/platf%C3%B6rm/delete_signed/p%C3%A4th"
+           }
          }}
       end
     )
@@ -70,7 +73,14 @@ defmodule Vimond.HTTPClientTest do
          "",
          [{"Content-Type", "application/json"}],
          recv_timeout: _ ->
-        {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+        {:ok,
+         %HTTPoison.Response{
+           body: "",
+           status_code: 200,
+           request: %HTTPoison.Request{
+             url: "https://vimond-rest-api.example.com/api/get/p%C3%A4th"
+           }
+         }}
       end
     )
 
@@ -90,7 +100,14 @@ defmodule Vimond.HTTPClientTest do
          "",
          [{"Content-Type", "application/json"}],
          recv_timeout: _ ->
-        {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+        {:ok,
+         %HTTPoison.Response{
+           body: "",
+           status_code: 200,
+           request: %HTTPoison.Request{
+             url: "https://vimond-rest-api.example.com/api/get/p%C3%A4th?key=val%2520ue"
+           }
+         }}
       end
     )
 
@@ -111,7 +128,14 @@ defmodule Vimond.HTTPClientTest do
            {"Accept", "text/plain"}
          ],
          recv_timeout: _ ->
-        {:ok, %HTTPoison.Response{body: "", status_code: 204}}
+        {:ok,
+         %HTTPoison.Response{
+           body: "",
+           status_code: 204,
+           request: %HTTPoison.Request{
+             url: "https://vimond-rest-api.example.com/api/platf%C3%B6rm/get_signed/p%C3%A4th"
+           }
+         }}
       end
     )
 
@@ -130,7 +154,10 @@ defmodule Vimond.HTTPClientTest do
        %HTTPoison.Response{
          status_code: 200,
          body: "",
-         headers: [{"content-type", "text/plain"}]
+         headers: [{"content-type", "text/plain"}],
+         request: %HTTPoison.Request{
+           url: "https://vimond-rest-api.example.com/api/post/p%C3%A4th"
+         }
        }}
     end)
 
@@ -154,7 +181,14 @@ defmodule Vimond.HTTPClientTest do
                              {"Accept", "text/plain"}
                            ],
                            recv_timeout: _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: ""}}
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: "",
+         request: %HTTPoison.Request{
+           url: "https://vimond-rest-api.example.com/api/platf%C3%B6rm/post_signed/p%C3%A4th"
+         }
+       }}
     end)
 
     assert Vimond.HTTPClient.post_signed("post_signed/päth", "body", [Accept: "text/plain"], @config) ==
@@ -170,7 +204,14 @@ defmodule Vimond.HTTPClientTest do
          "body",
          [{"Content-Type", "application/json"}],
          recv_timeout: _ ->
-        {:ok, %HTTPoison.Response{body: "", status_code: 200}}
+        {:ok,
+         %HTTPoison.Response{
+           body: "",
+           status_code: 200,
+           request: %HTTPoison.Request{
+             url: "https://vimond-rest-api.example.com/api/put/p%C3%A4th"
+           }
+         }}
       end
     )
 
@@ -189,7 +230,14 @@ defmodule Vimond.HTTPClientTest do
                              {"Accept", "text/plain"}
                            ],
                            recv_timeout: _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: ""}}
+      {:ok,
+       %HTTPoison.Response{
+         status_code: 200,
+         body: "",
+         request: %HTTPoison.Request{
+           url: "https://vimond-rest-api.example.com/api/platf%C3%B6rm/put_signed/p%C3%A4th"
+         }
+       }}
     end)
 
     assert Vimond.HTTPClient.put_signed("put_signed/päth", "body", [Accept: "text/plain"], @config) ==

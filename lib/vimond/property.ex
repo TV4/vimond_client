@@ -14,4 +14,6 @@ end
 
 defmodule Vimond.Property do
   defstruct ~w(id name value allow_user_to_update)a
+
+  @type t :: %__MODULE__{}
 end

@@ -1,6 +1,6 @@
 defmodule Vimond.AssetTest do
   use ExUnit.Case
-  import Mox
+  import Hammox
   alias Vimond.{Asset, Client}
 
   setup :verify_on_exit!

@@ -23,7 +23,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_groups_response
       end
 
-      @callback product_group(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback product_group(binary, Config.t()) :: {:ok | :error, map}
       def product_group(product_group_id, config = %Config{}) do
         request("product_group", fn ->
           @http_client.get("productgroup/#{product_group_id}", headers(), config)
@@ -31,7 +31,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_group_response
       end
 
-      @callback products(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      @callback products(binary, Config.t()) :: {:ok, map} | {:error, binary}
       def products(product_group_id, config = %Config{}) do
         request("products", fn ->
           @http_client.get(
@@ -43,7 +43,7 @@ defmodule Vimond.Client.Product do
         |> handle_products_response
       end
 
-      @callback product(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      @callback product(binary, binary, Config.t()) :: {:ok, map} | {:error, binary}
       @deprecated "Use product/2 instead. Vimond ignores the product group id."
       def product(product_group_id, product_id, config = %Config{}) do
         request("product", fn ->
@@ -56,12 +56,12 @@ defmodule Vimond.Client.Product do
         |> handle_product_response
       end
 
-      @callback product(String.t(), Config.t()) :: {:ok, map} | {:error, String.t()}
+      @callback product(binary, Config.t()) :: {:ok, map} | {:error, binary}
       def product(product_id, config = %Config{}) do
         product("0", product_id, config)
       end
 
-      @callback product_payments(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback product_payments(binary, Config.t()) :: {:ok | :error, map}
       def product_payments(product_id, config = %Config{}) do
         request("product_payments", fn ->
           @http_client.get("productgroup/0/products/#{product_id}/productPayments", headers(), config)
@@ -69,7 +69,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_payments_response
       end
 
-      @callback product_payments(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback product_payments(binary, binary, Config.t()) :: {:ok | :error, map}
       def product_payments(product_id, voucher_code, config = %Config{}) do
         request("product_payments_with_voucher", fn ->
           @http_client.get(
@@ -90,7 +90,7 @@ defmodule Vimond.Client.Product do
         |> handle_response(&extract_product_payment/2)
       end
 
-      @callback payment(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback payment(binary, Config.t()) :: {:ok | :error, map}
       def payment(product_payment_id, config = %Config{}) do
         request("payment", fn ->
           @http_client.get(

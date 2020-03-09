@@ -4,12 +4,12 @@ defmodule Vimond.HTTPClient do
 
   @http_client Application.get_env(:vimond_client, :http_client, HTTPoison)
 
-  @callback delete(url :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback delete(url :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def delete(path, headers, %Config{base_url: base_url}) do
     request(:delete, vimond_url(base_url, path), headers, "", [])
   end
 
-  @callback delete_signed(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback delete_signed(path :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def delete_signed(path, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
@@ -18,17 +18,17 @@ defmodule Vimond.HTTPClient do
     request(:delete, url, headers, "", [])
   end
 
-  @callback get(path :: String.t(), query :: map(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback get(path :: binary, query :: map(), headers :: Keyword.t(), config :: Config.t()) :: any()
   def get(path, query, headers, %Config{base_url: base_url}) do
     request(:get, vimond_url(base_url, path, query), headers, "", [])
   end
 
-  @callback get(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback get(path :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def get(path, headers, %Config{base_url: base_url}) do
     request(:get, vimond_url(base_url, path), headers, "", [])
   end
 
-  @callback get_signed(path :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback get_signed(path :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def get_signed(path, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
@@ -37,12 +37,12 @@ defmodule Vimond.HTTPClient do
     request(:get, url, headers, "", [])
   end
 
-  @callback post(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback post(path :: binary, body :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def post(path, body, headers, %Config{base_url: base_url}) do
     request(:post, vimond_url(base_url, path), headers, body, [])
   end
 
-  @callback post_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback post_signed(path :: binary, body :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def post_signed(path, body, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path
@@ -51,12 +51,12 @@ defmodule Vimond.HTTPClient do
     request(:post, url, headers, body, [])
   end
 
-  @callback put(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback put(path :: binary, body :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def put(path, body, headers, %Config{base_url: base_url}) do
     request(:put, vimond_url(base_url, path), headers, body, [])
   end
 
-  @callback put_signed(path :: String.t(), body :: String.t(), headers :: Keyword.t(), config :: Config.t()) :: any()
+  @callback put_signed(path :: binary, body :: binary, headers :: Keyword.t(), config :: Config.t()) :: any()
   def put_signed(path, body, headers, config = %Config{base_url: base_url}) do
     url = vimond_url(base_url, path)
     path = URI.parse(url).path

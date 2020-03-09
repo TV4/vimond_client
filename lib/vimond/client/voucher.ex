@@ -3,7 +3,7 @@ defmodule Vimond.Client.Voucher do
     quote do
       alias Vimond.Config
 
-      @callback voucher(String.t(), String.t(), Config.t()) :: {:ok, map} | {:error, message :: String.t()}
+      @callback voucher(binary, binary, Config.t()) :: {:ok, map} | {:error, message :: binary}
       def voucher(voucher_code, xff, config = %Config{}) do
         request("voucher", fn ->
           @http_client.get("/api/voucher/#{voucher_code}", headers("X-Forwarded-For": xff), config)

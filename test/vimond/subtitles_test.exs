@@ -1,6 +1,6 @@
 defmodule Vimond.SubtitlesTest do
   use ExUnit.Case
-  import Mox
+  import Hammox
   alias Vimond.{Client, Subtitle}
 
   setup :verify_on_exit!

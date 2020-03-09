@@ -17,7 +17,7 @@ defmodule Vimond.Client.User do
       alias Vimond.Config
 
       # User
-      @callback create(Vimond.User.t(), Config.t()) :: {:ok | :error, map}
+      @callback create(User.t(), Config.t()) :: {:ok | :error, map}
       def create(user = %User{}, config = %Config{}) do
         body =
           %{
@@ -39,7 +39,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_create_user/2)
       end
 
-      @callback delete(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback delete(binary, binary, Config.t()) :: {:ok | :error, map}
       def delete(user_id, vimond_authorization_token, config = %Config{}) do
         headers = headers(Authorization: "Bearer #{vimond_authorization_token}")
 
@@ -49,7 +49,7 @@ defmodule Vimond.Client.User do
         |> handle_delete_response()
       end
 
-      @callback delete_signed(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback delete_signed(binary, Config.t()) :: {:ok | :error, map}
       def delete_signed(user_id, config = %Config{}) do
         request("delete_signed", fn ->
           @http_client.delete_signed("user/#{user_id}", headers(), config)
@@ -57,7 +57,7 @@ defmodule Vimond.Client.User do
         |> handle_delete_response()
       end
 
-      @callback exists_signed(String.t(), Config.t()) :: {:ok, boolean}
+      @callback exists_signed(binary, Config.t()) :: {:ok, boolean}
       def exists_signed(username, config = %Config{}) do
         username_exists = fn ->
           @http_client.get_signed("user/username/#{username}", headers(), config)
@@ -73,7 +73,7 @@ defmodule Vimond.Client.User do
         end
       end
 
-      @callback user_information(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback user_information(binary, binary, Config.t()) :: {:ok | :error, map}
       def user_information(vimond_authorization_token, remember_me, config = %Config{}) do
         with {:ok, data} <-
                fetch_user_information(vimond_authorization_token, remember_me, &extract_user_information/1, config) do
@@ -87,12 +87,12 @@ defmodule Vimond.Client.User do
         end
       end
 
-      @callback user_information_signed(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback user_information_signed(binary, Config.t()) :: {:ok | :error, map}
       def user_information_signed(user_id, config = %Config{}) do
         fetch_user_information_signed(user_id, &extract_user_information/1, config)
       end
 
-      @callback update(String.t(), String.t(), String.t(), Vimond.User.t(), Config.t()) :: {:ok | :error, map}
+      @callback update(binary, binary, binary, User.t(), Config.t()) :: {:ok | :error, map}
       def update(vimond_authorization_token, remember_me, user_id, updated_user = %User{}, config = %Config{}) do
         with {:ok, user_data} <-
                fetch_user_information(vimond_authorization_token, remember_me, &to_atom_keys/1, config) do
@@ -133,7 +133,7 @@ defmodule Vimond.Client.User do
         end
       end
 
-      @callback update_signed(String.t(), Vimond.User.t(), Config.t()) :: {:ok | :error, map}
+      @callback update_signed(binary, User.t(), Config.t()) :: {:ok | :error, map}
       def update_signed(user_id, updated_user = %User{}, config = %Config{}) do
         with {:ok, user_data} <- fetch_user_information_signed(user_id, &to_atom_keys/1, config) do
           user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
@@ -156,7 +156,7 @@ defmodule Vimond.Client.User do
       end
 
       # Session
-      @callback authenticate(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback authenticate(binary, binary, Config.t()) :: {:ok | :error, map}
       @doc """
       Authenticates the user and returns session and user information.
       """
@@ -178,7 +178,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_authenticate/2)
       end
 
-      @callback reauthenticate(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback reauthenticate(binary, binary, Config.t()) :: {:ok | :error, map}
       def reauthenticate(vimond_authorization_token, remember_me, config = %Config{}) do
         request("reauthenticate", fn ->
           headers = headers_with_tokens(vimond_authorization_token, remember_me)
@@ -187,7 +187,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_reauthenticate/2)
       end
 
-      @callback logout(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback logout(binary, binary, Config.t()) :: {:ok | :error, map}
       def logout(vimond_authorization_token, remember_me, config = %Config{}) do
         request("logout", fn ->
           @http_client.delete(
@@ -200,7 +200,7 @@ defmodule Vimond.Client.User do
       end
 
       # Password
-      @callback forgot_password(String.t(), Config.t()) :: {:ok | :error, map}
+      @callback forgot_password(binary, Config.t()) :: {:ok | :error, map}
       def forgot_password(email, %Config{} = config) do
         request("forgot_password", fn ->
           @http_client.delete("user/#{email}/password", headers(), config)
@@ -208,7 +208,7 @@ defmodule Vimond.Client.User do
         |> handle_forgot_password_response
       end
 
-      @callback update_password(String.t(), String.t(), String.t(), String.t(), String.t(), Config.t()) ::
+      @callback update_password(binary, binary, binary, binary, binary, Config.t()) ::
                   {:ok | :error, map}
       def update_password(
             user_id,
@@ -236,7 +236,7 @@ defmodule Vimond.Client.User do
         end
       end
 
-      @callback update_password_with_token(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback update_password_with_token(binary, binary, Config.t()) :: {:ok | :error, map}
       def update_password_with_token(password_token, new_password, config = %Config{}) do
         body = Plug.Conn.Query.encode(%{token: password_token, password: new_password})
         headers = headers("Content-Type": "application/x-www-form-urlencoded; charset=UTF-8")
@@ -251,7 +251,7 @@ defmodule Vimond.Client.User do
       end
 
       # User properties
-      @callback set_property_signed(String.t(), Property.t(), Config.t()) :: :ok
+      @callback set_property_signed(binary, Property.t(), Config.t()) :: :ok
       def set_property_signed(user_id, %Property{} = property, config = %Config{}) do
         get_properties_signed(user_id, config)
         |> case do

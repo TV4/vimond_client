@@ -2,7 +2,7 @@ defmodule Vimond.Client.SetPropertyTest do
   use ExUnit.Case
   alias Vimond.{Config, Property}
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

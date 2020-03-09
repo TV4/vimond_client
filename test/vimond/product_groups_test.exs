@@ -1,7 +1,7 @@
 defmodule Vimond.Client.ProductGroupsTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

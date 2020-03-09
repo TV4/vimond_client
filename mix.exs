@@ -28,7 +28,7 @@ defmodule Vimond.Client.MixProject do
       {:calendar, "~> 1.0"},
       {:httpoison, "~> 1.6"},
       {:mix_test_watch, "~> 1.0", only: :test, runtime: false},
-      {:mox, "~> 0.4", only: :test}
+      {:hammox, "~> 0.2", only: :test}
     ]
   end
 end

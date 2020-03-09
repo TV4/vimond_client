@@ -10,6 +10,8 @@ defmodule Vimond.User do
             year_of_birth: nil,
             properties: []
 
+  @type t :: %__MODULE__{}
+
   defdelegate fetch(user, key), to: Map
   defdelegate get_and_update(user_output, key, fun), to: Map
 end

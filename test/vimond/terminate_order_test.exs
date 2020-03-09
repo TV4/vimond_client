@@ -2,7 +2,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
   use ExUnit.Case
   alias Vimond.Config
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

@@ -2,6 +2,8 @@ defmodule Vimond.Client do
   require Logger
   alias TimeConverter
 
+  @type error :: {:error, %{type: atom, source_errors: list(binary)}}
+
   @http_client Application.get_env(:vimond_client, :vimond_http_client, Vimond.HTTPClient)
 
   use Vimond.Client.User

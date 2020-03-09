@@ -1,7 +1,7 @@
 defmodule Vimond.Client.UserInformationTest do
   use ExUnit.Case
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 
@@ -404,6 +404,18 @@ defmodule Vimond.Client.UserInformationTest do
           }
         }
       end)
+      |> expect(:get_signed, fn "user/12345/properties",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        %Vimond.Response{
+          status_code: 200,
+          body: [],
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+        }
+      end)
 
       assert user_information_signed("12345", @config) ==
                {:error, %{source_errors: ["Unexpected error"], type: :generic}}
@@ -418,6 +430,18 @@ defmodule Vimond.Client.UserInformationTest do
                                 ],
                                 @config ->
         %Vimond.Error{message: "econnrefused"}
+      end)
+      |> expect(:get_signed, fn "user/12345/properties",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        %Vimond.Response{
+          status_code: 200,
+          body: [],
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
+        }
       end)
 
       assert user_information_signed("12345", @config) ==

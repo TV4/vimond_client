@@ -1,7 +1,7 @@
 defmodule Vimond.Client.ExistsTest do
   use ExUnit.Case, async: true
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

@@ -1,6 +1,6 @@
 defmodule Vimond.Client.UpdateOrderTest do
   use ExUnit.Case
-  import Mox
+  import Hammox
   import Vimond.Client
   alias Vimond.Order
 

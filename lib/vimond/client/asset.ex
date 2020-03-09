@@ -25,7 +25,7 @@ defmodule Vimond.Client.Asset do
         end)
       end
 
-      @callback subtitles(String.t(), Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
+      @callback subtitles(binary, Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
       def subtitles(asset_id, config) do
         request("subtitles", fn ->
           @http_client.get("asset/#{asset_id}/subtitles", headers(), config)

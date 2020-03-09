@@ -1,7 +1,7 @@
 defmodule Vimond.Client.UpdateUserTest do
   use ExUnit.Case
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 
@@ -1444,6 +1444,18 @@ defmodule Vimond.Client.UpdateUserTest do
           status_code: 401,
           body: Jason.encode!(json),
           headers: %{"content-type" => "application/json; v=\"3\";charset=UTF-8"}
+        }
+      end)
+      |> expect(:get_signed, fn "user/6572908/properties",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        %Vimond.Response{
+          status_code: 200,
+          body: [],
+          headers: %{"content-type" => "application/json; v=\"2\";charset=UTF-8"}
         }
       end)
 

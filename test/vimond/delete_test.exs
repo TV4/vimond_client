@@ -2,7 +2,7 @@ defmodule Vimond.Client.DeleteTest do
   use ExUnit.Case, async: true
   alias Vimond.Config
   import Vimond.Client
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

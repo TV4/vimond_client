@@ -3,7 +3,7 @@ defmodule Vimond.Client.AddOrderTest do
   alias Vimond.Config
   import Vimond.Client
   import ExUnit.CaptureLog
-  import Mox
+  import Hammox
 
   setup :verify_on_exit!
 

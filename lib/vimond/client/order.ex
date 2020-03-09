@@ -6,7 +6,7 @@ defmodule Vimond.Client.Order do
       import Vimond.Client.Order
       alias Vimond.Config
 
-      @callback add_order_signed(String.t(), Order.t(), Config.t()) :: {:ok, integer} | {:error, :failed_to_add_order}
+      @callback add_order_signed(binary, Order.t(), Config.t()) :: {:ok, integer} | {:error, :failed_to_add_order}
       def add_order_signed(user_id, order = %Order{}, config = %Config{}) do
         body =
           build_order(order)
@@ -27,7 +27,8 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback current_orders(String.t(), String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      @callback current_orders(binary, binary, binary, Config.t()) ::
+                  {:ok, %{orders: list(Order.t())}} | error()
       def current_orders(user_id, vimond_authorization_token, remember_me, config = %Config{}) do
         headers = headers_with_tokens(vimond_authorization_token, remember_me)
 
@@ -37,6 +38,7 @@ defmodule Vimond.Client.Order do
         |> handle_response(&extract_orders/2)
       end
 
+      @callback current_orders_signed(binary, Config.t()) :: {:ok, %{orders: list(Order.t())}} | error()
       def current_orders_signed(user_id, config = %Config{}) do
         request("current_orders", fn ->
           @http_client.get_signed("user/#{user_id}/orders/current", headers(), config)
@@ -44,7 +46,7 @@ defmodule Vimond.Client.Order do
         |> handle_response(&extract_orders/2)
       end
 
-      @callback terminate_order_signed(String.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
+      @callback terminate_order_signed(binary, Config.t()) :: {:ok | :error, order_id :: binary}
       def terminate_order_signed(order_id, config = %Config{}) do
         {:ok, order} = get_order_signed(order_id, config)
         end_date = DateTime.to_unix(datetime().utc_now(), :millisecond)
@@ -67,7 +69,7 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback update_order_signed(Order.t(), Config.t()) :: {:ok | :error, order_id :: String.t()}
+      @callback update_order_signed(Order.t(), Config.t()) :: {:ok | :error, order_id :: binary}
       def update_order_signed(order = %Order{order_id: order_id}, config = %Config{}) do
         request("updated order", fn ->
           @http_client.put_signed(
