@@ -10,12 +10,13 @@ defmodule Vimond.Client.ReauthenticateTest do
     base_url: "https://vimond-rest-api.example.com/api/platform/"
   }
 
-  test "with valid 'remember me'" do
+  test "with valid session" do
     Vimond.HTTPClientMock
     |> expect(:get, fn "/api/authentication/user",
                        [
                          Accept: "application/json; v=3; charset=UTF-8",
                          "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer expired_authentication_token",
                          Cookie: "rememberMe=valid_remember_me"
                        ],
                        @config ->
@@ -37,7 +38,7 @@ defmodule Vimond.Client.ReauthenticateTest do
       }
     end)
 
-    assert reauthenticate("valid_remember_me", @config) ==
+    assert reauthenticate("expired_authentication_token", "valid_remember_me", @config) ==
              {:ok,
               %{
                 session: %Vimond.Session{
@@ -46,9 +47,16 @@ defmodule Vimond.Client.ReauthenticateTest do
               }}
   end
 
-  test "with an expired 'remember me'" do
+  test "with an expired session" do
     Vimond.HTTPClientMock
-    |> expect(:get, fn _path, _headers, _config ->
+    |> expect(:get, fn "/api/authentication/user",
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer expired_authentication_token",
+                         Cookie: "rememberMe=expired_remember_me"
+                       ],
+                       @config ->
       %Vimond.Response{
         status_code: 200,
         body:
@@ -64,7 +72,7 @@ defmodule Vimond.Client.ReauthenticateTest do
       }
     end)
 
-    assert reauthenticate("expired_remember_me", @config) ==
+    assert reauthenticate("expired_authentication_token", "expired_remember_me", @config) ==
              {:error, %{type: :invalid_session, source_errors: ["Session is not authenticated"]}}
   end
 end

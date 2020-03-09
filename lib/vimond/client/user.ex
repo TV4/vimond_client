@@ -178,11 +178,10 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_authenticate/2)
       end
 
-      @callback reauthenticate(String.t(), Config.t()) :: {:ok | :error, map}
-      def reauthenticate(remember_me, config = %Config{}) do
-        headers = headers(Cookie: "rememberMe=#{remember_me}")
-
+      @callback reauthenticate(String.t(), String.t(), Config.t()) :: {:ok | :error, map}
+      def reauthenticate(vimond_authorization_token, remember_me, config = %Config{}) do
         request("reauthenticate", fn ->
+          headers = headers_with_tokens(vimond_authorization_token, remember_me)
           @http_client.get("/api/authentication/user", headers, config)
         end)
         |> handle_response(&extract_reauthenticate/2)
