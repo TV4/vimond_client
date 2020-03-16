@@ -3,7 +3,7 @@ defmodule Vimond.Client.Asset do
     quote do
       alias Vimond.{Asset, Config, Subtitle}
 
-      @callback asset(binary, Config.t()) :: {:ok, Asset.t()}
+      @callback asset(binary | integer, Config.t()) :: {:ok, Asset.t()} | error
       def asset(asset_id, config) do
         request("asset", fn ->
           @http_client.get("asset/#{asset_id}/productgroups", headers(), config)
@@ -25,7 +25,7 @@ defmodule Vimond.Client.Asset do
         end)
       end
 
-      @callback subtitles(binary, Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
+      @callback subtitles(binary | integer, Config.t()) :: {:ok, list(Subtitle.t())} | {:error, map()}
       def subtitles(asset_id, config) do
         request("subtitles", fn ->
           @http_client.get("asset/#{asset_id}/subtitles", headers(), config)

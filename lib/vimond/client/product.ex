@@ -7,7 +7,7 @@ defmodule Vimond.Client.Product do
       import Vimond.Client.Product
       alias Vimond.Config
 
-      @callback product_groups(map, Config.t()) :: {:ok | :error, map}
+      @callback product_groups(map, Config.t()) :: {:ok, list(ProductGroup.t())} | error
       def product_groups(query, config = %Config{}) do
         request("product_groups", fn ->
           @http_client.get("productgroup", query, headers(), config)
@@ -15,7 +15,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_groups_response
       end
 
-      @callback product_groups(Config.t()) :: {:ok | :error, map}
+      @callback product_groups(Config.t()) :: {:ok, list(ProductGroup.t())} | error
       def product_groups(config = %Config{}) do
         request("product_groups", fn ->
           @http_client.get("productgroup", headers(), config)
@@ -31,7 +31,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_group_response
       end
 
-      @callback products(binary, Config.t()) :: {:ok, map} | {:error, binary}
+      @callback products(binary :: integer, Config.t()) :: {:ok, map} | {:error, binary}
       def products(product_group_id, config = %Config{}) do
         request("products", fn ->
           @http_client.get(
