@@ -1,5 +1,5 @@
 defmodule Vimond.Asset do
-  defstruct product_group_ids: []
+  defstruct [:title]
 
   @type t :: %__MODULE__{}
 end
