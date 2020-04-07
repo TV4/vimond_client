@@ -29,8 +29,8 @@ defmodule Vimond.Client.Asset do
           @http_client.get("asset/#{asset_id}", headers(), config)
         end)
         |> handle_response(fn
-          %{"title" => title}, _headers ->
-            {:ok, %Asset{title: title}}
+          %{"title" => title, "liveBroadcastTime" => live_broadcast_time}, _headers ->
+            {:ok, %Asset{title: title, live_broadcast_time: live_broadcast_time}}
 
           %{"error" => %{"code" => "ASSET_NOT_FOUND", "description" => description}}, _headers ->
             {:error, %{type: :asset_not_found, source_errors: [description]}}

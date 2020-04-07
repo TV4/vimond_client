@@ -245,13 +245,15 @@ defmodule Vimond.AssetTest do
           body:
             %{
               "id" => 10_255_800,
-              "title" => "Rögle BK - Växjö Lakers HC"
+              "title" => "Rögle BK - Växjö Lakers HC",
+              "liveBroadcastTime" => "2020-02-20T09:45:00Z"
             }
             |> Jason.encode!()
         }
       end)
 
-      assert Client.asset("10002224", @config) == {:ok, %Asset{title: "Rögle BK - Växjö Lakers HC"}}
+      assert Client.asset("10002224", @config) ==
+               {:ok, %Asset{title: "Rögle BK - Växjö Lakers HC", live_broadcast_time: "2020-02-20T09:45:00Z"}}
     end
   end
 end
