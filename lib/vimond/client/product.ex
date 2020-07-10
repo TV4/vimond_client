@@ -23,7 +23,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_groups_response
       end
 
-      @callback product_group(binary, Config.t()) :: {:ok | :error, map}
+      @callback product_group(integer(), Config.t()) :: {:ok, ProductGroup.t()} | {:error, String.t()}
       def product_group(product_group_id, config = %Config{}) do
         request("product_group", fn ->
           @http_client.get("productgroup/#{product_group_id}", headers(), config)
@@ -43,7 +43,7 @@ defmodule Vimond.Client.Product do
         |> handle_products_response
       end
 
-      @callback product(binary, binary, Config.t()) :: {:ok, map} | {:error, binary}
+      @callback product(binary() | integer(), binary() | integer(), Config.t()) :: {:ok, map} | {:error, binary}
       @deprecated "Use product/2 instead. Vimond ignores the product group id."
       def product(product_group_id, product_id, config = %Config{}) do
         request("product", fn ->
