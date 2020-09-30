@@ -49,7 +49,11 @@ defmodule Vimond.Client.Order do
       @callback terminate_order_signed(binary, Config.t()) :: {:ok | :error, order_id :: binary}
       def terminate_order_signed(order_id, config = %Config{}) do
         {:ok, order} = get_order_signed(order_id, config)
-        end_date = DateTime.to_unix(datetime().utc_now(), :millisecond)
+
+        end_date =
+          datetime().utc_now()
+          |> DateTime.add(-60)
+          |> DateTime.to_unix(:millisecond)
 
         body =
           order
