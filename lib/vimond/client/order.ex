@@ -46,7 +46,7 @@ defmodule Vimond.Client.Order do
         |> handle_response(&extract_orders/2)
       end
 
-      @callback terminate_order_signed(binary, Config.t()) :: {:ok | :error, order_id :: binary}
+      @callback terminate_order_signed(binary | integer, Config.t()) :: {:ok | :error, order_id :: binary}
       def terminate_order_signed(order_id, config = %Config{}) do
         {:ok, order} = get_order_signed(order_id, config)
 
