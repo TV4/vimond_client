@@ -116,10 +116,9 @@ defmodule Vimond.Client.UpdateOrderTest do
       }
     end)
 
-    assert update_order_signed(
-             %Order{order_id: 100_363_001, product_id: 123, end_date: 2_341_921_076},
-             @config
-           ) ==
+    order = %Order{order_id: 100_363_001, product_id: 123, end_date: 2_341_921_076}
+
+    assert update_order_signed(order, @config) ==
              {:ok,
               %Order{
                 order_id: 100_363_001,
