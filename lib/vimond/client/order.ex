@@ -27,8 +27,7 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback current_orders(binary, binary, binary, Config.t()) ::
-                  {:ok, %{orders: list(Order.t())}} | error()
+      @callback current_orders(binary, binary, binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
       def current_orders(user_id, vimond_authorization_token, remember_me, config = %Config{}) do
         headers = headers_with_tokens(vimond_authorization_token, remember_me)
 
@@ -38,7 +37,7 @@ defmodule Vimond.Client.Order do
         |> handle_response(&extract_orders/2)
       end
 
-      @callback current_orders_signed(binary, Config.t()) :: {:ok, %{orders: list(Order.t())}} | error()
+      @callback current_orders_signed(binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
       def current_orders_signed(user_id, config = %Config{}) do
         request("current_orders", fn ->
           @http_client.get_signed("user/#{user_id}/orders/current", headers(), config)
@@ -48,29 +47,14 @@ defmodule Vimond.Client.Order do
 
       @callback terminate_order_signed(integer, Config.t()) :: {:ok | :error, order_id :: integer}
       def terminate_order_signed(order_id, config = %Config{}) do
-        with %Vimond.Response{body: body, headers: %{"date" => date_time}, status_code: 200} <-
-               get_order_signed(order_id, config) do
-          {:ok, order} = Jason.decode(body)
-
-          order =
-            order
-            |> Enum.filter(fn {_key, value} -> !is_map(value) end)
-            |> Enum.filter(fn {_key, value} -> !is_nil(value) end)
-            |> Map.new()
-
-          end_date =
-            date_time
-            |> Calendar.DateTime.Parse.httpdate!()
-            |> DateTime.to_unix(:millisecond)
-
-          body =
-            order
-            |> Map.put("accessEndDate", end_date)
-            |> Map.put("endDate", end_date)
-            |> Jason.encode!()
-
+        with {:ok, %{order: old_order, date_time: date_time}} <- get_order_for_update(order_id, config) do
           request("terminate_order", fn ->
-            @http_client.put_signed("order/#{order_id}", body, headers(), config)
+            @http_client.put_signed(
+              "order/#{order_id}",
+              Jason.encode!(update_order_payload(old_order, %Order{end_date: date_time})),
+              headers(),
+              config
+            )
           end)
           |> case do
             %Vimond.Response{status_code: 200} -> {:ok, order_id}
@@ -79,23 +63,42 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback update_order_signed(Order.t(), Config.t()) :: {:ok | :error, order_id :: binary}
+      @callback update_order_signed(Order.t(), Config.t()) :: {:ok, Order.t()} | error()
       def update_order_signed(order = %Order{order_id: order_id}, config = %Config{}) do
-        request("updated order", fn ->
-          @http_client.put_signed(
-            "order/#{order_id}",
-            Jason.encode!(update_order_payload(order, config)),
-            headers(),
-            config
-          )
-        end)
-        |> handle_response(&extract_order/2)
+        with {:ok, %{order: old_order}} <- Vimond.Client.get_order_for_update(order.order_id, config) do
+          request("update_order", fn ->
+            @http_client.put_signed(
+              "order/#{order_id}",
+              Jason.encode!(update_order_payload(old_order, order)),
+              headers(),
+              config
+            )
+          end)
+          |> handle_response(&extract_order/2)
+        end
       end
 
-      def get_order_signed(order_id, config = %Config{}) do
-        request("get_order", fn ->
-          @http_client.get_signed("order/#{order_id}", headers(), config)
-        end)
+      def get_order_for_update(order_id, config = %Config{}) do
+        response =
+          request("get_order", fn ->
+            @http_client.get_signed("order/#{order_id}", headers(), config)
+          end)
+
+        with %Vimond.Response{body: body, headers: %{"date" => date_time}, status_code: 200} <- response,
+             {:ok, order} <- Jason.decode(body) do
+          order =
+            order
+            |> Enum.reject(fn {_key, value} -> is_map(value) end)
+            |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+            |> Map.new()
+
+          date_time =
+            date_time
+            |> Calendar.DateTime.Parse.httpdate!()
+            |> DateTime.to_unix()
+
+          {:ok, %{order: order, date_time: date_time}}
+        end
       end
 
       defp datetime, do: Application.get_env(:vimond_client, :datetime, DateTime)
@@ -131,19 +134,7 @@ defmodule Vimond.Client.Order do
     {:ok, transform_order(json)}
   end
 
-  def update_order_payload(order, config) do
-    {:ok, old_order} =
-      Vimond.Client.get_order_signed(order.order_id, config)
-      |> case do
-        %Vimond.Response{body: body, status_code: 200} -> Jason.decode(body)
-      end
-
-    old_order =
-      old_order
-      |> Enum.filter(fn {_key, value} -> !is_map(value) end)
-      |> Enum.filter(fn {_key, value} -> !is_nil(value) end)
-      |> Map.new()
-
+  def update_order_payload(old_order, order) do
     order =
       order
       |> Map.from_struct()

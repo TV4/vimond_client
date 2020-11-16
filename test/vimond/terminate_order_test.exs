@@ -97,7 +97,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      %{"accessEndDate" => 1_605_516_028_000, "endDate" => 1_605_516_028_000} = Jason.decode!(body)
+      %{"accessEndDate" => "2020-11-16T08:40:28Z", "endDate" => "2020-11-16T08:40:28Z"} = Jason.decode!(body)
 
       json = %{
         "startDate" => 1_509_001_257_000,

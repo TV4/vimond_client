@@ -48,7 +48,8 @@ defmodule Vimond.Client.UpdateOrderTest do
           }
           |> Jason.encode!(),
         headers: %{
-          "content-type" => "application/json; v=3;charset=UTF-8"
+          "content-type" => "application/json; v=3;charset=UTF-8",
+          "date" => "Sat, 16 Nov 2019 08:40:28 GMT"
         },
         status_code: 200
       }
