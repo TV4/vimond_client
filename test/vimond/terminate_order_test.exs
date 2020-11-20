@@ -82,7 +82,11 @@ defmodule Vimond.Client.TerminateOrdersTest do
         "uri" => "/api/platform/user/65473025/orders/75382498"
       }
 
-      %Vimond.Response{status_code: 200, body: Jason.encode!(json)}
+      %Vimond.Response{
+        body: Jason.encode!(json),
+        headers: %{"date" => "Mon, 16 Nov 2020 08:40:28 GMT"},
+        status_code: 200
+      }
     end)
 
     Vimond.HTTPClientMock
@@ -93,7 +97,7 @@ defmodule Vimond.Client.TerminateOrdersTest do
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      %{"accessEndDate" => 1_441_200_275_000, "endDate" => 1_441_200_275_000} = Jason.decode!(body)
+      %{"accessEndDate" => "2020-11-16T08:40:28Z", "endDate" => "2020-11-16T08:40:28Z"} = Jason.decode!(body)
 
       json = %{
         "startDate" => 1_509_001_257_000,
@@ -103,12 +107,12 @@ defmodule Vimond.Client.TerminateOrdersTest do
         "extUserId" => nil,
         "period" => 2_592_000,
         "id" => 75_382_498,
-        "accessEndDate" => 1_441_200_275_000,
+        "accessEndDate" => 1_605_516_028_000,
         "platformId" => 7,
         "autorenewStatus" => "NOT_ELIGIBLE",
         "productName" => "TV4 Play Premium Månad",
         "referrer" => "telia TVE",
-        "endDate" => 1_441_200_275_000,
+        "endDate" => 1_605_516_028_000,
         "price" => 99.0,
         "status" => "ACTIVE",
         "productPaymentId" => 2548,
@@ -212,41 +216,20 @@ defmodule Vimond.Client.TerminateOrdersTest do
       }
 
       %Vimond.Response{
-        status_code: 200,
-        body: Jason.encode!(json)
+        body: Jason.encode!(json),
+        headers: %{"date" => "Mon, 16 Nov 2020 08:40:28 GMT"},
+        status_code: 200
       }
     end)
 
     Vimond.HTTPClientMock
     |> expect(:put_signed, fn "order/123",
-                              body,
+                              _body,
                               [
                                 Accept: "application/json; v=3; charset=UTF-8",
                                 "Content-Type": "application/json; v=3; charset=UTF-8"
                               ],
                               @config ->
-      assert Jason.decode!(body) == %{
-               "accessEndDate" => 1_441_200_275_000,
-               "autorenewStatus" => "NOT_ELIGIBLE",
-               "earliestEndDate" => 1_509_001_257_000,
-               "endDate" => 1_441_200_275_000,
-               "id" => 75_382_498,
-               "ip" => "193.14.163.194",
-               "isp" => "TV4",
-               "period" => 2_592_000,
-               "platformId" => 7,
-               "price" => 99.0,
-               "productGroupId" => 7,
-               "productId" => 1314,
-               "productName" => "TV4 Play Premium Månad",
-               "productPaymentId" => 2548,
-               "referrer" => "telia TVE",
-               "startDate" => 1_509_001_257_000,
-               "status" => "ACTIVE",
-               "uri" => "/api/platform/user/65473025/orders/75382498",
-               "userId" => 65_473_025
-             }
-
       %Vimond.Response{status_code: 400, body: Jason.encode!(%{})}
     end)
 

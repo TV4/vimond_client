@@ -48,7 +48,8 @@ defmodule Vimond.Client.UpdateOrderTest do
           }
           |> Jason.encode!(),
         headers: %{
-          "content-type" => "application/json; v=3;charset=UTF-8"
+          "content-type" => "application/json; v=3;charset=UTF-8",
+          "date" => "Sat, 16 Nov 2019 08:40:28 GMT"
         },
         status_code: 200
       }
@@ -116,10 +117,9 @@ defmodule Vimond.Client.UpdateOrderTest do
       }
     end)
 
-    assert update_order_signed(
-             %Order{order_id: 100_363_001, product_id: 123, end_date: 2_341_921_076},
-             @config
-           ) ==
+    order = %Order{order_id: 100_363_001, product_id: 123, end_date: 2_341_921_076}
+
+    assert update_order_signed(order, @config) ==
              {:ok,
               %Order{
                 order_id: 100_363_001,

@@ -1,7 +1,7 @@
 sudo: false
 language: elixir
-elixir: 1.9.4
-otp_release: 22.2.6
+elixir: 1.11.2
+otp_release: 23.0.4
 script:
   - mix format --check-formatted
   - mix test
