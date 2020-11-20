@@ -56,7 +56,7 @@ defmodule Vimond.Client.Product do
         |> handle_product_response
       end
 
-      @callback product(binary, Config.t()) :: {:ok, map} | {:error, binary}
+      @callback product(binary() | integer(), Config.t()) :: {:ok, map} | {:error, binary}
       def product(product_id, config = %Config{}) do
         product("0", product_id, config)
       end
