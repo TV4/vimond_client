@@ -90,7 +90,7 @@ defmodule Vimond.Client.GetOrdersTest do
                  orders: [
                    %Vimond.Order{
                      asset_id: nil,
-                     end_date: 1_553_676_476,
+                     end_date: ~U[2019-03-27 08:47:56Z],
                      order_id: 100_366_001,
                      product_group_id: 1235,
                      product_id: 1491,
@@ -227,14 +227,14 @@ defmodule Vimond.Client.GetOrdersTest do
                   orders: [
                     %Vimond.Order{
                       order_id: 100_366_001,
-                      end_date: 1_553_676_476,
+                      end_date: ~U[2019-03-27 08:47:56Z],
                       product_group_id: 1235,
                       product_id: 1491,
                       product_payment_id: 5540
                     },
                     %Vimond.Order{
                       order_id: 100_366_002,
-                      end_date: 1_553_676_476,
+                      end_date: ~U[2019-03-27 08:47:56Z],
                       product_group_id: 1235,
                       product_id: 1491,
                       product_payment_id: 5540
@@ -371,7 +371,7 @@ defmodule Vimond.Client.GetOrdersTest do
                  orders: [
                    %Vimond.Order{
                      referrer: "Com Hem",
-                     end_date: 1_553_676_476,
+                     end_date: ~U[2019-03-27 08:47:56Z],
                      order_id: 100_366_001,
                      product_group_id: 1235,
                      product_id: 1491,
@@ -551,7 +551,7 @@ defmodule Vimond.Client.GetOrdersTest do
                %{
                  orders: [
                    %Vimond.Order{
-                     end_date: 1_553_676_476,
+                     end_date: ~U[2019-03-27 08:47:56Z],
                      order_id: 100_366_001,
                      product_group_id: 1235,
                      product_id: 1491,
@@ -560,7 +560,7 @@ defmodule Vimond.Client.GetOrdersTest do
                    },
                    %Vimond.Order{
                      order_id: 100_366_002,
-                     end_date: 1_553_676_476,
+                     end_date: ~U[2019-03-27 08:47:56Z],
                      product_group_id: 1235,
                      product_id: 1491,
                      product_payment_id: 5540
@@ -568,7 +568,7 @@ defmodule Vimond.Client.GetOrdersTest do
                    %Vimond.Order{
                      asset_id: 13_292_464,
                      order_id: 100_366_003,
-                     end_date: 1_606_902_650,
+                     end_date: ~U[2020-12-02 09:50:50Z],
                      product_group_id: 1017,
                      product_id: 1028,
                      product_payment_id: 2811,

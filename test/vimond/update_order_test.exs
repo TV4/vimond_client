@@ -127,7 +127,7 @@ defmodule Vimond.Client.UpdateOrderTest do
                 product_group_id: 2020,
                 product_payment_id: 5660,
                 referrer: "cmore-in-app-purchase",
-                end_date: 2_341_921_076
+                end_date: ~U[2044-03-18 13:37:56Z]
               }}
   end
 end

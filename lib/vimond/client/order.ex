@@ -187,8 +187,6 @@ defmodule Vimond.Client.Order do
   defp transform_order(order) do
     {:ok, end_date, _offset} = DateTime.from_iso8601(order["endDate"])
 
-    end_date = DateTime.to_unix(end_date)
-
     %Vimond.Order{
       order_id: order["id"],
       product_id: order["productId"],
