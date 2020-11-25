@@ -1,4 +1,4 @@
-defmodule Vimond.Client.CurrentOrdersTest do
+defmodule Vimond.Client.GetOrdersTest do
   use ExUnit.Case, async: true
   alias Vimond.Config
   import Vimond.Client
@@ -12,7 +12,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
     api_secret: "apisecret"
   }
 
-  describe "user authenticated" do
+  describe "current orders user authenticated" do
     test "with valid credentials" do
       Vimond.HTTPClientMock
       |> expect(
@@ -300,7 +300,7 @@ defmodule Vimond.Client.CurrentOrdersTest do
     end
   end
 
-  describe "app authenticated" do
+  describe "current orders app authenticated" do
     test "with valid credentials" do
       Vimond.HTTPClientMock
       |> expect(
