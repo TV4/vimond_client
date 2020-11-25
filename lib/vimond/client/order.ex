@@ -27,6 +27,23 @@ defmodule Vimond.Client.Order do
         end
       end
 
+      @callback all_orders_signed(binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
+      def all_orders_signed(user_id, config = %Config{}) do
+        response =
+          request("orders", fn -> @http_client.get_signed("user/#{user_id}/orders", headers(), config) end)
+          |> handle_response(&extract_orders/2)
+
+        with {:ok, %{orders: orders}} <- response do
+          {:ok, %{orders: order_history}} =
+            request("order_history", fn ->
+              @http_client.get_signed("user/#{user_id}/orders/history", headers(), config)
+            end)
+            |> handle_response(&extract_orders/2)
+
+          {:ok, %{orders: Enum.concat(orders, order_history)}}
+        end
+      end
+
       @callback current_orders(binary, binary, binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
       def current_orders(user_id, vimond_authorization_token, remember_me, config = %Config{}) do
         headers = headers_with_tokens(vimond_authorization_token, remember_me)
@@ -122,8 +139,15 @@ defmodule Vimond.Client.Order do
       %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
         {:error, %{type: :invalid_credentials, source_errors: [reason]}}
 
-      json when is_list(json) ->
-        {:ok, %{orders: Enum.map(json, &transform_order/1)}}
+      orders when is_list(orders) ->
+        {:ok, %{orders: Enum.map(orders, &transform_order/1)}}
+
+      %{"active" => active_orders, "future" => future_orders} ->
+        orders =
+          Enum.concat(active_orders, future_orders)
+          |> Enum.map(&transform_order/1)
+
+        {:ok, %{orders: orders}}
 
       _ ->
         {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
