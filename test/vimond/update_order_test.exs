@@ -64,7 +64,7 @@ defmodule Vimond.Client.UpdateOrderTest do
       assert Jason.decode!(body) == %{
                "accessEndDate" => "2044-03-18T13:37:56Z",
                "autorenewStatus" => "NOT_ELIGIBLE",
-               "earliestEndDate" => "2044-03-29T13:09:13Z",
+               "earliestEndDate" => "2044-03-18T13:37:56Z",
                "endDate" => "2044-03-18T13:37:56Z",
                "id" => 100_363_001,
                "ip" => "193.14.163.194",
@@ -89,7 +89,7 @@ defmodule Vimond.Client.UpdateOrderTest do
           %{
             "accessEndDate" => "2044-03-18T13:37:56Z",
             "autorenewStatus" => "NOT_ELIGIBLE",
-            "earliestEndDate" => "2044-03-29T13:09:13Z",
+            "earliestEndDate" => "2044-03-18T13:37:56Z",
             "endDate" => "2044-03-18T13:37:56Z",
             "id" => 100_363_001,
             "ip" => "193.14.163.194",

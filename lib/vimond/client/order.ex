@@ -167,7 +167,9 @@ defmodule Vimond.Client.Order do
         {:end_date, value} ->
           [
             {"endDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()},
-            {"accessEndDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()}
+            {"accessEndDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()},
+            {"earliestEndDate", value |> DateTime.from_unix!() |> DateTime.to_iso8601()},
+            {"autorenewStatus", "NOT_ELIGIBLE"}
           ]
 
         {:order_id, value} ->
