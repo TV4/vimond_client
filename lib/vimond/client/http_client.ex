@@ -114,7 +114,7 @@ defmodule Vimond.HTTPClient do
   end
 
   def vimond_signature(method, path, timestamp, api_secret) do
-    :crypto.hmac(:sha, api_secret, "#{method}\n#{path}\n#{timestamp}")
+    :crypto.mac(:hmac, :sha, api_secret, "#{method}\n#{path}\n#{timestamp}")
     |> Base.encode64()
   end
 
