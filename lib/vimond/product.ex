@@ -13,4 +13,6 @@ defmodule Vimond.Product do
     payment_plan: %Vimond.PaymentPlan{},
     product_payments: []
   ]
+
+  @type t :: %__MODULE__{}
 end

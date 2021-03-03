@@ -17,4 +17,6 @@ defmodule Vimond.ProductPayment do
     :sort_index,
     :uri
   ]
+
+  @type t :: %__MODULE__{}
 end
