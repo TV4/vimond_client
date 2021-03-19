@@ -6,5 +6,6 @@ defmodule Vimond.Voucher do
     :product_id,
     :product_payment_ids
   ]
+
   @type t :: %__MODULE__{}
 end
