@@ -57,7 +57,7 @@ defmodule Vimond.Client.User do
         |> handle_delete_response()
       end
 
-      @callback exists_signed(binary, Config.t()) :: {:ok, boolean}
+      @callback exists_signed(binary, Config.t()) :: {:ok, %{exists: boolean}}
       def exists_signed(username, config = %Config{}) do
         username_exists = fn ->
           @http_client.get_signed("user/username/#{username}", headers(), config)
