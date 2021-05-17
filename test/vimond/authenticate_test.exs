@@ -51,7 +51,8 @@ defmodule Vimond.Client.AuthenticateTest do
           "authorization" => "Bearer valid_vimond_authorization_token",
           "set-cookie" => [
             "rememberMe=deleteMe; Path=/api; Max-Age=0; Expires=Mon, 13-Feb-2017 13:29:05 GMT",
-            "rememberMe=VIMOND_REMEMBER_ME; Path=/api; Max-Age=31536000; Expires=Wed, 14-Feb-2018 13:29:05 GMT; HttpOnly"
+            "rememberMe=VIMOND_REMEMBER_ME; Path=/api; Max-Age=31536000; Expires=Wed, 14-Feb-2018 13:29:05 GMT; HttpOnly",
+            "JSESSIONID=6f813c880045802b477e5dd5a810dfd785fedbea~510368E0C26DDB18211A54CDDCEC7DF8; Path=/api; HttpOnly"
           ]
         }
       }
@@ -63,7 +64,8 @@ defmodule Vimond.Client.AuthenticateTest do
                 session: %Vimond.Session{
                   expires: 1_518_614_945,
                   vimond_authorization_token: "valid_vimond_authorization_token",
-                  vimond_remember_me: "VIMOND_REMEMBER_ME"
+                  vimond_remember_me: "VIMOND_REMEMBER_ME",
+                  vimond_jsessionid: "6f813c880045802b477e5dd5a810dfd785fedbea~510368E0C26DDB18211A54CDDCEC7DF8"
                 },
                 user: %Vimond.User{
                   user_id: "6572908",

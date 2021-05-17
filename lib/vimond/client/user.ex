@@ -542,7 +542,8 @@ defmodule Vimond.Client.User do
             session: %Session{
               expires: extract_remember_me_expiry(headers),
               vimond_remember_me: extract_remember_me(headers),
-              vimond_authorization_token: extract_authorization_token(headers)
+              vimond_authorization_token: extract_authorization_token(headers),
+              vimond_jsessionid: extract_jsessionid(headers)
             }
           }
           |> Map.merge(extract_user(json["user"]))
@@ -639,6 +640,10 @@ defmodule Vimond.Client.User do
 
   defp extract_remember_me(%{"set-cookie" => cookies}) do
     extract_header_value(~r/rememberMe=(?!deleteMe)([^;]*)/, cookies)
+  end
+
+  defp extract_jsessionid(%{"set-cookie" => cookies}) do
+    extract_header_value(~r/JSESSIONID=([^;]*)/, cookies)
   end
 
   defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
