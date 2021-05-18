@@ -73,10 +73,32 @@ defmodule Vimond.Client.User do
         end
       end
 
+      # TODO: Merge with user_information/4
       @callback user_information(binary, binary, Config.t()) :: {:ok | :error, map}
       def user_information(vimond_authorization_token, remember_me, config = %Config{}) do
         with {:ok, data} <-
                fetch_user_information(vimond_authorization_token, remember_me, &extract_user_information/1, config) do
+          case Map.pop(data, :vimond_authorization_token) do
+            {nil, data} ->
+              {:ok, Map.put(data, :session, %Vimond.Session{})}
+
+            {token, data} ->
+              {:ok, Map.put(data, :session, %Vimond.Session{vimond_authorization_token: token})}
+          end
+        end
+      end
+
+      # TODO: Merge with user_information/3
+      @callback user_information(binary, binary, binary, Config.t()) :: {:ok | :error, map}
+      def user_information(vimond_authorization_token, remember_me, jsessionid, config = %Config{}) do
+        with {:ok, data} <-
+               fetch_user_information(
+                 vimond_authorization_token,
+                 remember_me,
+                 jsessionid,
+                 &extract_user_information/1,
+                 config
+               ) do
           case Map.pop(data, :vimond_authorization_token) do
             {nil, data} ->
               {:ok, Map.put(data, :session, %Vimond.Session{})}
@@ -178,6 +200,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_authenticate/2)
       end
 
+      # TODO: Merge with reauthenticate/4
       @callback reauthenticate(binary, binary, Config.t()) :: {:ok | :error, map}
       def reauthenticate(vimond_authorization_token, remember_me, config = %Config{}) do
         request("reauthenticate", fn ->
@@ -187,6 +210,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_reauthenticate/2)
       end
 
+      # TODO: Merge with reauthenticate/3
       @callback reauthenticate(binary, binary, binary, Config.t()) :: {:ok | :error, map}
       def reauthenticate(vimond_authorization_token, remember_me, jsessionid, config = %Config{}) do
         request("reauthenticate", fn ->
@@ -310,8 +334,27 @@ defmodule Vimond.Client.User do
         end
       end
 
+      # TODO: Merge with fetch_user_information/5
       defp fetch_user_information(vimond_authorization_token, remember_me, extraction_function, config = %Config{}) do
         headers = headers_with_tokens(vimond_authorization_token, remember_me)
+
+        request("user_information", fn ->
+          @http_client.get("user", headers, config)
+        end)
+        |> handle_response(fn json, headers ->
+          extract_fetch_user_information(json, headers, extraction_function)
+        end)
+      end
+
+      # TODO: Merge with fetch_user_information/4
+      defp fetch_user_information(
+             vimond_authorization_token,
+             remember_me,
+             jsessionid,
+             extraction_function,
+             config = %Config{}
+           ) do
+        headers = headers_with_tokens(vimond_authorization_token, remember_me, jsessionid)
 
         request("user_information", fn ->
           @http_client.get("user", headers, config)

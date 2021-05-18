@@ -120,6 +120,115 @@ defmodule Vimond.Client.UserInformationTest do
              }
     end
 
+    test "with JSESSIONID in addition to vimond authorization token" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn "user",
+                         [
+                           Accept: "application/json; v=3; charset=UTF-8",
+                           "Content-Type": "application/json; v=3; charset=UTF-8",
+                           Authorization: "Bearer valid_authorization_token",
+                           Cookie: "rememberMe=valid_remember_me",
+                           Cookie: "JSESSIONID=vimond_jsessionid"
+                         ],
+                         @config ->
+        json = %{
+          "mobileNumber" => "0712345678",
+          "dateOfBirth" => "1981-01-01T00:00:00Z",
+          "email" => "some.person@example.com",
+          "firstName" => "Valid",
+          "id" => 6_572_908,
+          "lastName" => "User",
+          "properties" => [
+            %{
+              "hidden" => false,
+              "id" => 7_445_317,
+              "name" => "user_property_c",
+              "userId" => 16_426_403,
+              "value" => "2016-05-20"
+            },
+            %{
+              "hidden" => false,
+              "id" => 7_445_318,
+              "name" => "user_property_d",
+              "userId" => 16_426_403,
+              "value" => "2016-06-17 09:26:17 UTC"
+            },
+            %{
+              "hidden" => false,
+              "id" => 7_445_319,
+              "name" => "user_property_a",
+              "userId" => 16_426_403,
+              "value" => "2018-05-25"
+            },
+            %{
+              "hidden" => false,
+              "id" => 7_445_320,
+              "name" => "user_property_b",
+              "userId" => 16_426_403,
+              "value" => "2018-05-26 08:34:37 UTC"
+            }
+          ],
+          "registrationDate" => "2018-05-07T11:05:01Z",
+          "uri" => "/api/platform/user/6572908",
+          "userName" => "some.person@example.com",
+          "zip" => "923 45"
+        }
+
+        %Vimond.Response{
+          status_code: 200,
+          body: Jason.encode!(json),
+          headers: %{
+            "authorization" => [
+              "Bearer valid_authorization_token",
+              "Bearer valid_authorization_token"
+            ],
+            "content-type" => "application/json; v=3;charset=UTF-8"
+          }
+        }
+      end)
+
+      assert user_information("valid_authorization_token", "valid_remember_me", "vimond_jsessionid", @config) == {
+               :ok,
+               %{
+                 user: %Vimond.User{
+                   user_id: "6572908",
+                   email: "some.person@example.com",
+                   username: "some.person@example.com",
+                   first_name: "Valid",
+                   last_name: "User",
+                   zip_code: "923 45",
+                   country_code: nil,
+                   year_of_birth: 1981,
+                   properties: [
+                     %Vimond.Property{
+                       id: 7_445_319,
+                       name: "user_property_a",
+                       value: "2018-05-25"
+                     },
+                     %Vimond.Property{
+                       id: 7_445_320,
+                       name: "user_property_b",
+                       value: "2018-05-26 08:34:37 UTC"
+                     },
+                     %Vimond.Property{
+                       id: 7_445_317,
+                       name: "user_property_c",
+                       value: "2016-05-20"
+                     },
+                     %Vimond.Property{
+                       id: 7_445_318,
+                       name: "user_property_d",
+                       value: "2016-06-17 09:26:17 UTC"
+                     }
+                   ]
+                 },
+                 session: %Vimond.Session{
+                   vimond_authorization_token: "valid_authorization_token"
+                 }
+               }
+             }
+    end
+
     test "with invalid Vimond authorization token and valid remember_me" do
       Vimond.HTTPClientMock
       |> expect(:get, fn _path, _headers, _config ->
