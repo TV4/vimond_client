@@ -187,6 +187,15 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_reauthenticate/2)
       end
 
+      @callback reauthenticate(binary, binary, binary, Config.t()) :: {:ok | :error, map}
+      def reauthenticate(vimond_authorization_token, remember_me, jsessionid, config = %Config{}) do
+        request("reauthenticate", fn ->
+          headers = headers_with_tokens(vimond_authorization_token, remember_me, jsessionid)
+          @http_client.get("/api/authentication/user", headers, config)
+        end)
+        |> handle_response(&extract_reauthenticate/2)
+      end
+
       @callback logout(binary, binary, Config.t()) :: {:ok | :error, map}
       def logout(vimond_authorization_token, remember_me, config = %Config{}) do
         request("logout", fn ->
