@@ -73,6 +73,7 @@ defmodule Vimond.Client.User do
         end
       end
 
+      @callback user_information(binary, binary, Config.t()) :: {:ok | :error, map}
       @callback user_information(binary, binary, binary, Config.t()) :: {:ok | :error, map}
       def user_information(vimond_authorization_token, remember_me, jsessionid \\ :no_jsessionid, config = %Config{}) do
         with {:ok, data} <-
@@ -184,6 +185,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_authenticate/2)
       end
 
+      @callback reauthenticate(binary, binary, Config.t()) :: {:ok | :error, map}
       @callback reauthenticate(binary, binary, binary, Config.t()) :: {:ok | :error, map}
       def reauthenticate(vimond_authorization_token, remember_me, jsessionid \\ :no_jsessionid, config = %Config{}) do
         request("reauthenticate", fn ->
