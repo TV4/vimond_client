@@ -84,7 +84,7 @@ defmodule Vimond.Client.User do
                  &extract_user_information/1,
                  config
                ) do
-                # add jsessionid
+          # add jsessionid
           case Map.pop(data, :vimond_authorization_token) do
             {nil, data} ->
               {:ok, Map.put(data, :session, %Vimond.Session{})}
@@ -185,6 +185,18 @@ defmodule Vimond.Client.User do
           @http_client.post("/api/authentication/user/login", body, headers, config)
         end)
         |> handle_response(&extract_authenticate/2)
+      end
+
+      @callback reauthenticate(Session.t(), Config.t()) :: {:ok | :error, map}
+      def reauthenticate(
+            %Session{
+              vimond_authorization_token: vimond_authorization_token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsessionid
+            },
+            config
+          ) do
+        reauthenticate(vimond_authorization_token, remember_me, jsessionid, config)
       end
 
       @callback reauthenticate(binary, binary, Config.t()) :: {:ok | :error, map}
@@ -644,7 +656,7 @@ defmodule Vimond.Client.User do
   defp missing?(_), do: false
 
   defp updated_tokens(headers) do
-    %{vimond_authorization_token: extract_authorization_token(headers)} #extract jsession
+    %{vimond_authorization_token: extract_authorization_token(headers), vimond_jsessionid: extract_jsessionid(headers)}
     |> reject_nil_values
   end
 
@@ -661,6 +673,8 @@ defmodule Vimond.Client.User do
   defp extract_jsessionid(%{"set-cookie" => cookies}) do
     extract_header_value(~r/JSESSIONID=([^;]*)/, cookies)
   end
+
+  defp extract_jsessionid(_), do: nil
 
   defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
     extract_header_value(~r/rememberMe=(?!deleteMe).*Expires=([^;]*)/, cookies)
