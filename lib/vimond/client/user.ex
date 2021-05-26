@@ -84,6 +84,7 @@ defmodule Vimond.Client.User do
                  &extract_user_information/1,
                  config
                ) do
+                # add jsessionid
           case Map.pop(data, :vimond_authorization_token) do
             {nil, data} ->
               {:ok, Map.put(data, :session, %Vimond.Session{})}
@@ -126,6 +127,7 @@ defmodule Vimond.Client.User do
           |> handle_response(&extract_update_user/2)
           |> case do
             # Put back updated vimond tokens into result if changed
+            # add jsessionid
             {:ok, data} ->
               if new_vimond_authorization_token && new_vimond_authorization_token != vimond_authorization_token do
                 {:ok,
@@ -642,7 +644,7 @@ defmodule Vimond.Client.User do
   defp missing?(_), do: false
 
   defp updated_tokens(headers) do
-    %{vimond_authorization_token: extract_authorization_token(headers)}
+    %{vimond_authorization_token: extract_authorization_token(headers)} #extract jsession
     |> reject_nil_values
   end
 
