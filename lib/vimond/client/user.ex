@@ -73,8 +73,21 @@ defmodule Vimond.Client.User do
         end
       end
 
+      @callback user_information(Session.t(), Config.t()) :: {:ok | :error, map}
+      def user_information(
+            %Session{
+              vimond_authorization_token: authorization_token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsessionid
+            },
+            config = %Config{}
+          ) do
+        user_information(authorization_token, remember_me, jsessionid, config)
+      end
+
       @callback user_information(binary, binary, Config.t()) :: {:ok | :error, map}
       @callback user_information(binary, binary, binary | atom, Config.t()) :: {:ok | :error, map}
+      @deprecated "Use user_information/2 instead."
       def user_information(vimond_authorization_token, remember_me, jsessionid \\ :no_jsessionid, config = %Config{}) do
         with {:ok, data} <-
                fetch_user_information(
@@ -84,15 +97,30 @@ defmodule Vimond.Client.User do
                  &extract_user_information/1,
                  config
                ) do
-          # add jsessionid
-          case Map.pop(data, :vimond_authorization_token) do
-            {nil, data} ->
-              {:ok, Map.put(data, :session, %Vimond.Session{})}
-
-            {token, data} ->
-              {:ok, Map.put(data, :session, %Vimond.Session{vimond_authorization_token: token})}
-          end
+          put_in_updated_session(data)
         end
+      end
+
+      defp put_in_updated_session(data) do
+        data
+        |> Map.put(:session, %Vimond.Session{})
+        |> Map.pop(:vimond_authorization_token)
+        |> case do
+          {nil, data} ->
+            data
+
+          {token, data} ->
+            Map.put(data, :session, %Vimond.Session{vimond_authorization_token: token})
+        end
+        |> Map.pop(:vimond_jsessionid)
+        |> case do
+          {nil, data} ->
+            data
+
+          {token, data} ->
+            put_in(data, [:session, :vimond_jsessionid], token)
+        end
+        |> (fn data -> {:ok, data} end).()
       end
 
       @callback user_information_signed(binary, Config.t()) :: {:ok | :error, map}
@@ -201,6 +229,7 @@ defmodule Vimond.Client.User do
 
       @callback reauthenticate(binary, binary, Config.t()) :: {:ok | :error, map}
       @callback reauthenticate(binary, binary, binary | atom, Config.t()) :: {:ok | :error, map}
+      @deprecated "Use reauthenticate/2 instead."
       def reauthenticate(vimond_authorization_token, remember_me, jsessionid \\ :no_jsessionid, config = %Config{}) do
         request("reauthenticate", fn ->
           headers = headers_with_tokens(vimond_authorization_token, remember_me, jsessionid)
