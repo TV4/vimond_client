@@ -45,6 +45,8 @@ defmodule Vimond.Client.DeleteTest do
       assert delete("12345", "blah", @config) == {:ok, %{message: "User has been deleted"}}
     end
 
+    test "with a valid session struct"
+
     test "with an invalid session" do
       Vimond.HTTPClientMock
       |> expect(:delete, fn "user/12345",

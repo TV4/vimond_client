@@ -251,6 +251,8 @@ defmodule Vimond.Client.UpdateUserTest do
                 }}
     end
 
+    test "when replacing a property and keeping a property using session struct"
+
     test "when adding a property and keeping a property" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "user",
@@ -475,6 +477,8 @@ defmodule Vimond.Client.UpdateUserTest do
                   session: %Vimond.Session{}
                 }}
     end
+
+    test "when adding a property and keeping a property using session struct"
 
     test "with invalid credentials" do
       user = %Vimond.User{username: "some.person@example.com", email: "some.person@example.com"}

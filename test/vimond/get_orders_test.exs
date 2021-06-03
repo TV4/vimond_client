@@ -102,6 +102,8 @@ defmodule Vimond.Client.GetOrdersTest do
              }
     end
 
+    test "with session struct"
+
     test "with valid credentials and multiple orders" do
       Vimond.HTTPClientMock
       |> expect(:get, fn

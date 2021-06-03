@@ -48,6 +48,8 @@ defmodule Vimond.Client.UpdatePasswordTest do
            ) == {:ok, %{}}
   end
 
+  test "with valid parameters using session struct"
+
   test "with wrong password" do
     Vimond.HTTPClientMock
     |> expect(:put, fn "user/password", _body, _headers, _config ->

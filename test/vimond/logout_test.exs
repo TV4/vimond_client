@@ -35,6 +35,8 @@ defmodule Vimond.Client.LogoutTest do
              {:ok, %{message: "User logged out"}}
   end
 
+  test "with session struct"
+
   test "handles errors" do
     Vimond.HTTPClientMock
     |> expect(:delete, fn _path, _headers, _config ->
