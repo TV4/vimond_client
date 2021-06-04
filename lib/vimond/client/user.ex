@@ -334,6 +334,8 @@ defmodule Vimond.Client.User do
         )
       end
 
+      @callback update_password(binary, binary, binary, binary, binary, Config.t()) ::
+                  {:ok | :error, map}
       @callback update_password(binary, binary, binary, binary | atom, binary, binary, Config.t()) ::
                   {:ok | :error, map}
       @deprecated "Use update_password/5 instead"
