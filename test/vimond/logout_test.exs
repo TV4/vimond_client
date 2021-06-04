@@ -35,7 +35,40 @@ defmodule Vimond.Client.LogoutTest do
              {:ok, %{message: "User logged out"}}
   end
 
-  test "with session struct"
+  test "with session struct" do
+    Vimond.HTTPClientMock
+    |> expect(:delete, fn "/api/authentication/user/logout",
+                          [
+                            Accept: "application/json; v=3; charset=UTF-8",
+                            "Content-Type": "application/json; v=3; charset=UTF-8",
+                            Authorization: "Bearer vimond_authorization_token",
+                            Cookie: "rememberMe=valid_or_invalid_remember_me",
+                            Cookie: "JSESSIONID=jsessionisthebestsession"
+                          ],
+                          @config ->
+      %Vimond.Response{
+        status_code: 200,
+        body:
+          Jason.encode!(%{
+            "code" => "SESSION_INVALIDATED",
+            "description" => "Session invalidated",
+            "reference" => "2ae4a65131783eb2",
+            "status" => 200
+          }),
+        headers: %{"content-type" => "application/json; v=3;charset=UTF-8"}
+      }
+    end)
+
+    assert logout(
+             %Vimond.Session{
+               vimond_authorization_token: "vimond_authorization_token",
+               vimond_remember_me: "valid_or_invalid_remember_me",
+               vimond_jsessionid: "jsessionisthebestsession"
+             },
+             @config
+           ) ==
+             {:ok, %{message: "User logged out"}}
+  end
 
   test "handles errors" do
     Vimond.HTTPClientMock

@@ -39,8 +39,23 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_create_user/2)
       end
 
+      @callback delete(binary, Vimond.Session.t(), Config.t()) :: {:ok | :error, map}
+      def delete(
+            user_id,
+            %Vimond.Session{vimond_authorization_token: token, vimond_jsessionid: jsessionid},
+            config = %Config{}
+          ) do
+        headers = headers(Authorization: "Bearer #{token}", Cookie: "JSESSIONID=#{jsessionid}")
+
+        request("delete", fn ->
+          @http_client.delete("user/#{user_id}", headers, config)
+        end)
+        |> handle_delete_response()
+      end
+
       @callback delete(binary, binary, Config.t()) :: {:ok | :error, map}
-      def delete(user_id, vimond_authorization_token, config = %Config{}) do
+      @deprecated "Pass in session struct instead of authorization token."
+      def delete(user_id, vimond_authorization_token, config = %Config{}) when is_binary(vimond_authorization_token) do
         headers = headers(Authorization: "Bearer #{vimond_authorization_token}")
 
         request("delete", fn ->
@@ -261,12 +276,25 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_reauthenticate/2)
       end
 
+      @callback logout(Vimond.Session.t(), Config.t()) :: {:ok, :error, map}
+      def logout(
+            %Vimond.Session{
+              vimond_authorization_token: token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsessionid
+            },
+            config
+          ) do
+        logout(token, remember_me, jsessionid, config)
+      end
+
       @callback logout(binary, binary, Config.t()) :: {:ok | :error, map}
-      def logout(vimond_authorization_token, remember_me, config = %Config{}) do
+      @deprecated "Use logout/2 instead."
+      def logout(vimond_authorization_token, remember_me, jsessionid \\ :no_jsessionid, config = %Config{}) do
         request("logout", fn ->
           @http_client.delete(
             "/api/authentication/user/logout",
-            headers_with_tokens(vimond_authorization_token, remember_me),
+            headers_with_tokens(vimond_authorization_token, remember_me, jsessionid),
             config
           )
         end)

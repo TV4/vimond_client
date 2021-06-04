@@ -45,7 +45,42 @@ defmodule Vimond.Client.DeleteTest do
       assert delete("12345", "blah", @config) == {:ok, %{message: "User has been deleted"}}
     end
 
-    test "with a valid session struct"
+    test "with a valid session struct" do
+      Vimond.HTTPClientMock
+      |> expect(:delete, fn "user/12345",
+                            [
+                              Accept: "application/json; v=3; charset=UTF-8",
+                              "Content-Type": "application/json; v=3; charset=UTF-8",
+                              Authorization: "Bearer blah",
+                              Cookie: "JSESSIONID=hejsessionid"
+                            ],
+                            @config ->
+        %Vimond.Response{
+          body: "",
+          headers: %{
+            "authorization" => [
+              "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92",
+              "Bearer ecbc5af7-f50e-4853-8852-2f484e449e92"
+            ],
+            "connection" => "keep-alive",
+            "date" => "Mon, 07 May 2018 11:03:00 GMT",
+            "server" => "Apache-Coyote/1.1",
+            "set-cookie" =>
+              "JSESSIONID=2681c00654e664bfa3418335d21a8199e3f9796b~33AA3932A7E40E6984433543FB758B22; Path=/api/; HttpOnly",
+            "via" => "1.1 10f829d037cedbccf7e2d171413666c7.cloudfront.net (CloudFront)",
+            "x-amz-cf-id" => "AI7efPJiVchnfl1Yy1ZrwbffGQVFF1QSDLvSnYP527SX36j_H3Oeyw==",
+            "x-cache" => "Miss from cloudfront"
+          },
+          status_code: 204
+        }
+      end)
+
+      assert delete(
+               "12345",
+               %Vimond.Session{vimond_authorization_token: "blah", vimond_jsessionid: "hejsessionid"},
+               @config
+             ) == {:ok, %{message: "User has been deleted"}}
+    end
 
     test "with an invalid session" do
       Vimond.HTTPClientMock
