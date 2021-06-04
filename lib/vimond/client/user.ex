@@ -128,11 +128,32 @@ defmodule Vimond.Client.User do
         fetch_user_information_signed(user_id, &extract_user_information/1, config)
       end
 
-      @callback update(binary, binary, binary, User.t(), Config.t()) :: {:ok | :error, map}
-      def update(vimond_authorization_token, remember_me, user_id, updated_user = %User{}, config = %Config{}) do
+      @callback update(Session.t(), User.t(), Config.t()) :: {:ok | :error, map}
+      def update(
+            %Session{
+              vimond_authorization_token: authorization_token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsessionid
+            },
+            user_id,
+            updated_user = %User{},
+            config = %Config{}
+          ) do
+        update(authorization_token, remember_me, user_id, updated_user, jsessionid, config)
+      end
+
+      @callback update(binary, binary, binary, User.t(), binary | atom, Config.t()) :: {:ok | :error, map}
+      def update(
+            vimond_authorization_token,
+            remember_me,
+            user_id,
+            updated_user = %User{},
+            jsessionid \\ :no_jsessionid,
+            config = %Config{}
+          ) do
         with {:ok, user_data} <-
-               fetch_user_information(vimond_authorization_token, remember_me, &to_atom_keys/1, config) do
-          # Keep updated tokens and append to result of this function
+               fetch_user_information(vimond_authorization_token, remember_me, jsessionid, &to_atom_keys/1, config) do
+          # Keep updated tokens and append to result of this functio
           new_vimond_authorization_token = Map.get(user_data, :vimond_authorization_token, vimond_authorization_token)
 
           user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
