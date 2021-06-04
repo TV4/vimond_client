@@ -102,7 +102,103 @@ defmodule Vimond.Client.GetOrdersTest do
              }
     end
 
-    test "with session struct"
+    test "with session struct" do
+      Vimond.HTTPClientMock
+      |> expect(:get, fn
+        "user/123/orders/current",
+        [
+          Accept: "application/json; v=3; charset=UTF-8",
+          "Content-Type": "application/json; v=3; charset=UTF-8",
+          Authorization: "Bearer valid_vimond_token",
+          Cookie: "rememberMe=valid_remember_me",
+          Cookie: "JSESSIONID=valid_jsessionid"
+        ],
+        @config ->
+          body =
+            [
+              %{
+                "accessEndDate" => "2019-03-27T20:47:56Z",
+                "autorenewErrors" => 0,
+                "autorenewStatus" => "ACTIVE",
+                "currency" => "SEK",
+                "earliestEndDate" => "2019-03-13T08:47:56Z",
+                "endDate" => "2019-03-27T08:47:56Z",
+                "externalOrderRef" => "565276867",
+                "id" => 100_366_001,
+                "initPrice" => 0.0,
+                "ip" => "54.170.219.1",
+                "orderRef" => "100247000",
+                "paymentInfo" => "4571 10** **** 0000",
+                "paymentInfoExpiryDate" => "2022-01-01T00:00:00Z",
+                "paymentProviderId" => 33,
+                "period" => "PT2592000S",
+                "platformId" => 27,
+                "price" => 139.0,
+                "productGroupId" => 1235,
+                "productGroupUri" => %{"uri" => "/api/cse/productgroup/1235"},
+                "productId" => 1491,
+                "productName" => "C More TV4 Månad",
+                "productPaymentId" => 5540,
+                "productPaymentUri" => %{
+                  "uri" => "/api/cse/productgroup/1235/products/1491/productPayments/5540"
+                },
+                "productUri" => %{"uri" => "/api/cse/productgroup/1235/products/1491"},
+                "referrer" => "Com Hem",
+                "registered" => "2019-03-13T08:47:56Z",
+                "startDate" => "2019-03-13T08:47:56Z",
+                "status" => "ACTIVE",
+                "statusText" => "Purchase sucessfull",
+                "uri" => "/api/cse/order/100366001",
+                "userId" => 123,
+                "userPaymentMethod" => %{
+                  "allowOneClickBuy" => true,
+                  "expirationDate" => "2022-01-01T00:00:00Z",
+                  "expireDate" => "2022-01-01T00:00:00Z",
+                  "extAgreementRef" => "565276867",
+                  "id" => "0b166356-e717-4efc-80ab-2ad3f71ef6d0",
+                  "paymentInfo" => "4571 10** **** 0000",
+                  "paymentProviderId" => 33,
+                  "registered" => "2019-03-13T08:48:37Z",
+                  "userId" => 123,
+                  "userPaymentMethodStatus" => "ACTIVE",
+                  "userPaymentMethodType" => "CREDIT_CARD"
+                }
+              }
+            ]
+            |> Jason.encode!()
+
+          %Vimond.Response{
+            status_code: 200,
+            body: body,
+            headers: %{"content-type" => "application/json;v=3;charset=UTF-8"}
+          }
+      end)
+
+      assert current_orders(
+               "123",
+               %Vimond.Session{
+                 vimond_authorization_token: "valid_vimond_token",
+                 vimond_remember_me: "valid_remember_me",
+                 vimond_jsessionid: "valid_jsessionid"
+               },
+               @config
+             ) == {
+               :ok,
+               %{
+                 orders: [
+                   %Vimond.Order{
+                     asset_id: nil,
+                     end_date: ~U[2019-03-27 08:47:56Z],
+                     order_id: 100_366_001,
+                     product_group_id: 1235,
+                     product_id: 1491,
+                     product_payment_id: 5540,
+                     referrer: "Com Hem"
+                   }
+                 ]
+               }
+             }
+    end
 
     test "with valid credentials and multiple orders" do
       Vimond.HTTPClientMock

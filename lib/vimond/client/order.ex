@@ -44,9 +44,30 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback current_orders(binary, binary, binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
-      def current_orders(user_id, vimond_authorization_token, remember_me, config = %Config{}) do
-        headers = headers_with_tokens(vimond_authorization_token, remember_me)
+      @callback current_orders(binary, Vimond.Session.t(), Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
+      def current_orders(
+            user_id,
+            %Vimond.Session{
+              vimond_authorization_token: vimond_authorization_token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsessionid
+            },
+            config
+          ) do
+        current_orders(user_id, vimond_authorization_token, remember_me, jsessionid, config)
+      end
+
+      @callback current_orders(binary, binary, binary, binary | atom, Config.t()) ::
+                  {:ok, %{orders: [Order.t()]}} | error()
+      @deprecated "Use current_orders/3 instead"
+      def current_orders(
+            user_id,
+            vimond_authorization_token,
+            remember_me,
+            jsessionid \\ :no_jsessionid,
+            config = %Config{}
+          ) do
+        headers = headers_with_tokens(vimond_authorization_token, remember_me, jsessionid)
 
         request("current_orders", fn ->
           @http_client.get("user/#{user_id}/orders/current", headers, config)
