@@ -342,7 +342,8 @@ defmodule Vimond.Client.UpdateUserTest do
                            Accept: "application/json; v=3; charset=UTF-8",
                            "Content-Type": "application/json; v=3; charset=UTF-8",
                            Authorization: "Bearer valid_authorization_token",
-                           Cookie: "rememberMe=valid_remember_me"
+                           Cookie: "rememberMe=valid_remember_me",
+                           Cookie: "JSESSIONID=valid_jsessionid"
                          ],
                          @config ->
         assert %{
@@ -804,7 +805,8 @@ defmodule Vimond.Client.UpdateUserTest do
                            Accept: "application/json; v=3; charset=UTF-8",
                            "Content-Type": "application/json; v=3; charset=UTF-8",
                            Authorization: "Bearer valid_authorization_token",
-                           Cookie: "rememberMe=valid_remember_me"
+                           Cookie: "rememberMe=valid_remember_me",
+                           Cookie: "JSESSIONID=valid_jsessionid"
                          ],
                          @config ->
         assert %{

@@ -48,7 +48,47 @@ defmodule Vimond.Client.UpdatePasswordTest do
            ) == {:ok, %{}}
   end
 
-  test "with valid parameters using session struct"
+  test "with valid parameters using session struct" do
+    Vimond.HTTPClientMock
+    |> expect(:put, fn "user/password",
+                       body,
+                       [
+                         Accept: "application/json; v=3; charset=UTF-8",
+                         "Content-Type": "application/json; v=3; charset=UTF-8",
+                         Authorization: "Bearer vimond_authorization_token",
+                         Cookie: "rememberMe=remember_me",
+                         Cookie: "JSESSIONID=jsessionid"
+                       ],
+                       @config ->
+      ExUnit.Assertions.assert(
+        Jason.decode!(body) == %{
+          "userId" => 12345,
+          "oldPassword" => "old_password",
+          "newPassword" => "new_password"
+        }
+      )
+
+      %Vimond.Response{
+        status_code: 204,
+        body: "",
+        headers: %{
+          "content-type" => "application/json; v=\"3\";charset=UTF-8"
+        }
+      }
+    end)
+
+    assert update_password(
+             "12345",
+             %Vimond.Session{
+               vimond_authorization_token: "vimond_authorization_token",
+               vimond_remember_me: "remember_me",
+               vimond_jsessionid: "jsessionid"
+             },
+             "old_password",
+             "new_password",
+             @config
+           ) == {:ok, %{}}
+  end
 
   test "with wrong password" do
     Vimond.HTTPClientMock

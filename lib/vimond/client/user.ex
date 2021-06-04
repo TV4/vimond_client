@@ -168,7 +168,7 @@ defmodule Vimond.Client.User do
               _, _, right -> right
             end)
 
-          headers = headers_with_tokens(new_vimond_authorization_token, remember_me)
+          headers = headers_with_tokens(new_vimond_authorization_token, remember_me, jsessionid)
 
           request("update", fn ->
             @http_client.put("user", Jason.encode!(merged_user), headers, config)
@@ -280,17 +280,42 @@ defmodule Vimond.Client.User do
         |> handle_forgot_password_response
       end
 
-      @callback update_password(binary, binary, binary, binary, binary, Config.t()) ::
+      @callback update_password(binary, Vimond.Session.t(), binary, binary, Config.t()) ::
+                  {:ok | :error, map}
+      def update_password(
+            user_id,
+            %Vimond.Session{
+              vimond_authorization_token: vimond_authorization_token,
+              vimond_remember_me: remember_me,
+              vimond_jsessionid: jsession_id
+            },
+            old_password,
+            new_password,
+            config = %Config{}
+          ) do
+        update_password(
+          user_id,
+          vimond_authorization_token,
+          remember_me,
+          jsession_id,
+          old_password,
+          new_password,
+          config
+        )
+      end
+
+      @callback update_password(binary, binary, binary, binary | atom, binary, binary, Config.t()) ::
                   {:ok | :error, map}
       def update_password(
             user_id,
             vimond_authorization_token,
             remember_me,
+            jsessionid \\ :no_jsessionid,
             old_password,
             new_password,
             config = %Config{}
           ) do
-        headers = headers_with_tokens(vimond_authorization_token, remember_me)
+        headers = headers_with_tokens(vimond_authorization_token, remember_me, jsessionid)
 
         body =
           Jason.encode!(%{
