@@ -251,6 +251,7 @@ defmodule Vimond.Client.UpdateUserTest do
                 }}
     end
 
+    @tag :wip
     test "when replacing a property and keeping a property using session struct" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "user",
@@ -330,7 +331,8 @@ defmodule Vimond.Client.UpdateUserTest do
           body: Jason.encode!(json),
           headers: %{
             "content-type" => "application/json; v=\"2\";charset=UTF-8",
-            "authorization" => "Bearer valid_authorization_token"
+            "authorization" => "Bearer valid_authorization_token",
+            "set-cookie" => "JSESSIONID=new_jsessionid_after_fetch"
           }
         }
       end)
@@ -343,7 +345,7 @@ defmodule Vimond.Client.UpdateUserTest do
                            "Content-Type": "application/json; v=3; charset=UTF-8",
                            Authorization: "Bearer valid_authorization_token",
                            Cookie: "rememberMe=valid_remember_me",
-                           Cookie: "JSESSIONID=valid_jsessionid"
+                           Cookie: "JSESSIONID=new_jsessionid_after_fetch"
                          ],
                          @config ->
         assert %{
@@ -380,7 +382,8 @@ defmodule Vimond.Client.UpdateUserTest do
                      "name" => "user_property_b",
                      "value" => "2015-09-02"
                    }
-                 ]
+                 ],
+                 "vimond_jsessionid" => "new_jsessionid_after_fetch"
                } == Jason.decode!(body)
 
         json = %{
@@ -439,7 +442,8 @@ defmodule Vimond.Client.UpdateUserTest do
           body: Jason.encode!(json),
           headers: %{
             "content-type" => "application/json; v=3;charset=UTF-8",
-            "authorization" => "Bearer valid_authorization_token"
+            "authorization" => "Bearer valid_authorization_token",
+            "set-cookie" => "JSESSIONID=new_jsessionid_after_put"
           }
         }
       end)
@@ -501,7 +505,7 @@ defmodule Vimond.Client.UpdateUserTest do
                       }
                     ]
                   },
-                  session: %Vimond.Session{}
+                  session: %Vimond.Session{vimond_jsessionid: "new_jsessionid_after_put"}
                 }}
     end
 

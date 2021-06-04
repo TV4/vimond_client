@@ -173,6 +173,9 @@ defmodule Vimond.Client.User do
           # Keep updated tokens and append to result of this functio
           new_vimond_authorization_token = Map.get(user_data, :vimond_authorization_token, vimond_authorization_token)
 
+          new_jsessionid = Map.get(user_data, :vimond_jsessionid, jsessionid)
+
+          IO.inspect(user_data, label: "user_data")
           user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
 
           # Remove user keys that should not be sent to Vimond in the update request
@@ -185,28 +188,59 @@ defmodule Vimond.Client.User do
               _, _, right -> right
             end)
 
-          headers = headers_with_tokens(new_vimond_authorization_token, remember_me, jsessionid)
+          headers = headers_with_tokens(new_vimond_authorization_token, remember_me, new_jsessionid)
 
-          request("update", fn ->
-            @http_client.put("user", Jason.encode!(merged_user), headers, config)
-          end)
+          response =
+            request("update", fn ->
+              @http_client.put("user", Jason.encode!(merged_user), headers, config)
+            end)
+
+          response
           |> handle_response(&extract_update_user/2)
           |> case do
             # Put back updated vimond tokens into result if changed
             # add jsessionid
             {:ok, data} ->
-              if new_vimond_authorization_token && new_vimond_authorization_token != vimond_authorization_token do
-                {:ok,
-                 Map.put(data, :session, %Vimond.Session{vimond_authorization_token: new_vimond_authorization_token})}
-              else
-                {:ok, Map.put(data, :session, %Vimond.Session{})}
-              end
+              data =
+                if new_vimond_authorization_token && new_vimond_authorization_token != vimond_authorization_token do
+                  Map.put(data, :session, %Vimond.Session{vimond_authorization_token: new_vimond_authorization_token})
+                else
+                  Map.put(data, :session, %Vimond.Session{})
+                end
+
+              IO.inspect(response, label: :data)
+              data = put_in(data, [:session, :vimond_jsessionid], extract_jsessionid(response.headers))
+
+              {:ok, data}
 
             response ->
               response
           end
         end
       end
+
+      # TODO: Merge with identical functions outside of macro
+      defp extract_jsessionid(%{"set-cookie" => cookies}) do
+        extract_header_value(~r/JSESSIONID=([^;]*)/, cookies)
+      end
+
+      defp extract_jsessionid(_), do: nil
+
+      defp extract_header_value(_regex, []), do: nil
+
+      defp extract_header_value(regex, [header_value | tail]) do
+        Regex.run(regex, header_value, capture: :all_but_first)
+        |> case do
+          [token] when is_binary(token) -> token
+          _ -> extract_header_value(regex, tail)
+        end
+      end
+
+      defp extract_header_value(regex, header_value) when is_binary(header_value) do
+        extract_header_value(regex, [header_value])
+      end
+
+      defp extract_header_value(_regex, _), do: nil
 
       @callback update_signed(binary, User.t(), Config.t()) :: {:ok | :error, map}
       def update_signed(user_id, updated_user = %User{}, config = %Config{}) do
@@ -527,10 +561,10 @@ defmodule Vimond.Client.User do
     end
   end
 
-  def extract_create_user(json, _headers) do
+  def extract_create_user(json, headers) do
     case json do
       %{"id" => _, "userName" => _} ->
-        {:ok, extract_user(json)}
+        {:ok, extract_user(json, headers)}
 
       %{"error" => %{"code" => "USER_MULTIPLE_VALIDATION_ERRORS", "errors" => errors}}
       when is_list(errors) ->
@@ -595,10 +629,10 @@ defmodule Vimond.Client.User do
     |> Map.merge(mandatory)
   end
 
-  def extract_update_user(json, _headers) do
+  def extract_update_user(json, headers) do
     case json do
       %{"id" => _, "userName" => _} ->
-        {:ok, extract_user(json)}
+        {:ok, extract_user(json, headers)}
 
       %{"error" => %{"code" => "UNAUTHORIZED", "description" => reason}} ->
         error(:invalid_session, reason)
@@ -633,7 +667,7 @@ defmodule Vimond.Client.User do
   end
 
   def extract_user_information({:ok, json}) do
-    {:ok, extract_user(json)}
+    {:ok, extract_user(json, [])}
   end
 
   def extract_user_information(error = {:error, _}), do: error
@@ -682,7 +716,7 @@ defmodule Vimond.Client.User do
               vimond_jsessionid: extract_jsessionid(headers)
             }
           }
-          |> Map.merge(extract_user(json["user"]))
+          |> Map.merge(extract_user(json["user"], headers))
         }
 
       %{"code" => "AUTHENTICATION_FAILED", "description" => reason} ->
@@ -825,8 +859,9 @@ defmodule Vimond.Client.User do
     end
   end
 
-  defp extract_user(json) do
+  defp extract_user(json, headers) do
     %{
+      session: %Vimond.Session{vimond_jsessionid: extract_jsessionid(headers)},
       user: %User{
         user_id: to_string(json["id"]),
         username: json["userName"],
