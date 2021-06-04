@@ -143,7 +143,7 @@ defmodule Vimond.Client.User do
         fetch_user_information_signed(user_id, &extract_user_information/1, config)
       end
 
-      @callback update(Session.t(), User.t(), Config.t()) :: {:ok | :error, map}
+      @callback update(Session.t(), binary, User.t(), Config.t()) :: {:ok | :error, map}
       def update(
             %Session{
               vimond_authorization_token: authorization_token,
