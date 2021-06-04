@@ -157,8 +157,8 @@ defmodule Vimond.Client.User do
         update(authorization_token, remember_me, user_id, updated_user, jsessionid, config)
       end
 
+      @callback update(binary, binary, binary, User.t(), Config.t()) :: {:ok | :error, map}
       @callback update(binary, binary, binary, User.t(), binary | atom, Config.t()) :: {:ok | :error, map}
-
       @deprecated "Use update/3 instead."
       def update(
             vimond_authorization_token,
