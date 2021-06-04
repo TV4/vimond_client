@@ -57,6 +57,8 @@ defmodule Vimond.Client.Order do
         current_orders(user_id, vimond_authorization_token, remember_me, jsessionid, config)
       end
 
+      @callback current_orders(binary, binary, binary, Config.t()) ::
+                  {:ok, %{orders: [Order.t()]}} | error()
       @callback current_orders(binary, binary, binary, binary | atom, Config.t()) ::
                   {:ok, %{orders: [Order.t()]}} | error()
       @deprecated "Use current_orders/3 instead"
