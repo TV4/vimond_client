@@ -175,7 +175,6 @@ defmodule Vimond.Client.User do
 
           new_jsessionid = Map.get(user_data, :vimond_jsessionid, jsessionid)
 
-          IO.inspect(user_data, label: "user_data")
           user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
 
           # Remove user keys that should not be sent to Vimond in the update request
@@ -208,7 +207,6 @@ defmodule Vimond.Client.User do
                   Map.put(data, :session, %Vimond.Session{})
                 end
 
-              IO.inspect(response, label: :data)
               data = put_in(data, [:session, :vimond_jsessionid], extract_jsessionid(response.headers))
 
               {:ok, data}
@@ -218,29 +216,6 @@ defmodule Vimond.Client.User do
           end
         end
       end
-
-      # TODO: Merge with identical functions outside of macro
-      defp extract_jsessionid(%{"set-cookie" => cookies}) do
-        extract_header_value(~r/JSESSIONID=([^;]*)/, cookies)
-      end
-
-      defp extract_jsessionid(_), do: nil
-
-      defp extract_header_value(_regex, []), do: nil
-
-      defp extract_header_value(regex, [header_value | tail]) do
-        Regex.run(regex, header_value, capture: :all_but_first)
-        |> case do
-          [token] when is_binary(token) -> token
-          _ -> extract_header_value(regex, tail)
-        end
-      end
-
-      defp extract_header_value(regex, header_value) when is_binary(header_value) do
-        extract_header_value(regex, [header_value])
-      end
-
-      defp extract_header_value(_regex, _), do: nil
 
       @callback update_signed(binary, User.t(), Config.t()) :: {:ok | :error, map}
       def update_signed(user_id, updated_user = %User{}, config = %Config{}) do
@@ -812,11 +787,11 @@ defmodule Vimond.Client.User do
     extract_header_value(~r/rememberMe=(?!deleteMe)([^;]*)/, cookies)
   end
 
-  defp extract_jsessionid(%{"set-cookie" => cookies}) do
+  def extract_jsessionid(%{"set-cookie" => cookies}) do
     extract_header_value(~r/JSESSIONID=([^;]*)/, cookies)
   end
 
-  defp extract_jsessionid(_), do: nil
+  def extract_jsessionid(_), do: nil
 
   defp extract_remember_me_expiry(%{"set-cookie" => cookies}) do
     extract_header_value(~r/rememberMe=(?!deleteMe).*Expires=([^;]*)/, cookies)
@@ -859,9 +834,8 @@ defmodule Vimond.Client.User do
     end
   end
 
-  defp extract_user(json, headers) do
+  defp extract_user(json, _headers) do
     %{
-      session: %Vimond.Session{vimond_jsessionid: extract_jsessionid(headers)},
       user: %User{
         user_id: to_string(json["id"]),
         username: json["userName"],

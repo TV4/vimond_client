@@ -251,7 +251,6 @@ defmodule Vimond.Client.UpdateUserTest do
                 }}
     end
 
-    @tag :wip
     test "when replacing a property and keeping a property using session struct" do
       Vimond.HTTPClientMock
       |> expect(:get, fn "user",
