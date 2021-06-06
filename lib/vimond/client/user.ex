@@ -54,7 +54,6 @@ defmodule Vimond.Client.User do
       end
 
       @callback delete(binary, binary, Config.t()) :: {:ok | :error, map}
-      @deprecated "Pass in session struct instead of authorization token."
       def delete(user_id, vimond_authorization_token, config = %Config{}) when is_binary(vimond_authorization_token) do
         headers = headers(Authorization: "Bearer #{vimond_authorization_token}")
 
