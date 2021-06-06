@@ -285,7 +285,7 @@ defmodule Vimond.Client.User do
         |> handle_response(&extract_reauthenticate/2)
       end
 
-      @callback logout(Vimond.Session.t(), Config.t()) :: {:ok, :error, map}
+      @callback logout(Vimond.Session.t(), Config.t()) :: {:ok | :error, map}
       def logout(
             %Vimond.Session{
               vimond_authorization_token: token,
