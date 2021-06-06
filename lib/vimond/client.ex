@@ -57,9 +57,9 @@ defmodule Vimond.Client do
   defp headers_with_tokens(vimond_authorization_token, remember_me, jsessionid) do
     [
       Authorization: "Bearer #{vimond_authorization_token}",
-      Cookie: "rememberMe=#{remember_me}",
-      Cookie: "JSESSIONID=#{jsessionid}"
+      Cookie: "rememberMe=#{remember_me}"
     ]
+    |> Kernel.++(if jsessionid != :no_jsessionid, do: [Cookie: "JSESSIONID=#{jsessionid}"], else: [])
     |> headers()
   end
 end
