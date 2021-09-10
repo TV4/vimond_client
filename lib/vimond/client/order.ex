@@ -28,7 +28,7 @@ defmodule Vimond.Client.Order do
       end
 
       @callback initialize_order_signed(binary, Order.t(), Config.t()) ::
-                  {:ok, integer} | {:error, :failed_to_initialize_order}
+                  {:ok, map} | {:error, :failed_to_initialize_order}
       def initialize_order_signed(user_id, %Order{product_payment_id: product_payment_id}, config = %Config{}) do
         body =
           %{
