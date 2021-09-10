@@ -199,8 +199,9 @@ defmodule Vimond.Client.OrderPaymentTest do
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
 
       assert capture_log(fn ->
-               assert initialize_order_payment_signed("12345", order, @config) == {:error, :failed_to_initialize_order}
-             end) =~ ~r/Error initializing order: %Vimond.Response/
+               assert initialize_order_payment_signed("12345", order, @config) ==
+                        {:error, :failed_to_initialize_order_payment}
+             end) =~ ~r/Error initializing order payment: %Vimond.Response/
     end
   end
 
@@ -269,6 +270,28 @@ defmodule Vimond.Client.OrderPaymentTest do
       end)
 
       assert complete_order_payment_signed("12345", "orderId=100521864&...", @config) == {:ok, 100_521_864}
+    end
+
+    test "fails" do
+      Vimond.HTTPClientMock
+      |> expect(:get_signed, fn "order/callback?orderId=100521864&...",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        json = %{
+          "code" => "11111",
+          "description" => "MOCKED RESPONSE"
+        }
+
+        %Vimond.Response{status_code: 404, body: Jason.encode!(json)}
+      end)
+
+      assert capture_log(fn ->
+               assert complete_order_payment_signed("12345", "orderId=100521864&...", @config) ==
+                        {:error, :failed_to_complete_order_payment}
+             end) =~ ~r/Error completing order payment: %Vimond.Response/
     end
   end
 end

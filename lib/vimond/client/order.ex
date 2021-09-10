@@ -28,7 +28,7 @@ defmodule Vimond.Client.Order do
       end
 
       @callback initialize_order_payment_signed(binary, Order.t(), Config.t()) ::
-                  {:ok, map} | {:error, :failed_to_initialize_order}
+                  {:ok, map} | {:error, :failed_to_initialize_order_payment}
       def initialize_order_payment_signed(user_id, %Order{product_payment_id: product_payment_id}, config = %Config{}) do
         body =
           %{
@@ -48,8 +48,8 @@ defmodule Vimond.Client.Order do
             end
 
           error ->
-            Logger.error("Error initializing order: #{inspect(error)}")
-            {:error, :failed_to_initialize_order}
+            Logger.error("Error initializing order payment: #{inspect(error)}")
+            {:error, :failed_to_initialize_order_payment}
         end
       end
 
@@ -57,7 +57,7 @@ defmodule Vimond.Client.Order do
                   vimond_user_id :: binary,
                   returned_payment_data :: binary,
                   config :: Vimond.Config.t()
-                ) :: {:ok, order_id :: integer}
+                ) :: {:ok, order_id :: integer} | {:error, :failed_to_complete_order_payment}
       def complete_order_payment_signed(vimond_user_id, returned_payment_data, config) do
         request("initialize_order_payment_signed", fn ->
           @http_client.get_signed("order/callback?#{returned_payment_data}", headers(), config)
@@ -66,6 +66,10 @@ defmodule Vimond.Client.Order do
           %Vimond.Response{body: body, status_code: 200} ->
             %{"id" => order_id} = Jason.decode!(body)
             {:ok, order_id}
+
+          error ->
+            Logger.error("Error completing order payment: #{inspect(error)}")
+            {:error, :failed_to_complete_order_payment}
         end
       end
 
