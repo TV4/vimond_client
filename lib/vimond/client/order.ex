@@ -43,7 +43,8 @@ defmodule Vimond.Client.Order do
         |> case do
           %Vimond.Response{body: body, status_code: 200} ->
             case Jason.decode(body) do
-              {:ok, %{"id" => order_id}} -> {:ok, order_id}
+              {:ok, %{"id" => order_id, "paymentObject" => %{"url" => url}}} ->
+                {:ok, %{order_id: order_id, payment_url: url}}
             end
 
           error ->

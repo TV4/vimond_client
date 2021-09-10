@@ -175,13 +175,14 @@ defmodule Vimond.Client.InitializeOrderTest do
 
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
 
-      assert initialize_order_signed("12345", order, @config) == {:ok, 1}
+      assert initialize_order_signed("12345", order, @config) ==
+               {:ok, %{order_id: 1, payment_url: "https://test.epayment.nets.eu/..."}}
     end
 
     test "fails" do
       Vimond.HTTPClientMock
       |> expect(:post_signed, fn "order",
-                                 body,
+                                 _body,
                                  [
                                    Accept: "application/json; v=3; charset=UTF-8",
                                    "Content-Type": "application/json; v=3; charset=UTF-8"
