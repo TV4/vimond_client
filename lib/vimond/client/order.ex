@@ -54,11 +54,10 @@ defmodule Vimond.Client.Order do
       end
 
       @callback complete_order_payment_signed(
-                  vimond_user_id :: binary,
                   returned_payment_data :: binary,
                   config :: Vimond.Config.t()
                 ) :: {:ok, order_id :: integer} | {:error, :failed_to_complete_order_payment}
-      def complete_order_payment_signed(vimond_user_id, returned_payment_data, config) do
+      def complete_order_payment_signed(returned_payment_data, config) do
         request("initialize_order_payment_signed", fn ->
           @http_client.get_signed("order/callback?#{returned_payment_data}", headers(), config)
         end)

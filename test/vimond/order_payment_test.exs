@@ -269,7 +269,7 @@ defmodule Vimond.Client.OrderPaymentTest do
         %Vimond.Response{status_code: 200, body: response_body}
       end)
 
-      assert complete_order_payment_signed("12345", "orderId=100521864&...", @config) == {:ok, 100_521_864}
+      assert complete_order_payment_signed("orderId=100521864&...", @config) == {:ok, 100_521_864}
     end
 
     test "fails" do
@@ -289,7 +289,7 @@ defmodule Vimond.Client.OrderPaymentTest do
       end)
 
       assert capture_log(fn ->
-               assert complete_order_payment_signed("12345", "orderId=100521864&...", @config) ==
+               assert complete_order_payment_signed("orderId=100521864&...", @config) ==
                         {:error, :failed_to_complete_order_payment}
              end) =~ ~r/Error completing order payment: %Vimond.Response/
     end
