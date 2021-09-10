@@ -13,7 +13,7 @@ defmodule Vimond.Client.InitializeOrderTest do
     api_secret: "apisecret"
   }
 
-  describe "initialize_order_signed" do
+  describe "initialize_order_payment_signed" do
     test "succeeds" do
       Vimond.HTTPClientMock
       |> expect(:post_signed, fn "order",
@@ -175,7 +175,7 @@ defmodule Vimond.Client.InitializeOrderTest do
 
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
 
-      assert initialize_order_signed("12345", order, @config) ==
+      assert initialize_order_payment_signed("12345", order, @config) ==
                {:ok, %{order_id: 1, payment_url: "https://test.epayment.nets.eu/..."}}
     end
 
@@ -199,7 +199,7 @@ defmodule Vimond.Client.InitializeOrderTest do
       order = %Vimond.Order{product_payment_id: 4224, referrer: "telia OTT-B2B"}
 
       assert capture_log(fn ->
-               assert initialize_order_signed("12345", order, @config) == {:error, :failed_to_initialize_order}
+               assert initialize_order_payment_signed("12345", order, @config) == {:error, :failed_to_initialize_order}
              end) =~ ~r/Error initializing order: %Vimond.Response/
     end
   end

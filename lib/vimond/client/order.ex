@@ -27,9 +27,9 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback initialize_order_signed(binary, Order.t(), Config.t()) ::
+      @callback initialize_order_payment_signed(binary, Order.t(), Config.t()) ::
                   {:ok, map} | {:error, :failed_to_initialize_order}
-      def initialize_order_signed(user_id, %Order{product_payment_id: product_payment_id}, config = %Config{}) do
+      def initialize_order_payment_signed(user_id, %Order{product_payment_id: product_payment_id}, config = %Config{}) do
         body =
           %{
             "userId" => String.to_integer(user_id),
@@ -37,7 +37,7 @@ defmodule Vimond.Client.Order do
           }
           |> Jason.encode!()
 
-        request("initialize_order_signed", fn ->
+        request("initialize_order_payment_signed", fn ->
           @http_client.post_signed("order", body, headers(), config)
         end)
         |> case do
@@ -52,6 +52,8 @@ defmodule Vimond.Client.Order do
             {:error, :failed_to_initialize_order}
         end
       end
+
+      @callback complete_order_payment_signed()
 
       @callback all_orders_signed(binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
       def all_orders_signed(user_id, config = %Config{}) do
