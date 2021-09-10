@@ -53,7 +53,13 @@ defmodule Vimond.Client.Order do
         end
       end
 
-      @callback complete_order_payment_signed()
+      @callback complete_order_payment_signed(
+                  vimond_user_id :: binary,
+                  returned_payment_data :: binary,
+                  config :: Vimond.Config.t()
+                ) :: {:ok, order_id :: integer}
+      def complete_order_payment_signed(vimond_user_id, returned_payment_data, config) do
+      end
 
       @callback all_orders_signed(binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()
       def all_orders_signed(user_id, config = %Config{}) do

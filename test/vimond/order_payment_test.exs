@@ -1,4 +1,4 @@
-defmodule Vimond.Client.InitializeOrderTest do
+defmodule Vimond.Client.OrderPaymentTest do
   use ExUnit.Case, async: true
   alias Vimond.Config
   import Vimond.Client
@@ -201,6 +201,12 @@ defmodule Vimond.Client.InitializeOrderTest do
       assert capture_log(fn ->
                assert initialize_order_payment_signed("12345", order, @config) == {:error, :failed_to_initialize_order}
              end) =~ ~r/Error initializing order: %Vimond.Response/
+    end
+  end
+
+  describe "complete_order_payment_signed" do
+    test "succeeds" do
+      assert complete_order_payment_signed("12345", "orderId=100521864&", @config) == {:ok, 100_521_864}
     end
   end
 end
