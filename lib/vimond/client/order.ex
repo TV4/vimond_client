@@ -59,6 +59,14 @@ defmodule Vimond.Client.Order do
                   config :: Vimond.Config.t()
                 ) :: {:ok, order_id :: integer}
       def complete_order_payment_signed(vimond_user_id, returned_payment_data, config) do
+        request("initialize_order_payment_signed", fn ->
+          @http_client.get_signed("order/callback?#{returned_payment_data}", headers(), config)
+        end)
+        |> case do
+          %Vimond.Response{body: body, status_code: 200} ->
+            %{"id" => order_id} = Jason.decode!(body)
+            {:ok, order_id}
+        end
       end
 
       @callback all_orders_signed(binary, Config.t()) :: {:ok, %{orders: [Order.t()]}} | error()

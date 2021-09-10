@@ -206,7 +206,69 @@ defmodule Vimond.Client.OrderPaymentTest do
 
   describe "complete_order_payment_signed" do
     test "succeeds" do
-      assert complete_order_payment_signed("12345", "orderId=100521864&", @config) == {:ok, 100_521_864}
+      Vimond.HTTPClientMock
+      |> expect(:get_signed, fn "order/callback?orderId=100521864&...",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        response_body =
+          %{
+            "id" => 100_521_864,
+            "startDate" => "2021-07-13T16:08:28Z",
+            "autorenewErrors" => 0,
+            "platformId" => 27,
+            "endDate" => "2021-07-14T16:08:28Z",
+            "orderRef" => "100344858",
+            "status" => "ACTIVE",
+            "paymentInfoExpiryDate" => "2024-01-01T00:00:00Z",
+            "period" => "PT86400S",
+            "userPaymentMethod" => %{
+              "allowOneClickBuy" => true,
+              "expirationDate" => "2024-01-01T00:00:00Z",
+              "expireDate" => "2024-01-01T00:00:00Z",
+              "extAgreementRef" => "667296977",
+              "id" => "57533d54-95f6-4ace-9d4b-22aaa6231298",
+              "paymentInfo" => "4571 10** **** 0000",
+              "paymentProviderId" => 33,
+              "registered" => "2021-07-13T16:08:41Z",
+              "userId" => 100_586_798,
+              "userPaymentMethodStatus" => "ACTIVE",
+              "userPaymentMethodType" => "CREDIT_CARD"
+            },
+            "productGroupId" => 1009,
+            "productName" => "Premium Plus 24 h",
+            "trialOverride" => "DEFAULT",
+            "paymentInfo" => "4571 10** **** 0000",
+            "externalOrderRef" => "667296977",
+            "ip" => "78.69.123.215",
+            "currency" => "SEK",
+            "productPaymentUri" => %{
+              "uri" => "/api/cse/productgroup/1009/products/3080/productPayments/6203"
+            },
+            "activePeriods" => 1,
+            "productPaymentId" => 6203,
+            "registered" => "2021-07-13T16:08:28Z",
+            "productGroupUri" => %{"uri" => "/api/cse/productgroup/1009"},
+            "accessEndDate" => "2021-07-14T16:08:28Z",
+            "initPrice" => 1.0,
+            "productUri" => %{"uri" => "/api/cse/productgroup/1009/products/3080"},
+            "vat" => 0.0,
+            "autorenewStatus" => "NOT_ELIGIBLE",
+            "userId" => 100_586_798,
+            "price" => 1.0,
+            "earliestEndDate" => "2021-07-14T16:08:28Z",
+            "statusText" => "Purchase sucessfull",
+            "productId" => 3080,
+            "uri" => "/api/cse/order/100521864"
+          }
+          |> Jason.encode!()
+
+        %Vimond.Response{status_code: 200, body: response_body}
+      end)
+
+      assert complete_order_payment_signed("12345", "orderId=100521864&...", @config) == {:ok, 100_521_864}
     end
   end
 end
