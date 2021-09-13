@@ -276,7 +276,7 @@ defmodule Vimond.Client.OrderPaymentTest do
                   product_id: 3080,
                   product_group_id: 1009,
                   product_payment_id: 6203,
-                  end_date:
+                  end_date: ~U[2021-07-14 16:08:28Z]
                 }}
     end
 
