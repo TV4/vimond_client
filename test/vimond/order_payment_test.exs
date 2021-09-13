@@ -1,6 +1,6 @@
 defmodule Vimond.Client.OrderPaymentTest do
   use ExUnit.Case, async: true
-  alias Vimond.Config
+  alias Vimond.{Config, Order}
   import Vimond.Client
   import ExUnit.CaptureLog
   import Hammox
@@ -269,7 +269,15 @@ defmodule Vimond.Client.OrderPaymentTest do
         %Vimond.Response{status_code: 200, body: response_body}
       end)
 
-      assert complete_order_payment_signed("orderId=100521864&...", @config) == {:ok, 100_521_864}
+      assert complete_order_payment_signed("orderId=100521864&...", @config) ==
+               {:ok,
+                %Order{
+                  order_id: 100_521_864,
+                  product_id: 3080,
+                  product_group_id: 1009,
+                  product_payment_id: 6203,
+                  end_date:
+                }}
     end
 
     test "fails" do
