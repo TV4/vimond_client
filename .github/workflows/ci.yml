@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - id: versions
+        name: Read .tool-versions
+        uses: marocchino/tool-versions-action@v1
+      - name: Get current date
+        id: time
+        run: echo "::set-output name=unix::$(date +'%s')"
+      - name: Cache deps and _build
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ steps.versions.outputs.elixir }}-${{ steps.versions.outputs.erlang }}-${{ steps.time.outputs.unix }}
+          restore-keys: |
+            ${{ steps.versions.outputs.elixir }}-${{ steps.versions.outputs.erlang }}
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{steps.versions.outputs.elixir}}
+          otp-version: ${{steps.versions.outputs.erlang}}
+      - name: Install dependencies
+        run: mix deps.get
+      - name: Check Formatting
+        run: mix format --check-formatted
+      - name: Run tests
+        run: mix test --trace --warnings-as-errors

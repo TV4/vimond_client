@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :vimond_client,
   vimond_base_url: "https://vimond-rest-api.example.com/api/platform/",
