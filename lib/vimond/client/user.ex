@@ -87,6 +87,24 @@ defmodule Vimond.Client.User do
         end
       end
 
+      @callback user_id_by_email_signed(binary, Config.t()) :: {:ok, number} | {:error, map}
+      def user_id_by_email_signed(email, config = %Config{}) do
+        with %Vimond.Response{body: body, status_code: 200} <-
+               @http_client.get_signed("user/#{email}", headers(), config),
+             {:ok, user_data} <- Jason.decode(body) do
+          {:ok, user_data["id"]}
+        else
+          %Vimond.Response{body: body, status_code: status_code} ->
+            case status_code do
+              401 -> {:error, %{type: :invalid_credentials, source_errors: [body]}}
+              code -> {:error, %{type: :unhandled_error, source_errors: [body]}}
+            end
+
+          error ->
+            {:error, %{type: :unknown_error, source_errors: [inspect(error)]}}
+        end
+      end
+
       @callback user_information(Session.t(), Config.t()) :: {:ok | :error, map}
       def user_information(
             %Session{
