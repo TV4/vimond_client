@@ -94,14 +94,14 @@ defmodule Vimond.Client.User do
              {:ok, user_data} <- Jason.decode(body) do
           {:ok, user_data["id"]}
         else
-          %Vimond.Response{body: body, status_code: status_code} ->
+          %Vimond.Response{body: body, status_code: status_code} = response ->
             case status_code do
               401 -> {:error, %{type: :invalid_credentials, source_errors: [body]}}
-              code -> {:error, %{type: :unhandled_error, source_errors: [body]}}
+              code -> handle_user_id_by_email_error_response(response)
             end
 
           error ->
-            {:error, %{type: :unknown_error, source_errors: [inspect(error)]}}
+            {:error, %{type: :http_error, source_errors: [inspect(error)]}}
         end
       end
 
@@ -663,6 +663,15 @@ defmodule Vimond.Client.User do
   end
 
   def extract_user_information(error = {:error, _}), do: error
+
+  def handle_user_id_by_email_error_response(%Vimond.Response{body: body}) do
+    %{"error" => %{"description" => reason, "code" => code}} = Jason.decode!(body)
+
+    case code do
+      "USER_NOT_FOUND" -> error(:user_not_found, code)
+      _ -> error(:unknown_error, "code: #{code}, reason: #{reason}")
+    end
+  end
 
   def handle_delete_response(%Vimond.Response{status_code: 204}) do
     {:ok, %{message: "User has been deleted"}}

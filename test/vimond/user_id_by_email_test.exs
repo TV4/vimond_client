@@ -68,6 +68,62 @@ defmodule Vimond.Client.UserIdByEmailTest do
                {:error, %{source_errors: ["{\"code\":\"AUTHENTICATION_FAILED\"}"], type: :invalid_credentials}}
     end
 
+    test "failure when user not found in vimond" do
+      Vimond.HTTPClientMock
+      |> expect(:get_signed, fn "user/some.person@example.com",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        json = %{
+          "error" => %{
+            "description" => "reason",
+            "code" => "USER_NOT_FOUND"
+          }
+        }
+
+        %Vimond.Response{
+          status_code: 404,
+          body: Jason.encode!(json),
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          }
+        }
+      end)
+
+      assert user_id_by_email_signed("some.person@example.com", @config) ==
+               {:error, %{source_errors: ["USER_NOT_FOUND"], type: :user_not_found}}
+    end
+
+    test "failure with unknown error" do
+      Vimond.HTTPClientMock
+      |> expect(:get_signed, fn "user/some.person@example.com",
+                                [
+                                  Accept: "application/json; v=3; charset=UTF-8",
+                                  "Content-Type": "application/json; v=3; charset=UTF-8"
+                                ],
+                                @config ->
+        json = %{
+          "error" => %{
+            "description" => "reason",
+            "code" => "unknown_error_code"
+          }
+        }
+
+        %Vimond.Response{
+          status_code: 000,
+          body: Jason.encode!(json),
+          headers: %{
+            "content-type" => "application/json; v=\"3\";charset=UTF-8"
+          }
+        }
+      end)
+
+      assert user_id_by_email_signed("some.person@example.com", @config) ==
+               {:error, %{source_errors: ["code: unknown_error_code, reason: reason"], type: :unknown_error}}
+    end
+
     test "error contacting Vimond" do
       Vimond.HTTPClientMock
       |> expect(:get_signed, fn "user/some.person@example.com",
@@ -80,7 +136,7 @@ defmodule Vimond.Client.UserIdByEmailTest do
       end)
 
       assert user_id_by_email_signed("some.person@example.com", @config) ==
-               {:error, %{source_errors: ["%Vimond.Error{message: \"econnrefused\"}"], type: :unknown_error}}
+               {:error, %{source_errors: ["%Vimond.Error{message: \"econnrefused\"}"], type: :http_error}}
     end
   end
 end
