@@ -8,7 +8,12 @@ defmodule Vimond.User do
             zip_code: nil,
             country_code: nil,
             year_of_birth: nil,
-            properties: []
+            properties: [],
+            postal_address: nil,
+            gender: nil,
+            email_status: nil,
+            mobile_status: nil,
+            mobile_number: nil
 
   @type t :: %__MODULE__{}
 

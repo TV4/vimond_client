@@ -29,7 +29,10 @@ defmodule Vimond.Client.User do
             zip: user.zip_code,
             country: user.country_code,
             dateOfBirth: TimeConverter.year_to_iso8601(user.year_of_birth),
-            properties: properties_payload(user)
+            properties: properties_payload(user),
+            gender: user.gender,
+            postal_address: user.postal_address,
+            mobile_number: user.mobile_number
           }
           |> Jason.encode!()
 
@@ -844,7 +847,12 @@ defmodule Vimond.Client.User do
         zip_code: json["zip"],
         country_code: json["country"],
         year_of_birth: TimeConverter.iso8601_to_year(json["dateOfBirth"]),
-        properties: extract_properties(json["properties"]) |> elem(1)
+        properties: extract_properties(json["properties"]) |> elem(1),
+        postal_address: json["address"],
+        gender: json["gender"],
+        email_status: json["emailStatus"],
+        mobile_status: json["mobileStatus"],
+        mobile_number: json["mobileNumber"]
       }
     }
   end
