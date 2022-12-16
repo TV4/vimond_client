@@ -36,8 +36,8 @@ defmodule Vimond.Client.User do
             dateOfBirth: TimeConverter.year_to_iso8601(user.year_of_birth),
             properties: properties_payload(user),
             gender: user.gender,
-            postal_address: user.postal_address,
-            mobile_number: user.mobile_number
+            address: user.postal_address,
+            mobileNumber: user.mobile_number
           }
           |> Jason.encode!()
 
