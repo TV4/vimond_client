@@ -396,6 +396,12 @@ defmodule Vimond.Client.User do
         end
       end
 
+      def update_password_signed(user_id, new_password, config = %Config{}) do
+        body = Plug.Conn.Query.encode(%{userId: user_id, newPassword: new_password})
+        headers = headers(Accept: "application/json;v=2")
+        @http_client.put_signed("user/password", body, headers, config)
+      end
+
       # User properties
       @callback set_property_signed(binary, Property.t(), Config.t()) :: :ok
       def set_property_signed(user_id, %Property{} = property, config = %Config{}) do
