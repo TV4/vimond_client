@@ -17,6 +17,23 @@ defmodule Vimond.User do
 
   @type t :: %__MODULE__{}
 
+  @derive {Jason.Encoder, only: ~w(
+            user_id
+            username
+            email
+            first_name
+            last_name
+            zip_code
+            country_code
+            year_of_birth
+            properties
+            postal_address
+            gender
+            email_status
+            mobile_status
+            mobile_number
+          )a}
+
   defdelegate fetch(user, key), to: Map
   defdelegate get_and_update(user_output, key, fun), to: Map
 end
