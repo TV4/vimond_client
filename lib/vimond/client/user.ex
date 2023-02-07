@@ -403,6 +403,7 @@ defmodule Vimond.Client.User do
       end
 
       # User properties
+      @callback set_properties_signed(binary, [Property.t()], Config.t()) :: :ok
       def set_properties_signed(user_id, properties, config = %Config{}) do
         vimond_properties = get_properties_signed(user_id, config)
 
