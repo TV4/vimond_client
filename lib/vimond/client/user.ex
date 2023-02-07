@@ -403,19 +403,26 @@ defmodule Vimond.Client.User do
       end
 
       # User properties
+      def set_properties_signed(user_id, properties, config = %Config{}) do
+        vimond_properties = get_properties_signed(user_id, config)
+
+        properties
+        |> Enum.each(&do_set_property_signed(user_id, &1, config, vimond_properties))
+      end
+
       @callback set_property_signed(binary, Property.t(), Config.t()) :: :ok
       def set_property_signed(user_id, %Property{} = property, config = %Config{}) do
-        get_properties_signed(user_id, config)
-        |> case do
-          {:ok, properties} ->
-            Enum.find(properties, fn %Property{name: name} -> name == property.name end)
-            |> case do
-              %Property{id: id} ->
-                update_property_signed(user_id, %Property{property | id: id}, config)
+        do_set_property_signed(user_id, property, config, get_properties_signed(user_id, config))
+      end
 
-              nil ->
-                create_property_signed(user_id, property, config)
-            end
+      defp do_set_property_signed(user_id, property, config, {:ok, properties}) do
+        Enum.find(properties, fn %Property{name: name} -> name == property.name end)
+        |> case do
+          %Property{id: id} ->
+            update_property_signed(user_id, %Property{property | id: id}, config)
+
+          nil ->
+            create_property_signed(user_id, property, config)
         end
       end
 
