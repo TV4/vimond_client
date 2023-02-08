@@ -37,7 +37,8 @@ defmodule Vimond.Client.User do
             properties: properties_payload(user),
             gender: user.gender,
             address: user.postal_address,
-            mobileNumber: user.mobile_number
+            mobileNumber: user.mobile_number,
+            emailStatus: user.email_status
           }
           |> Jason.encode!()
 
