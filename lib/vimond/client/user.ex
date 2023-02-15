@@ -1,4 +1,5 @@
 defmodule Vimond.Client.User do
+  require Logger
   alias Vimond.{Property, Session, User}
 
   @unexpected_error {:error, %{type: :generic, source_errors: ["Unexpected error"]}}
@@ -643,7 +644,8 @@ defmodule Vimond.Client.User do
       %{"error" => %{"code" => "USER_INVALID_USERNAME", "description" => reason}} ->
         error(:username_already_in_use, reason)
 
-      _ ->
+      response ->
+        Logger.warning("Vimond client unexpected response: #{inspect(response)}")
         @unexpected_error
     end
   end
