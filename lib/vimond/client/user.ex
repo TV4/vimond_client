@@ -582,7 +582,9 @@ defmodule Vimond.Client.User do
 
     properties =
       Enum.reject(properties, fn property ->
-        property.allow_user_to_update == false
+        property.allow_user_to_update == false or
+          is_nil(property.name) or
+          property.name == ""
       end)
 
     new_properties = properties_payload(updated_user)
