@@ -234,8 +234,8 @@ defmodule Vimond.Client.User do
         end
       end
 
-      @callback update_signed(binary, User.t(), Config.t()) :: {:ok | :error, map}
-      def update_signed(user_id, updated_user = %User{}, config = %Config{}) do
+      @callback update_signed(binary, map, Config.t()) :: {:ok | :error, map}
+      def update_signed(user_id, updated_user = %{}, config = %Config{}) do
         with {:ok, user_data} <- fetch_user_information_signed(user_id, &to_atom_keys/1, config) do
           user_data = Map.put(user_data, :properties, updated_properties_payload(user_data, updated_user))
 
