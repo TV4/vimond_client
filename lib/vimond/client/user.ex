@@ -8,7 +8,8 @@ defmodule Vimond.Client.User do
     first_name: :firstName,
     last_name: :lastName,
     zip_code: :zip,
-    country_code: :country
+    country_code: :country,
+    mobile_number: :mobileNumber
   }
 
   defmacro __using__(_) do
