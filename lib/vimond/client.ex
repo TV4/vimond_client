@@ -71,6 +71,8 @@ defmodule Vimond.Client do
     |> (&%Vimond.Response{body: &1, status_code: status, headers: headers}).()
   end
 
+  defp omit_fields(response, _), do: response
+
   defp fields_to_omit do
     Application.get_env(:vimond_client, :fields_to_omit, [
       "country",
