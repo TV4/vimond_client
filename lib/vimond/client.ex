@@ -15,7 +15,7 @@ defmodule Vimond.Client do
   defp request(log_message, request_function) do
     Logger.info("count#outgoing.vimond.#{log_message}.start=1")
     {time, vimond_response} = :timer.tc(request_function)
-    Logger.debug("Vimond response for #{log_message}: #{inspect(vimond_response)}")
+    Logger.debug("Vimond response for #{log_message}: #{inspect(omit_fields(vimond_response, fields_to_omit))}")
 
     Logger.info(
       "Vimond request time: measure#vimond.#{log_message}=#{div(time, 1000)}ms count#outgoing.vimond.#{log_message}.end=1"
@@ -61,5 +61,24 @@ defmodule Vimond.Client do
     ]
     |> Kernel.++(if jsessionid != :no_jsessionid, do: [Cookie: "JSESSIONID=#{jsessionid}"], else: [])
     |> headers()
+  end
+
+  defp omit_fields(map, fields_to_omit) do
+    Enum.reduce(fields_to_omit, map, fn field_to_omit, acc ->
+      Map.delete(acc, field_to_omit)
+    end)
+  end
+
+  defp fields_to_omit do
+    Application.get_env(:vimond_client, :fields_to_omit, [
+      "country",
+      "dateOfBirth",
+      "email",
+      "firstName",
+      "lastName",
+      "mobileNumber",
+      "userName",
+      "zip"
+    ])
   end
 end
