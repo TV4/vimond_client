@@ -63,10 +63,11 @@ defmodule Vimond.Client do
     |> headers()
   end
 
-  defp omit_fields(map, fields_to_omit) do
-    Enum.reduce(fields_to_omit, map, fn field_to_omit, acc ->
+  defp omit_fields(%Vimond.Response{body: body, status_code: status, headers: headers}, fields_to_omit) do
+    Enum.reduce(fields_to_omit, body, fn field_to_omit, acc ->
       Map.delete(acc, field_to_omit)
     end)
+    |> (&%Vimond.Response{body: &1, status_code: status, headers: headers}).()
   end
 
   defp fields_to_omit do
