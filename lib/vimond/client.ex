@@ -76,9 +76,9 @@ defmodule Vimond.Client do
       "email",
       "firstName",
       "lastName",
-      "mobileNumber"
+      "mobileNumber",
       "userName",
-      "zip",
+      "zip"
     ])
   end
 end
