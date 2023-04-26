@@ -63,6 +63,8 @@ defmodule Vimond.Client do
     |> headers()
   end
 
+  defp omit_fields(%Vimond.Response{body: ""} = response, _), do: response
+
   defp omit_fields(%Vimond.Response{body: body, status_code: status, headers: headers}, fields_to_omit) do
     Enum.reduce(fields_to_omit, Jason.decode!(body), fn field_to_omit, acc ->
       if is_list(acc) do
