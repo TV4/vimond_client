@@ -15,7 +15,7 @@ defmodule Vimond.Client do
   defp request(log_message, request_function) do
     Logger.info("count#outgoing.vimond.#{log_message}.start=1")
     {time, vimond_response} = :timer.tc(request_function)
-    Logger.debug("Vimond response for #{log_message}: #{inspect(omit_fields(vimond_response, fields_to_omit))}")
+    Logger.debug("Vimond response for #{log_message}: #{inspect(omit_fields(vimond_response, fields_to_omit()))}")
 
     Logger.info(
       "Vimond request time: measure#vimond.#{log_message}=#{div(time, 1000)}ms count#outgoing.vimond.#{log_message}.end=1"
