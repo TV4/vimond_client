@@ -15,7 +15,7 @@ jobs:
         uses: marocchino/tool-versions-action@v1
       - name: Get current date
         id: time
-        run: echo "::set-output name=unix::$(date +'%s')"
+        run: echo "unix=$(date +'%s')" >> $GITHUB_OUTPUT
       - name: Cache deps and _build
         uses: actions/cache@v2
         with:
