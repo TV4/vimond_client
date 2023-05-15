@@ -63,18 +63,20 @@ defmodule Vimond.Client do
     |> headers()
   end
 
-  defp omit_fields(%Vimond.Response{body: ""} = response, _), do: response
-
-  defp omit_fields(%Vimond.Response{body: body, status_code: status, headers: headers}, fields_to_omit) do
-    Enum.reduce(fields_to_omit, Jason.decode!(body), fn field_to_omit, acc ->
-      if is_list(acc) do
-        Enum.map(acc, fn x -> Map.delete(x, field_to_omit) end)
-      else
-        Map.delete(acc, field_to_omit)
-      end
-    end)
-    |> Jason.encode!()
-    |> (&%Vimond.Response{body: &1, status_code: status, headers: headers}).()
+  defp omit_fields(%Vimond.Response{body: body} = response, fields_to_omit) do
+    with {:ok, json} <- Jason.decode(body) do
+      Enum.reduce(fields_to_omit, json, fn field_to_omit, acc ->
+        if is_list(acc) do
+          Enum.map(acc, fn x -> Map.delete(x, field_to_omit) end)
+        else
+          Map.delete(acc, field_to_omit)
+        end
+      end)
+      |> Jason.encode!()
+      |> (&%{response | body: &1}).()
+    else
+      _ -> response
+    end
   end
 
   defp omit_fields(response, _), do: response
