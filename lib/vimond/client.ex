@@ -36,6 +36,7 @@ defmodule Vimond.Client do
         extraction_function.(json, headers)
 
       _ ->
+        Logger.error("Bad Vimond response: #{inspect(body)}")
         {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
     end
   end

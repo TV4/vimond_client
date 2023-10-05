@@ -659,6 +659,7 @@ defmodule Vimond.Client.User do
     |> Map.values()
     |> case do
       [%Property{id: nil, name: nil, value: nil}] ->
+        Logger.error("Bad response from Vimond: Empty property")
         {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
 
       properties ->
@@ -697,6 +698,7 @@ defmodule Vimond.Client.User do
         {:error, %{type: :user_not_found, source_errors: [reason]}}
 
       _ ->
+        Logger.error("Bad vimond response: #{inspect(body)}")
         {:error, %{type: :bad_vimond_response, source_errors: ["Could not parse Vimond response"]}}
     end
   end
